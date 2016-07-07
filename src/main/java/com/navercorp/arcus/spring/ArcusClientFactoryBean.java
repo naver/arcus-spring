@@ -37,6 +37,8 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
 	private int poolSize = 4;
 	private int frontCacheExpireTime = DefaultConnectionFactory.DEFAULT_FRONTCACHE_EXPIRETIME;
 	private int maxFrontCacheElements = DefaultConnectionFactory.DEFAULT_MAX_FRONTCACHE_ELEMENTS;
+	private boolean frontCacheCopyOnRead = DefaultConnectionFactory.DEFAULT_FRONT_CACHE_COPY_ON_READ;
+	private boolean frontCacheCopyOnWrite = DefaultConnectionFactory.DEFAULT_FRONT_CACHE_COPY_ON_WRITE;
 	private int timeoutExceptionThreshold = 100;
 	private long maxReconnectDelay = DefaultConnectionFactory.DEFAULT_MAX_RECONNECT_DELAY;
 
@@ -55,6 +57,14 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
 
 	public void setMaxFrontCacheElements(int maxFrontCacheElements) {
 		this.maxFrontCacheElements = maxFrontCacheElements;
+	}
+
+	public void setFrontCacheCopyOnRead(boolean copyOnRead) {
+		this.frontCacheCopyOnRead = copyOnRead;
+	}
+
+	public void setFrontCacheCopyOnWrite(boolean copyOnWrite) {
+		this.frontCacheCopyOnWrite = copyOnWrite;
 	}
 
 	public void setGlobalTranscoder(Transcoder<Object> tc) {
@@ -89,6 +99,8 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
 		ConnectionFactoryBuilder cfb = new ConnectionFactoryBuilder();
 		cfb.setFrontCacheExpireTime(frontCacheExpireTime);
 		cfb.setTimeoutExceptionThreshold(timeoutExceptionThreshold);
+		cfb.setFrontCacheCopyOnRead(frontCacheCopyOnRead);
+		cfb.setFrontCacheCopyOnWrite(frontCacheCopyOnWrite);
 		cfb.setMaxReconnectDelay(maxReconnectDelay);
 		if (maxFrontCacheElements > 0) {
 			cfb.setMaxFrontCacheElements(maxFrontCacheElements);
