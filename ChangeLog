@@ -1,2 +1,7 @@
+2016-07-14 [version 1.9.4]
+	* [Feature] Added copyOnWrite / copyOnRead to ARCUS front cache.
+	  - It depends on arcus-java-client 1.9.4.
+	* [Fix] Add hashcode and remove space for generating unique key strings.
+
 2014-05-15 [version 1.0.0] stable
 	* arcus-spring 1.0.0 is opened. (Apache License 2.0)
