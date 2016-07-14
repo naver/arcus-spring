@@ -212,7 +212,7 @@ public class ArcusCache implements Cache, InitializingBean {
 	 * name 둘 중에 하나가 반드시 있어야 합니다. name과 prefix값이 모두 있다면 prefix 값을 사용합니다.
 	 * 
 	 * 키 생성 로직은 다음과 같습니다.
-	 * 
+	 *
 	 * serviceId + (prefix | name) + ":" + key.toString();
 	 * 
 	 * 만약 전체 키의 길이가 250자를 넘을 경우에는 key.toString() 대신 그 값을 MD5로 압축한 값을 사용합니다.
@@ -222,8 +222,20 @@ public class ArcusCache implements Cache, InitializingBean {
 	 */
 	public String createArcusKey(final Object key) {
 		Assert.notNull(key);
-		String keyString = key.toString();
-		String arcusKey = serviceId + name + ":" + keyString;
+		String keyString, arcusKey;
+
+		if(key instanceof ArcusStringKey) {
+			keyString = ((ArcusStringKey) key).getStringKey().replace(' ', '_') +
+							String.valueOf( ((ArcusStringKey) key).getHash());
+		} else if (key instanceof Integer) {
+			keyString = key.toString();
+		} else {
+			keyString = key.toString();
+			int hash = ArcusStringKey.light_hash(keyString);
+			keyString = keyString.replace(' ', '_') + String.valueOf(hash);
+		}
+
+		arcusKey = serviceId + name + ":" + keyString;
 		if (this.prefix != null) {
 			arcusKey = serviceId + prefix + ":" + keyString;
 		}
