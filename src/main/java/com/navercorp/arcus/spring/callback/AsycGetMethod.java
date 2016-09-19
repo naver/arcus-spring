@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
 
 import net.spy.memcached.ArcusClient;
 
+@Deprecated
 public class AsycGetMethod implements ArcusCallBack<Object> {
 
 	private String key;

@@ -21,8 +21,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.navercorp.arcus.spring.ArcusClientFactoryBean;
-import com.navercorp.arcus.spring.cache.ArcusCache;
 
+@Deprecated
 @Configuration
 public class ArcusCacheConfig {
 

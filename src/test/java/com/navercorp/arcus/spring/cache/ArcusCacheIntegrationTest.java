@@ -17,82 +17,85 @@
 
 package com.navercorp.arcus.spring.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import com.navercorp.arcus.spring.cache.ArcusCache;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = ArcusCacheConfig.class, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration("/arcus_spring_arcusCache_test.xml")
 public class ArcusCacheIntegrationTest {
+  private static final String TEST_KEY = "arcus_test_key";
+	private static final String TEST_VALUE = "arcus_test_value";
 
 	@Autowired
 	private ArcusCache arcusCache;
 
-	@Before
-	public void beforeEach() {
-		arcusCache.evict("mykey");
+	@After
+	public void tearDown() {
+		arcusCache.evict(TEST_KEY);
 	}
 
 	@Test
 	public void testPut() {
-		arcusCache.put("mykey", "myvalue");
-		assertEquals("myvalue", arcusCache.get("mykey").get());
+		arcusCache.put(TEST_KEY, TEST_VALUE);
+		assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY).get());
 	}
 
 	@Test
-	public void testGet() {
-		assertEquals(null, arcusCache.get("mykey"));
-		arcusCache.put("mykey", "myvalue");
-		assertEquals("myvalue", arcusCache.get("mykey").get());
+	public void testGetAndEvict() {
+		assertEquals(null, arcusCache.get(TEST_KEY));
+		arcusCache.put(TEST_KEY, TEST_VALUE);
+		assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY).get());
+		arcusCache.evict(TEST_KEY);
+		assertNull(arcusCache.get(TEST_KEY));
 	}
 
 	@Test
 	public void testExternalizableAndSerializable() {
-		Foo foo = new Foo();
-		foo.setAge(30);
+		ExternalizableTestClass externalizable = new ExternalizableTestClass();
+		externalizable.setAge(30);
 
-		Bar bar = new Bar();
-		bar.setName("someone");
-		foo.setBar(bar);
+		SerializableTestClass SerializableTestClass = new SerializableTestClass();
+		SerializableTestClass.setName("someone");
+		externalizable.setSerializable(SerializableTestClass);
 
-		arcusCache.put("foo", foo);
-		Foo loadedBar = (Foo) arcusCache.get("foo").get();
+		arcusCache.put(TEST_KEY, externalizable);
+		ExternalizableTestClass loadedBar = (ExternalizableTestClass) arcusCache.get(TEST_KEY).get();
 		assertNotNull(loadedBar);
 		assertTrue(loadedBar.getAge() == 30);
-		assertTrue(loadedBar.getBar().getName().equals("someone"));
-
-		arcusCache.evict("foo");
+		assertTrue(loadedBar.getSerializable().getName().equals("someone"));
 	}
 
 	@Test
 	public void putTheNullValue() {
-		arcusCache.put("key", null);
+		arcusCache.put(TEST_KEY, null);
 
-		Object result = arcusCache.get("key");
+		Object result = arcusCache.get(TEST_KEY);
 		assertNull(result);
 	}
 
 	@Test
 	public void testClear() {
-		assertEquals(null, arcusCache.get("mykey"));
-		arcusCache.put("mykey", "myvalue");
-		assertEquals(null, arcusCache.get("yourkey"));
-		arcusCache.put("yourkey", "yourvalue");
+		assertEquals(null, arcusCache.get(TEST_KEY));
+		arcusCache.put(TEST_KEY, TEST_VALUE);
+		assertEquals(null, arcusCache.get(TEST_KEY+"123"));
+		arcusCache.put(TEST_KEY+"123", TEST_VALUE+"123");
 		arcusCache.clear();
 
-		assertEquals(null, arcusCache.get("mykey"));
-		assertEquals(null, arcusCache.get("yourkey"));
+		assertEquals(null, arcusCache.get(TEST_KEY));
+		assertEquals(null, arcusCache.get(TEST_KEY+"123"));
 	}
 
+	@Test
+	public void testCreateArcusKey() {
+		String key1 = arcusCache.createArcusKey("hello arcus");
+		String key2 = arcusCache.createArcusKey("hello_arcus");
+
+		assertTrue(!(key1.equals(key2)));
+	}
 }

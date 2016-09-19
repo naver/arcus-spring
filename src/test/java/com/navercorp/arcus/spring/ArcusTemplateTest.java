@@ -26,8 +26,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.TimeUnit;
 
-import net.spy.memcached.ArcusClient;
-
+import net.spy.memcached.ArcusClientPool;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,18 +37,19 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.navercorp.arcus.spring.callback.AsycGetMethod;
 import com.navercorp.arcus.spring.callback.SetMethod;
 
+@Deprecated
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/ArcusTemplateTest-context.xml")
+@ContextConfiguration("/arcus_spring_arcusTemplete_test.xml")
 public class ArcusTemplateTest {
 
 	@Autowired
-	private ArcusClient client;
+	private ArcusClientPool client;
 	String key = "sample:testKey";
 	ArcusTemplate arcus;
 
 	@Before
 	public void setUp() {
-		arcus = new ArcusTemplate(client);
+		arcus = new ArcusTemplate(client.getClient());
 	}
 
 	@Test

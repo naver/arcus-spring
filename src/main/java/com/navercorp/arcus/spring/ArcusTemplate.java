@@ -29,6 +29,7 @@ import com.navercorp.arcus.spring.callback.ArcusCallBack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class ArcusTemplate {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());

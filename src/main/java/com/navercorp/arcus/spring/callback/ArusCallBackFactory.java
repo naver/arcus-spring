@@ -17,6 +17,7 @@
 
 package com.navercorp.arcus.spring.callback;
 
+@Deprecated
 public class ArusCallBackFactory {
 
 	public static AsycGetMethod asyncGet(String key) {

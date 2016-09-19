@@ -20,6 +20,7 @@ package com.navercorp.arcus.spring;
 import static org.junit.Assert.*;
 import net.spy.memcached.ArcusClient;
 
+import net.spy.memcached.ArcusClientPool;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/ApplicationContextLoadTest-context.xml")
+@ContextConfiguration("/arcus_spring_basic_context_test.xml")
 public class ApplicationContextLoadTest {
 
 	@Autowired
@@ -37,9 +38,11 @@ public class ApplicationContextLoadTest {
 	@Test
 	public void contextLoaded() {
 		assertNotNull(context);
-		ArcusClient client = context.getBean(ArcusClient.class);
-		assertNotNull(client);
-		assertTrue(client.isAlive());
+		ArcusClientPool clients = context.getBean(ArcusClientPool.class);
+		assertNotNull(clients);
+    for(ArcusClient client : clients.getAllClients()) {
+    	assertTrue(client.isAlive());
+		}
 	}
 
 }

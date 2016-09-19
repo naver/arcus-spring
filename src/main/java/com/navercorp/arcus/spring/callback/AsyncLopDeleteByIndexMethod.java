@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
 
 import net.spy.memcached.ArcusClient;
 
+@Deprecated
 public class AsyncLopDeleteByIndexMethod implements ArcusCallBack<Boolean> {
 	private String key;
 	private int index;

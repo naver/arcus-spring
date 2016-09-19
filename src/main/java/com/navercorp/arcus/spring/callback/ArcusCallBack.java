@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
 
 import net.spy.memcached.ArcusClient;
 
+@Deprecated
 public interface ArcusCallBack<T> {
 	public Future<T> doInArcus(ArcusClient arcusClient);
 }

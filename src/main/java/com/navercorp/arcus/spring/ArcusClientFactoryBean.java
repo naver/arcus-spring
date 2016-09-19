@@ -115,7 +115,7 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
 
 	@Override
 	public Class<?> getObjectType() {
-		return ArcusClient.class;
+		return ArcusClientPool.class;
 	}
 
 	@Override

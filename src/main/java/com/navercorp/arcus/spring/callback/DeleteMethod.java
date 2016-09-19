@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
 
 import net.spy.memcached.ArcusClient;
 
+@Deprecated
 public class DeleteMethod implements ArcusCallBack<Boolean> {
 	private String key;
 
