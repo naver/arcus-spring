@@ -17,19 +17,20 @@
 
 package com.navercorp.arcus.spring.callback;
 
-import java.util.concurrent.Future;
-
 import net.spy.memcached.ArcusClient;
 
+import java.util.concurrent.Future;
+
+@Deprecated
 public class DeleteMethod implements ArcusCallBack<Boolean> {
-	private String key;
+  private String key;
 
-	public DeleteMethod(String key) {
-		this.key = key;
-	}
+  public DeleteMethod(String key) {
+    this.key = key;
+  }
 
-	@Override
-	public Future<Boolean> doInArcus(ArcusClient arcusClient) {
-		return arcusClient.delete(key);
-	}
+  @Override
+  public Future<Boolean> doInArcus(ArcusClient arcusClient) {
+    return arcusClient.delete(key);
+  }
 }

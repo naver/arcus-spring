@@ -17,39 +17,17 @@
 
 package com.navercorp.arcus.spring.cache;
 
-import java.io.*;
+import java.io.Serializable;
 
-public class Foo implements Externalizable{
+public class SerializableTestClass implements Serializable {
 
-    int age;
+  String name;
 
-    Bar bar;
+  public String getName() {
+    return name;
+  }
 
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public Bar getBar() {
-        return bar;
-    }
-
-    public void setBar(Bar bar) {
-        this.bar = bar;
-    }
-
-    @Override
-    public void writeExternal(ObjectOutput objectOutput) throws IOException {
-        objectOutput.writeInt(age);
-        objectOutput.writeObject(bar);
-    }
-
-    @Override
-    public void readExternal(ObjectInput objectInput) throws IOException, ClassNotFoundException {
-        this.age = objectInput.readInt();
-        this.bar = (Bar)objectInput.readObject();
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 }

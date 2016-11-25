@@ -17,23 +17,24 @@
 
 package com.navercorp.arcus.spring.callback;
 
-import java.util.concurrent.Future;
-
 import net.spy.memcached.ArcusClient;
 
+import java.util.concurrent.Future;
+
+@Deprecated
 public class SetMethod implements ArcusCallBack<Boolean> {
-	private String key;
-	private String value;
-	private int expSeconds;
+  private String key;
+  private String value;
+  private int expSeconds;
 
-	public SetMethod(String key, int expSeconds, String value) {
-		this.key = key;
-		this.value = value;
-		this.expSeconds = expSeconds;
-	}
+  public SetMethod(String key, int expSeconds, String value) {
+    this.key = key;
+    this.value = value;
+    this.expSeconds = expSeconds;
+  }
 
-	@Override
-	public Future<Boolean> doInArcus(ArcusClient arcusClient) {
-		return arcusClient.set(key, expSeconds, value);
-	}
+  @Override
+  public Future<Boolean> doInArcus(ArcusClient arcusClient) {
+    return arcusClient.set(key, expSeconds, value);
+  }
 }
