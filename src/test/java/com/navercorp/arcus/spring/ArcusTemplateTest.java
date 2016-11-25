@@ -17,15 +17,8 @@
 
 package com.navercorp.arcus.spring;
 
-import static com.navercorp.arcus.spring.callback.ArusCallBackFactory.asyncGet;
-import static com.navercorp.arcus.spring.callback.ArusCallBackFactory.delete;
-import static com.navercorp.arcus.spring.callback.ArusCallBackFactory.set;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-
-import java.util.concurrent.TimeUnit;
-
+import com.navercorp.arcus.spring.callback.AsycGetMethod;
+import com.navercorp.arcus.spring.callback.SetMethod;
 import net.spy.memcached.ArcusClientPool;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,65 +27,69 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.navercorp.arcus.spring.callback.AsycGetMethod;
-import com.navercorp.arcus.spring.callback.SetMethod;
+import java.util.concurrent.TimeUnit;
+
+import static com.navercorp.arcus.spring.callback.ArusCallBackFactory.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 @Deprecated
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/arcus_spring_arcusTemplete_test.xml")
 public class ArcusTemplateTest {
 
-	@Autowired
-	private ArcusClientPool client;
-	String key = "sample:testKey";
-	ArcusTemplate arcus;
+  @Autowired
+  private ArcusClientPool client;
+  String key = "sample:testKey";
+  ArcusTemplate arcus;
 
-	@Before
-	public void setUp() {
-		arcus = new ArcusTemplate(client.getClient());
-	}
+  @Before
+  public void setUp() {
+    arcus = new ArcusTemplate(client.getClient());
+  }
 
-	@Test
-	public void valueShouldBeSetAndGot() throws Exception {
-		// given
-		String value = "setTest";
+  @Test
+  public void valueShouldBeSetAndGot() throws Exception {
+    // given
+    String value = "setTest";
 
-		// when
-		Boolean worked = arcus.execute(set(key, 300, value));
+    // when
+    Boolean worked = arcus.execute(set(key, 300, value));
 
-		String valueGot = (String) arcus.execute(asyncGet(key));
+    String valueGot = (String) arcus.execute(asyncGet(key));
 
-		assertThat(worked, is(true));
-		assertThat(valueGot, is(value));
-	}
+    assertThat(worked, is(true));
+    assertThat(valueGot, is(value));
+  }
 
-	@Test
-	public void valueShouldBeSetAndDelete() throws Exception {
-		// given
-		String value = "setAndDeleteTest";
-		Boolean setWorked = arcus.execute(new SetMethod(key, 300, value));
-		assertThat(setWorked, is(true));
+  @Test
+  public void valueShouldBeSetAndDelete() throws Exception {
+    // given
+    String value = "setAndDeleteTest";
+    Boolean setWorked = arcus.execute(new SetMethod(key, 300, value));
+    assertThat(setWorked, is(true));
 
-		// when
-		Boolean deleteWorked = arcus.execute(delete(key));
+    // when
+    Boolean deleteWorked = arcus.execute(delete(key));
 
-		// then
-		assertThat(deleteWorked, is(true));
-		String valueGot = (String) arcus.execute(new AsycGetMethod(key));
-		assertThat(valueGot, is(nullValue()));
-	}
+    // then
+    assertThat(deleteWorked, is(true));
+    String valueGot = (String) arcus.execute(new AsycGetMethod(key));
+    assertThat(valueGot, is(nullValue()));
+  }
 
-	@Test
-	public void valueShouldSetAndExpired() throws Exception {
-		// given
-		final String value = "expireTest";
+  @Test
+  public void valueShouldSetAndExpired() throws Exception {
+    // given
+    final String value = "expireTest";
 
-		// when
-		arcus.execute(new SetMethod(key, 1, value));
+    // when
+    arcus.execute(new SetMethod(key, 1, value));
 
-		// then
-		TimeUnit.SECONDS.sleep(3); // cache가 expired 될 때까지 기다림
-		String valueGot = (String) arcus.execute(new AsycGetMethod(key));
-		assertThat(valueGot, is(nullValue()));
-	}
+    // then
+    TimeUnit.SECONDS.sleep(3); // cache가 expired 될 때까지 기다림
+    String valueGot = (String) arcus.execute(new AsycGetMethod(key));
+    assertThat(valueGot, is(nullValue()));
+  }
 }

@@ -17,11 +17,11 @@
 
 package com.navercorp.arcus.spring.callback;
 
-import java.util.concurrent.Future;
-
 import net.spy.memcached.ArcusClient;
+
+import java.util.concurrent.Future;
 
 @Deprecated
 public interface ArcusCallBack<T> {
-	public Future<T> doInArcus(ArcusClient arcusClient);
+  public Future<T> doInArcus(ArcusClient arcusClient);
 }

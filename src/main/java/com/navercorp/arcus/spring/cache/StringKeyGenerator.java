@@ -31,23 +31,23 @@ import java.lang.reflect.Method;
  * <p/>
  */
 public class StringKeyGenerator implements KeyGenerator {
-    private static final String DEFAULT_SEPARTOR = ",";
+  private static final String DEFAULT_SEPARTOR = ",";
 
-    @Override
-    public Object generate(Object target, Method method, Object... params) {
-        int paramHash = 0;
-        int hash = 0;
-        StringBuilder keyBuilder = new StringBuilder();
-        for (int i = 0, n = params.length; i < n; i++) {
-            if (i > 0) {
-                keyBuilder.append(DEFAULT_SEPARTOR);
-            }
-            if (params[i] != null) {
-                keyBuilder.append(params[i]);
-                paramHash = ArcusStringKey.light_hash(params[i].toString());
-                hash ^= paramHash;
-            }
-        }
-        return new ArcusStringKey(keyBuilder.toString(), hash);
+  @Override
+  public Object generate(Object target, Method method, Object... params) {
+    int paramHash = 0;
+    int hash = 0;
+    StringBuilder keyBuilder = new StringBuilder();
+    for (int i = 0, n = params.length; i < n; i++) {
+      if (i > 0) {
+        keyBuilder.append(DEFAULT_SEPARTOR);
+      }
+      if (params[i] != null) {
+        keyBuilder.append(params[i]);
+        paramHash = ArcusStringKey.light_hash(params[i].toString());
+        hash ^= paramHash;
+      }
     }
+    return new ArcusStringKey(keyBuilder.toString(), hash);
+  }
 }

@@ -17,53 +17,52 @@
 
 package com.navercorp.arcus.spring.cache;
 
+import com.navercorp.arcus.spring.ArcusClientFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.navercorp.arcus.spring.ArcusClientFactoryBean;
 
 @Deprecated
 @Configuration
 public class ArcusCacheConfig {
 
-	static String ADMIN = "127.0.0.1:2181";
-	static String SERVICE_CODE = "test";
-	static String PREFIX = "arcusCache";
-	static int POOLSIZE = 4;
-	static long TIMEOUT = 100;
+  static String ADMIN = "127.0.0.1:2181";
+  static String SERVICE_CODE = "test";
+  static String PREFIX = "arcusCache";
+  static int POOLSIZE = 4;
+  static long TIMEOUT = 100;
 
-	@Bean
-	public ArcusClientFactoryBean arcusClientFactory() {
-		ArcusClientFactoryBean f = new ArcusClientFactoryBean();
+  @Bean
+  public ArcusClientFactoryBean arcusClientFactory() {
+    ArcusClientFactoryBean f = new ArcusClientFactoryBean();
 
-		f.setUrl(ADMIN);
-		f.setServiceCode(SERVICE_CODE);
-		f.setPoolSize(POOLSIZE);
-		f.setTimeoutExceptionThreshold(50);
-		f.setMaxReconnectDelay(30);
+    f.setUrl(ADMIN);
+    f.setServiceCode(SERVICE_CODE);
+    f.setPoolSize(POOLSIZE);
+    f.setTimeoutExceptionThreshold(50);
+    f.setMaxReconnectDelay(30);
 
-		return f;
-	}
+    return f;
+  }
 
-	@Bean
-	public ArcusCache arcusCache() throws Exception {
-		ArcusCache c = defaultArcusCache();
+  @Bean
+  public ArcusCache arcusCache() throws Exception {
+    ArcusCache c = defaultArcusCache();
 
-		c.setName("arcusCache");
-		c.setPrefix(PREFIX);
-		c.setTimeoutMilliSeconds(TIMEOUT);
+    c.setName("arcusCache");
+    c.setPrefix(PREFIX);
+    c.setTimeoutMilliSeconds(TIMEOUT);
 
-		return c;
-	}
+    return c;
+  }
 
-	private ArcusCache defaultArcusCache() throws Exception {
-		ArcusCache c = new ArcusCache();
+  private ArcusCache defaultArcusCache() throws Exception {
+    ArcusCache c = new ArcusCache();
 
-		c.setServiceId(SERVICE_CODE);
-		c.setArcusClient(arcusClientFactory().getObject());
-		c.setExpireSeconds(60 * 60 * 12);
+    c.setServiceId(SERVICE_CODE);
+    c.setArcusClient(arcusClientFactory().getObject());
+    c.setExpireSeconds(60 * 60 * 12);
 
-		return c;
-	}
+    return c;
+  }
 
 }

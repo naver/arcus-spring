@@ -7,7 +7,7 @@
 	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
-    <util:properties id="arcusConfig" location="classpath:/arcus.properties" />
+    <util:properties id="arcusConfig" location="classpath:/arcus.properties"/>
 
     <bean id="arcusClient" class="com.navercorp.arcus.spring.ArcusClientFactoryBean"
           p:url="#{arcusConfig['url']}"

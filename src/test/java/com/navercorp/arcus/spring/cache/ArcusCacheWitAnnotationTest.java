@@ -39,6 +39,7 @@ public class ArcusCacheWitAnnotationTest {
 
 interface TestService {
   String cachePopulate(String param1, String param2);
+
   void cacheEvict(String param1, String param2);
 }
 
@@ -49,7 +50,7 @@ class TestServiceImpl implements TestService {
     return "response " + new Random().nextInt();
   }
 
-  @CacheEvict(value="arcusCache")
+  @CacheEvict(value = "arcusCache")
   public void cacheEvict(String param1, String param2) {
     // Do nothing
   }

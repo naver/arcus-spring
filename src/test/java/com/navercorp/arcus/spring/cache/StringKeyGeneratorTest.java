@@ -19,34 +19,30 @@ package com.navercorp.arcus.spring.cache;
 
 import org.junit.Test;
 
-import com.navercorp.arcus.spring.cache.StringKeyGenerator;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 public class StringKeyGeneratorTest {
-	StringKeyGenerator keyGenerator = new StringKeyGenerator();
+  StringKeyGenerator keyGenerator = new StringKeyGenerator();
 
-	@Test
-	public void testExtract() throws Exception {
-		StringBuilder longParam = new StringBuilder();
-		for (int i = 0; i < 255; i++) {
-			longParam.append(i);
-		}
-		String key = ((ArcusStringKey) (keyGenerator.generate(null, null, longParam))).getStringKey();
-		assertThat(key.length() > 255, is(true));
-		System.out.println(key);
-	}
+  @Test
+  public void testExtract() throws Exception {
+    StringBuilder longParam = new StringBuilder();
+    for (int i = 0; i < 255; i++) {
+      longParam.append(i);
+    }
+    String key = ((ArcusStringKey) (keyGenerator.generate(null, null, longParam))).getStringKey();
+    assertThat(key.length() > 255, is(true));
+    System.out.println(key);
+  }
 
-	@Test
-	public void testDuplicatedKeysWithColons() {
-		ArcusStringKey arcusKey1 = (ArcusStringKey) keyGenerator.generate(null, null, "a,b", "c", "de");
-		ArcusStringKey arcusKey2 = (ArcusStringKey) keyGenerator.generate(null, null, "a,b", "c,de");
+  @Test
+  public void testDuplicatedKeysWithColons() {
+    ArcusStringKey arcusKey1 = (ArcusStringKey) keyGenerator.generate(null, null, "a,b", "c", "de");
+    ArcusStringKey arcusKey2 = (ArcusStringKey) keyGenerator.generate(null, null, "a,b", "c,de");
 
-		assertEquals(arcusKey1.getStringKey(), arcusKey2.getStringKey());
-		assertTrue(arcusKey1.getHash() != arcusKey2.getHash());
-	}
+    assertEquals(arcusKey1.getStringKey(), arcusKey2.getStringKey());
+    assertTrue(arcusKey1.getHash() != arcusKey2.getHash());
+  }
 
 }

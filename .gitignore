@@ -2,6 +2,7 @@
 .classpath
 .project
 .springBeans
+.idea
 target/
 reports/
 junit*

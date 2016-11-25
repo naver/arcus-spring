@@ -30,72 +30,72 @@ import static org.junit.Assert.*;
 @ContextConfiguration("/arcus_spring_arcusCache_test.xml")
 public class ArcusCacheIntegrationTest {
   private static final String TEST_KEY = "arcus_test_key";
-	private static final String TEST_VALUE = "arcus_test_value";
+  private static final String TEST_VALUE = "arcus_test_value";
 
-	@Autowired
-	private ArcusCache arcusCache;
+  @Autowired
+  private ArcusCache arcusCache;
 
-	@After
-	public void tearDown() {
-		arcusCache.evict(TEST_KEY);
-	}
+  @After
+  public void tearDown() {
+    arcusCache.evict(TEST_KEY);
+  }
 
-	@Test
-	public void testPut() {
-		arcusCache.put(TEST_KEY, TEST_VALUE);
-		assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY).get());
-	}
+  @Test
+  public void testPut() {
+    arcusCache.put(TEST_KEY, TEST_VALUE);
+    assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY).get());
+  }
 
-	@Test
-	public void testGetAndEvict() {
-		assertEquals(null, arcusCache.get(TEST_KEY));
-		arcusCache.put(TEST_KEY, TEST_VALUE);
-		assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY).get());
-		arcusCache.evict(TEST_KEY);
-		assertNull(arcusCache.get(TEST_KEY));
-	}
+  @Test
+  public void testGetAndEvict() {
+    assertEquals(null, arcusCache.get(TEST_KEY));
+    arcusCache.put(TEST_KEY, TEST_VALUE);
+    assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY).get());
+    arcusCache.evict(TEST_KEY);
+    assertNull(arcusCache.get(TEST_KEY));
+  }
 
-	@Test
-	public void testExternalizableAndSerializable() {
-		ExternalizableTestClass externalizable = new ExternalizableTestClass();
-		externalizable.setAge(30);
+  @Test
+  public void testExternalizableAndSerializable() {
+    ExternalizableTestClass externalizable = new ExternalizableTestClass();
+    externalizable.setAge(30);
 
-		SerializableTestClass SerializableTestClass = new SerializableTestClass();
-		SerializableTestClass.setName("someone");
-		externalizable.setSerializable(SerializableTestClass);
+    SerializableTestClass SerializableTestClass = new SerializableTestClass();
+    SerializableTestClass.setName("someone");
+    externalizable.setSerializable(SerializableTestClass);
 
-		arcusCache.put(TEST_KEY, externalizable);
-		ExternalizableTestClass loadedBar = (ExternalizableTestClass) arcusCache.get(TEST_KEY).get();
-		assertNotNull(loadedBar);
-		assertTrue(loadedBar.getAge() == 30);
-		assertTrue(loadedBar.getSerializable().getName().equals("someone"));
-	}
+    arcusCache.put(TEST_KEY, externalizable);
+    ExternalizableTestClass loadedBar = (ExternalizableTestClass) arcusCache.get(TEST_KEY).get();
+    assertNotNull(loadedBar);
+    assertTrue(loadedBar.getAge() == 30);
+    assertTrue(loadedBar.getSerializable().getName().equals("someone"));
+  }
 
-	@Test
-	public void putTheNullValue() {
-		arcusCache.put(TEST_KEY, null);
+  @Test
+  public void putTheNullValue() {
+    arcusCache.put(TEST_KEY, null);
 
-		Object result = arcusCache.get(TEST_KEY);
-		assertNull(result);
-	}
+    Object result = arcusCache.get(TEST_KEY);
+    assertNull(result);
+  }
 
-	@Test
-	public void testClear() {
-		assertEquals(null, arcusCache.get(TEST_KEY));
-		arcusCache.put(TEST_KEY, TEST_VALUE);
-		assertEquals(null, arcusCache.get(TEST_KEY+"123"));
-		arcusCache.put(TEST_KEY+"123", TEST_VALUE+"123");
-		arcusCache.clear();
+  @Test
+  public void testClear() {
+    assertEquals(null, arcusCache.get(TEST_KEY));
+    arcusCache.put(TEST_KEY, TEST_VALUE);
+    assertEquals(null, arcusCache.get(TEST_KEY + "123"));
+    arcusCache.put(TEST_KEY + "123", TEST_VALUE + "123");
+    arcusCache.clear();
 
-		assertEquals(null, arcusCache.get(TEST_KEY));
-		assertEquals(null, arcusCache.get(TEST_KEY+"123"));
-	}
+    assertEquals(null, arcusCache.get(TEST_KEY));
+    assertEquals(null, arcusCache.get(TEST_KEY + "123"));
+  }
 
-	@Test
-	public void testCreateArcusKey() {
-		String key1 = arcusCache.createArcusKey("hello arcus");
-		String key2 = arcusCache.createArcusKey("hello_arcus");
+  @Test
+  public void testCreateArcusKey() {
+    String key1 = arcusCache.createArcusKey("hello arcus");
+    String key2 = arcusCache.createArcusKey("hello_arcus");
 
-		assertTrue(!(key1.equals(key2)));
-	}
+    assertTrue(!(key1.equals(key2)));
+  }
 }

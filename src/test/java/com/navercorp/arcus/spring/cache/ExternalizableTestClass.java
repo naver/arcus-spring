@@ -17,39 +17,42 @@
 
 package com.navercorp.arcus.spring.cache;
 
-import java.io.*;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
-public class ExternalizableTestClass implements Externalizable{
+public class ExternalizableTestClass implements Externalizable {
 
-    int age;
+  int age;
 
-    SerializableTestClass serializable;
+  SerializableTestClass serializable;
 
-    public int getAge() {
-        return age;
-    }
+  public int getAge() {
+    return age;
+  }
 
-    public void setAge(int age) {
-        this.age = age;
-    }
+  public void setAge(int age) {
+    this.age = age;
+  }
 
-    public SerializableTestClass getSerializable() {
-        return serializable;
-    }
+  public SerializableTestClass getSerializable() {
+    return serializable;
+  }
 
-    public void setSerializable(SerializableTestClass SerializableTestClass) {
-        this.serializable = SerializableTestClass;
-    }
+  public void setSerializable(SerializableTestClass SerializableTestClass) {
+    this.serializable = SerializableTestClass;
+  }
 
-    @Override
-    public void writeExternal(ObjectOutput objectOutput) throws IOException {
-        objectOutput.writeInt(age);
-        objectOutput.writeObject(serializable);
-    }
+  @Override
+  public void writeExternal(ObjectOutput objectOutput) throws IOException {
+    objectOutput.writeInt(age);
+    objectOutput.writeObject(serializable);
+  }
 
-    @Override
-    public void readExternal(ObjectInput objectInput) throws IOException, ClassNotFoundException {
-        this.age = objectInput.readInt();
-        this.serializable = (SerializableTestClass)objectInput.readObject();
-    }
+  @Override
+  public void readExternal(ObjectInput objectInput) throws IOException, ClassNotFoundException {
+    this.age = objectInput.readInt();
+    this.serializable = (SerializableTestClass) objectInput.readObject();
+  }
 }

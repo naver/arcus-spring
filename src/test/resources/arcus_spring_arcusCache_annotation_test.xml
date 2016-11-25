@@ -9,7 +9,7 @@
     http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-3.1.xsd
 	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
-    <util:properties id="arcusConfig" location="classpath:/arcus.properties" />
+    <util:properties id="arcusConfig" location="classpath:/arcus.properties"/>
     <cache:annotation-driven key-generator="arcusKeyGenerator" cache-manager="arcusCacheManager"/>
 
     <bean id="arcusKeyGenerator" class="com.navercorp.arcus.spring.cache.StringKeyGenerator"/>

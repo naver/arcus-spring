@@ -17,21 +17,21 @@
 
 package com.navercorp.arcus.spring.callback;
 
-import java.util.concurrent.Future;
-
 import net.spy.memcached.ArcusClient;
+
+import java.util.concurrent.Future;
 
 @Deprecated
 public class AsycGetMethod implements ArcusCallBack<Object> {
 
-	private String key;
+  private String key;
 
-	public AsycGetMethod(String key) {
-		this.key = key;
-	}
+  public AsycGetMethod(String key) {
+    this.key = key;
+  }
 
-	@Override
-	public Future<Object> doInArcus(ArcusClient arcusClient) {
-		return arcusClient.asyncGet(key);
-	}
+  @Override
+  public Future<Object> doInArcus(ArcusClient arcusClient) {
+    return arcusClient.asyncGet(key);
+  }
 }
