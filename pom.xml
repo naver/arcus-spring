@@ -4,8 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.navercorp.arcus</groupId>
     <artifactId>arcus-spring</artifactId>
+    <description>Arcus as a caching provider for the Spring cache abstraction</description>
     <name>arcus-spring</name>
     <packaging>jar</packaging>
+    <url>https://github.com/naver/arcus-spring</url>
     <version>1.9.7</version>
 
     <properties>
@@ -14,6 +16,36 @@
         <arcus.client.version>1.9.7</arcus.client.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>scm:git:https://github.com/naver/arcus-spring.git</url>
+        <connection>scm:git:https://github.com/naver/arcus-spring.git</connection>
+        <developerConnection>scm:git:https://github.com/naver/arcus-spring.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>keesun.baik</id>
+            <name>KeeSun Baik</name>
+            <email>keesun.baik@navercorp.com</email>
+            <organization>NAVER Corp.</organization>
+            <organizationUrl>http://www.naver.com</organizationUrl>
+        </developer>
+        <developer>
+            <id>sanghyuk.jung</id>
+            <name>SangHyuk Jung</name>
+            <email>sanghyuk.jung@navercorp.com</email>
+            <organization>NAVER Corp.</organization>
+            <organizationUrl>http://www.naver.com</organizationUrl>
+        </developer>
+    </developers>
+
 
     <repositories>
         <repository>
@@ -174,7 +206,59 @@
                         </goals>
                     </execution>
                 </executions>
+                
+            <!-- javadoc plugin for central repo
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <show>public</show>
+                    <nohelp>false</nohelp>
+                </configuration>
+            </plugin>
+            -->
+
+            <!-- GPG signing used when deploying to the central repo
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            -->
+
             </plugin>
         </plugins>
     </build>
+    
+    <!-- Deploy via sonatype
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+    </distributionManagement>
+    -->
+    
 </project>
