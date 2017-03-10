@@ -17,23 +17,24 @@
 
 package com.navercorp.arcus.spring.callback;
 
-import java.util.concurrent.Future;
-
 import net.spy.memcached.ArcusClient;
 
+import java.util.concurrent.Future;
+
+@Deprecated
 public class AsyncLopDeleteByRangeMethod implements ArcusCallBack<Boolean> {
-	private String key;
-	private int from;
-	private int to;
+  private String key;
+  private int from;
+  private int to;
 
-	public AsyncLopDeleteByRangeMethod(String key, int from, int to) {
-		this.key = key;
-		this.from = from;
-		this.to = to;
-	}
+  public AsyncLopDeleteByRangeMethod(String key, int from, int to) {
+    this.key = key;
+    this.from = from;
+    this.to = to;
+  }
 
-	@Override
-	public Future<Boolean> doInArcus(ArcusClient arcusClient) {
-		return arcusClient.asyncLopDelete(key, from, to, true);
-	}
+  @Override
+  public Future<Boolean> doInArcus(ArcusClient arcusClient) {
+    return arcusClient.asyncLopDelete(key, from, to, true);
+  }
 }

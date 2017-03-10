@@ -17,72 +17,71 @@
 
 package com.navercorp.arcus.spring;
 
+import com.navercorp.arcus.spring.callback.ArcusCallBack;
+import net.spy.memcached.ArcusClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import net.spy.memcached.ArcusClient;
-
-import com.navercorp.arcus.spring.callback.ArcusCallBack;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+@Deprecated
 public class ArcusTemplate {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+  private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private ArcusClient arcusClient;
+  private ArcusClient arcusClient;
 
-	public ArcusTemplate(ArcusClient arcusClient) {
-		this.arcusClient = arcusClient;
-	}
+  public ArcusTemplate(ArcusClient arcusClient) {
+    this.arcusClient = arcusClient;
+  }
 
-	public <T> T execute(final ArcusCallBack<T> methodCall) {
-		return executeAndHandleException(methodCall, new FutureGetter<T>() {
-			public T get(Future<T> future) throws InterruptedException,
-					ExecutionException {
-				return future.get();
-			}
-		});
-	}
+  public <T> T execute(final ArcusCallBack<T> methodCall) {
+    return executeAndHandleException(methodCall, new FutureGetter<T>() {
+      public T get(Future<T> future) throws InterruptedException,
+              ExecutionException {
+        return future.get();
+      }
+    });
+  }
 
-	public <T> T execute(final ArcusCallBack<T> methodCall, final long timeout,
-			final TimeUnit unit) {
-		return executeAndHandleException(methodCall, new FutureGetter<T>() {
-			public T get(Future<T> future) throws InterruptedException,
-					ExecutionException, TimeoutException {
-				return future.get(timeout, unit);
-			}
-		});
-	}
+  public <T> T execute(final ArcusCallBack<T> methodCall, final long timeout,
+                       final TimeUnit unit) {
+    return executeAndHandleException(methodCall, new FutureGetter<T>() {
+      public T get(Future<T> future) throws InterruptedException,
+              ExecutionException, TimeoutException {
+        return future.get(timeout, unit);
+      }
+    });
+  }
 
-	private <T> T executeAndHandleException(final ArcusCallBack<T> methodCall,
-			FutureGetter<T> futureGetter) {
-		T arcusResponse = null;
-		Future<T> link = null;
-		try {
-			link = methodCall.doInArcus(arcusClient);
-			arcusResponse = futureGetter.get(link);
-		} catch (InterruptedException e) {
-			link.cancel(true);
-			logger.error(e.getMessage());
-		} catch (ExecutionException e) {
-			link.cancel(true);
-			logger.error(e.getMessage());
-		} catch (TimeoutException e) {
-			link.cancel(true);
-			logger.error(e.getMessage());
-		} catch (Exception e) {
-			link.cancel(true);
-			logger.error(e.getMessage());
-		}
-		return arcusResponse;
-	}
+  private <T> T executeAndHandleException(final ArcusCallBack<T> methodCall,
+                                          FutureGetter<T> futureGetter) {
+    T arcusResponse = null;
+    Future<T> link = null;
+    try {
+      link = methodCall.doInArcus(arcusClient);
+      arcusResponse = futureGetter.get(link);
+    } catch (InterruptedException e) {
+      link.cancel(true);
+      logger.error(e.getMessage());
+    } catch (ExecutionException e) {
+      link.cancel(true);
+      logger.error(e.getMessage());
+    } catch (TimeoutException e) {
+      link.cancel(true);
+      logger.error(e.getMessage());
+    } catch (Exception e) {
+      link.cancel(true);
+      logger.error(e.getMessage());
+    }
+    return arcusResponse;
+  }
 
-	static interface FutureGetter<T> {
-		T get(Future<T> future) throws InterruptedException,
-				ExecutionException, TimeoutException;
-	}
+  static interface FutureGetter<T> {
+    T get(Future<T> future) throws InterruptedException,
+            ExecutionException, TimeoutException;
+  }
 }

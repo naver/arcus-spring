@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+    <util:properties id="arcusConfig" location="classpath:/arcus.properties"/>
+
+    <bean id="arcusClient" class="com.navercorp.arcus.spring.ArcusClientFactoryBean"
+          p:url="#{arcusConfig['url']}"
+          p:serviceCode="#{arcusConfig['serviceCode']}"
+          p:poolSize="4"/>
+
+    <bean id="arcusCache" class="com.navercorp.arcus.spring.cache.ArcusCache"
+          p:arcusClient-ref="arcusClient"
+          p:timeoutMilliSeconds="500"
+          p:expireSeconds="3000"
+          p:serviceId="testService-"
+          p:prefix="testPrefix"
+          abstract="true"/>
+
+    <bean id="arcusCacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+        <property name="caches">
+            <list>
+                <bean p:name="testCache" parent="arcusCache"/>
+            </list>
+        </property>
+    </bean>
+
+</beans>

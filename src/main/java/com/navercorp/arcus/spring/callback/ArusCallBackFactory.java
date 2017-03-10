@@ -17,17 +17,18 @@
 
 package com.navercorp.arcus.spring.callback;
 
+@Deprecated
 public class ArusCallBackFactory {
 
-	public static AsycGetMethod asyncGet(String key) {
-		return new AsycGetMethod(key);
-	}
+  public static AsycGetMethod asyncGet(String key) {
+    return new AsycGetMethod(key);
+  }
 
-	public static SetMethod set(String key, int expSeconds, String value) {
-		return new SetMethod(key, expSeconds, value);
-	}
+  public static SetMethod set(String key, int expSeconds, String value) {
+    return new SetMethod(key, expSeconds, value);
+  }
 
-	public static DeleteMethod delete(String key) {
-		return new DeleteMethod(key);
-	}
+  public static DeleteMethod delete(String key) {
+    return new DeleteMethod(key);
+  }
 }
