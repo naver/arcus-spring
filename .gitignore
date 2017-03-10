@@ -2,10 +2,9 @@
 .classpath
 .project
 .springBeans
-.idea
+.idea/
 target/
 reports/
 junit*
 *.iml
 *~
-.idea
