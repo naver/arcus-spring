@@ -6,12 +6,12 @@
     <artifactId>arcus-spring</artifactId>
     <name>arcus-spring</name>
     <packaging>jar</packaging>
-    <version>1.9.4</version>
+    <version>1.9.7</version>
 
     <properties>
         <org.springframework.version>3.1.0.RELEASE</org.springframework.version>
         <org.slf4j.version>1.5.10</org.slf4j.version>
-        <arcus.client.version>1.9.4</arcus.client.version>
+        <arcus.client.version>1.9.7</arcus.client.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
