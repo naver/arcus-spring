@@ -1,4 +1,13 @@
-2016-07-14 [version 1.9.4]
+2017-03-10 [version 1.9.7]
+	* [Fix] Fix autowired dependencies failure.
+	* [Deprecate] Deprecate ArcusTemplete class and callback package
+	* [Other] Add test case for use with spring cache annotations
+	* [Other] Add tests for ArcusStringKey and StringKeyGenerator
+	* [Other] Add project encoding (UTF-8) and maven compiler version to pom.xml
+	* [Other] Change default log level to WARN
+	* [Other] Reformat codes
+
+2016-07-14 [version 1.9.4] unstable
 	* [Feature] Added copyOnWrite / copyOnRead to ARCUS front cache.
 	  - It depends on arcus-java-client 1.9.4.
 	* [Fix] Add hashcode and remove space for generating unique key strings.
