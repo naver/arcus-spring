@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/arcus_spring_arcusCache_annotation_test.xml")
-public class ArcusCacheWitAnnotationTest {
+public class ArcusCacheWithAnnotationTest {
   @Autowired
   TestService testService;
 
