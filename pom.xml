@@ -11,9 +11,9 @@
     <version>1.9.7</version>
 
     <properties>
-        <org.springframework.version>3.1.0.RELEASE</org.springframework.version>
+        <org.springframework.version>4.3.0.RELEASE</org.springframework.version>
         <org.slf4j.version>1.5.10</org.slf4j.version>
-        <arcus.client.version>1.9.7</arcus.client.version>
+        <arcus.client.version>1.11.4</arcus.client.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     
@@ -157,7 +157,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.7</version>
+            <version>4.12</version>
             <scope>test</scope>
             <optional>true</optional>
         </dependency>

@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.concurrent.Callable;
+
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -48,11 +50,62 @@ public class ArcusCacheIntegrationTest {
 
   @Test
   public void testGetAndEvict() {
-    assertEquals(null, arcusCache.get(TEST_KEY));
+    assertNull(arcusCache.get(TEST_KEY));
     arcusCache.put(TEST_KEY, TEST_VALUE);
     assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY).get());
     arcusCache.evict(TEST_KEY);
     assertNull(arcusCache.get(TEST_KEY));
+  }
+
+  @Test
+  public void testGetWithClass() {
+    assertNull(arcusCache.get(TEST_KEY));
+    arcusCache.put(TEST_KEY, TEST_VALUE);
+    assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY, (Class) null));
+    assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY, String.class));
+    assertNull(arcusCache.get(TEST_KEY + TEST_KEY, Integer.class));
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testGetWithClassExpectedException() {
+    assertNull(arcusCache.get(TEST_KEY));
+    arcusCache.put(TEST_KEY, TEST_VALUE);
+    arcusCache.get(TEST_KEY, Integer.class);
+  }
+
+  @Test
+  public void testGetWithValueLoader() {
+    Callable<String> valueLoader = new Callable<String>() {
+      @Override
+      public String call() {
+        return TEST_VALUE;
+      }
+    };
+
+    assertNull(arcusCache.get(TEST_KEY));
+    assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY, valueLoader));
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void testGetWithValueLoaderExpectedException() {
+    Callable<String> valueLoader = new Callable<String>() {
+      @Override
+      public String call() {
+        throw new RuntimeException();
+      }
+    };
+
+    assertNull(arcusCache.get(TEST_KEY));
+    assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY, valueLoader));
+  }
+
+  @Test
+  public void testPutIfAbsent() {
+    assertNull(arcusCache.get(TEST_KEY));
+    assertNull(arcusCache.putIfAbsent(TEST_KEY, TEST_VALUE));
+    assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY).get());
+    assertEquals(TEST_VALUE, arcusCache.putIfAbsent(TEST_KEY, TEST_VALUE + TEST_VALUE).get());
+    assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY).get());
   }
 
   @Test
@@ -67,8 +120,8 @@ public class ArcusCacheIntegrationTest {
     arcusCache.put(TEST_KEY, externalizable);
     ExternalizableTestClass loadedBar = (ExternalizableTestClass) arcusCache.get(TEST_KEY).get();
     assertNotNull(loadedBar);
-    assertTrue(loadedBar.getAge() == 30);
-    assertTrue(loadedBar.getSerializable().getName().equals("someone"));
+    assertEquals(30, loadedBar.getAge());
+    assertEquals("someone", loadedBar.getSerializable().getName());
   }
 
   @Test
@@ -81,14 +134,14 @@ public class ArcusCacheIntegrationTest {
 
   @Test
   public void testClear() {
-    assertEquals(null, arcusCache.get(TEST_KEY));
+    assertNull(arcusCache.get(TEST_KEY));
     arcusCache.put(TEST_KEY, TEST_VALUE);
-    assertEquals(null, arcusCache.get(TEST_KEY + "123"));
+    assertNull(arcusCache.get(TEST_KEY + "123"));
     arcusCache.put(TEST_KEY + "123", TEST_VALUE + "123");
     arcusCache.clear();
 
-    assertEquals(null, arcusCache.get(TEST_KEY));
-    assertEquals(null, arcusCache.get(TEST_KEY + "123"));
+    assertNull(arcusCache.get(TEST_KEY));
+    assertNull(arcusCache.get(TEST_KEY + "123"));
   }
 
   @Test

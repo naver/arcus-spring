@@ -17,6 +17,8 @@
 
 package com.navercorp.arcus.spring.cache;
 
+import com.navercorp.arcus.spring.concurrent.KeyLockProvider;
+import com.navercorp.arcus.spring.concurrent.DefaultKeyLockProvider;
 import net.spy.memcached.ArcusClientPool;
 import net.spy.memcached.internal.OperationFuture;
 import net.spy.memcached.transcoders.Transcoder;
@@ -28,6 +30,7 @@ import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -67,6 +70,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * 이렇게 설정했을때, 캐시의 키 값으로 생성되는 값은 <span>beta-member:메서드 매개변수로 만든 문자열</span>이 됩니다.
  */
+@SuppressWarnings("DeprecatedIsStillUsed")
 public class ArcusCache implements Cache, InitializingBean {
 
   private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -77,8 +81,10 @@ public class ArcusCache implements Cache, InitializingBean {
   private int expireSeconds;
   private long timeoutMilliSeconds = 300L;
   private ArcusClientPool arcusClient;
+  @Deprecated
   private boolean wantToGetException;
   private Transcoder<Object> operationTranscoder;
+  private KeyLockProvider keyLockProvider = new DefaultKeyLockProvider();
 
   @Override
   public String getName() {
@@ -93,64 +99,152 @@ public class ArcusCache implements Cache, InitializingBean {
   @Override
   public ValueWrapper get(Object key) {
     Object value = null;
-    String cacheKey = null;
+
     try {
-      cacheKey = createArcusKey(key);
-      logger.debug("getting value by key: {}", cacheKey);
-
-      Future<Object> future;
-
-      // operation transcoder can't be null.
-      if (operationTranscoder != null) {
-        future = arcusClient.asyncGet(cacheKey, operationTranscoder);
-      } else {
-        future = arcusClient.asyncGet(cacheKey);
-      }
-
-      value = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
+      value = getValue(key);
     } catch (Exception e) {
       logger.debug(e.getMessage());
       if (wantToGetException) {
-        throw new RuntimeException(e);
+        throw toRuntimeException(e);
       }
     }
-    return (value != null ? new SimpleValueWrapper(value) : null);
+
+    return toValueWrapper(value);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T get(Object key, Class<T> type) {
+    try {
+      Object value = getValue(key);
+      if (value != null && type != null && !type.isInstance(value)) {
+        throw new IllegalStateException("Cached value is not of required type [" + type.getName() + "]: " + value);
+      }
+      return (T) value;
+    } catch (Exception e) {
+      logger.debug(e.getMessage());
+      throw toRuntimeException(e);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T get(Object key, Callable<T> valueLoader) {
+    Object value;
+    try {
+      value = getValue(key);
+      if (value != null) {
+        return (T) value;
+      }
+    } catch (Exception e) {
+      logger.debug(e.getMessage());
+      throw toRuntimeException(e);
+    }
+
+    String arcusKey = createArcusKey(key);
+
+    try {
+      acquireWriteLockOnKey(arcusKey);
+      value = getValue(key);
+      if (value != null) {
+        return (T) value;
+      } else {
+        value = valueLoader.call();
+        putValue(key, value);
+        return (T) value;
+      }
+    } catch (Exception e) {
+      logger.debug(e.getMessage());
+      throw toRuntimeException(e);
+    } finally {
+      releaseWriteLockOnKey(arcusKey);
+    }
+  }
+
+  private Object getValue(Object key) throws Exception {
+    String cacheKey = createArcusKey(key);
+    logger.debug("getting value by key: {}", cacheKey);
+
+    Future<Object> future;
+
+    // operation transcoder can't be null.
+    if (operationTranscoder != null) {
+      future = arcusClient.asyncGet(cacheKey, operationTranscoder);
+    } else {
+      future = arcusClient.asyncGet(cacheKey);
+    }
+
+    return future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
   }
 
   @Override
   public void put(final Object key, final Object value) {
     try {
+      putValue(key, value);
+    } catch (Exception e) {
+      logger.debug(e.getMessage());
+      if (wantToGetException) {
+        throw toRuntimeException(e);
+      }
+    }
+  }
+
+  @Override
+  public ValueWrapper putIfAbsent(Object key, Object value) {
+    try {
       String cacheKey = createArcusKey(key);
-      logger.debug("trying to put key: {}, value: {}", cacheKey,
+      logger.debug("trying to add key: {}, value: {}", cacheKey,
               value != null ? value.getClass().getName() : null);
 
       if (value == null) {
-        logger.info("arcus cannot put NULL value. key: {}, value: {}",
-                key.toString(), value);
-        return;
+        throw new IllegalArgumentException("arcus cannot add NULL value. key: "
+                + key.toString());
       }
 
       Future<Boolean> future;
 
       if (operationTranscoder != null) {
-        future = arcusClient.set(cacheKey, expireSeconds, value,
+        future = arcusClient.add(cacheKey, expireSeconds, value,
                 operationTranscoder);
       } else {
-        future = arcusClient.set(cacheKey, expireSeconds, value);
+        future = arcusClient.add(cacheKey, expireSeconds, value);
       }
 
       boolean success = future.get(timeoutMilliSeconds,
               TimeUnit.MILLISECONDS);
 
-      if (logger.isDebugEnabled() && !success) {
-        logger.debug("failed to put a key: {}, value: {}",
-                key.toString(), value);
-      }
+      return success ? null : toValueWrapper(getValue(key));
     } catch (Exception e) {
-      logger.info("error: {}, with value: {}", e.getMessage(), value);
-      if (wantToGetException) {
-        throw new RuntimeException(e);
-      }
+      logger.debug(e.getMessage());
+      throw toRuntimeException(e);
+    }
+  }
+
+  private void putValue(Object key, Object value) throws Exception {
+    String cacheKey = createArcusKey(key);
+    logger.debug("trying to put key: {}, value: {}", cacheKey,
+            value != null ? value.getClass().getName() : null);
+
+    if (value == null) {
+      throw new IllegalArgumentException("arcus cannot put NULL value. key: " +
+              key.toString());
+    }
+
+    Future<Boolean> future;
+
+    if (operationTranscoder != null) {
+      future = arcusClient.set(cacheKey, expireSeconds, value,
+              operationTranscoder);
+    } else {
+      future = arcusClient.set(cacheKey, expireSeconds, value);
+    }
+
+    boolean success = future.get(timeoutMilliSeconds,
+            TimeUnit.MILLISECONDS);
+
+    if (logger.isDebugEnabled() && !success) {
+      logger.debug("failed to put a key: {}, value: {}",
+              key.toString(), value);
     }
   }
 
@@ -168,12 +262,12 @@ public class ArcusCache implements Cache, InitializingBean {
               TimeUnit.MILLISECONDS);
 
       if (logger.isDebugEnabled() && !success) {
-        logger.debug("failed to evivt a key: {}", key.toString());
+        logger.debug("failed to evict a key: {}", cacheKey);
       }
     } catch (Exception e) {
-      logger.info(e.getMessage());
+      logger.debug(e.getMessage());
       if (wantToGetException) {
-        throw new RuntimeException(e);
+        throw toRuntimeException(e);
       }
     }
   }
@@ -199,9 +293,9 @@ public class ArcusCache implements Cache, InitializingBean {
                 prefixName);
       }
     } catch (Exception e) {
-      logger.info(e.getMessage());
+      logger.debug(e.getMessage());
       if (wantToGetException) {
-        throw new RuntimeException(e);
+        throw toRuntimeException(e);
       }
     }
   }
@@ -283,10 +377,12 @@ public class ArcusCache implements Cache, InitializingBean {
     this.serviceId = serviceId;
   }
 
+  @Deprecated
   public boolean isWantToGetException() {
     return wantToGetException;
   }
 
+  @Deprecated
   public void setWantToGetException(boolean wantToGetException) {
     this.wantToGetException = wantToGetException;
   }
@@ -318,4 +414,33 @@ public class ArcusCache implements Cache, InitializingBean {
   public void setPrefix(String prefix) {
     this.prefix = prefix;
   }
+
+  public KeyLockProvider getKeyLockProvider() {
+    return keyLockProvider;
+  }
+
+  public void setKeyLockProvider(KeyLockProvider keyLockProvider) {
+    this.keyLockProvider = keyLockProvider;
+  }
+
+  private void acquireWriteLockOnKey(Object key) {
+    keyLockProvider.getLockForKey(key).writeLock().lock();
+  }
+
+  private void releaseWriteLockOnKey(Object key) {
+    keyLockProvider.getLockForKey(key).writeLock().unlock();
+  }
+
+  private RuntimeException toRuntimeException(Exception e) {
+    if (e instanceof RuntimeException) {
+      return (RuntimeException) e;
+    } else {
+      return new RuntimeException(e);
+    }
+  }
+
+  private ValueWrapper toValueWrapper(Object value) {
+    return (value != null ? new SimpleValueWrapper(value) : null);
+  }
+
 }
