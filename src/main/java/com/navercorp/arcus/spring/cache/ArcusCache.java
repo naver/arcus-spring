@@ -28,6 +28,7 @@ import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -88,6 +89,24 @@ public class ArcusCache implements Cache, InitializingBean {
   @Override
   public Object getNativeCache() {
     return this.arcusClient;
+  }
+
+  // TODO: REMOVE AFTER #8
+  @Override
+  public <T> T get(Object o, Class<T> aClass) {
+    return null;
+  }
+
+  // TODO: REMOVE AFTER #8
+  @Override
+  public <T> T get(Object o, Callable<T> callable) {
+    return null;
+  }
+
+  // TODO: REMOVE AFTER #8
+  @Override
+  public ValueWrapper putIfAbsent(Object o, Object o1) {
+    return null;
   }
 
   @Override
