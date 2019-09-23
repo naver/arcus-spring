@@ -17,97 +17,113 @@
 
 package com.navercorp.arcus.spring.cache;
 
-import net.spy.memcached.ConnectionFactoryBuilder;
+import net.spy.memcached.ArcusClient;
+import net.spy.memcached.ArcusClientPool;
 import net.spy.memcached.transcoders.SerializingTranscoder;
-import net.spy.memcached.transcoders.Transcoder;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 import static org.junit.Assert.*;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("/arcus_spring_arcusCacheManager_test.xml")
 public class ArcusCacheManagerTest {
-  private static final String ADMIN_ADDRESS = "127.0.0.1:2181";
-  private static final String SERVICE_CODE = "test";
+
   private static final String SERVICE_ID = "test-service-id";
-  private static final Transcoder<Object> DEFAULT_TRANSCODER = new SerializingTranscoder();
-  private static final ConnectionFactoryBuilder CONNECTION_FACTORY_BUILDER = new ConnectionFactoryBuilder();
-  private static final int POOL_SIZE = 4;
+  private static final String SERVICE_PREFIX = "test-prefix";
   private static final int TIMEOUT_MILLIS = 100;
   private static final int DEFAULT_EXPIRE_SECONDS = 1;
   private static final boolean WANT_TO_GET_EXCEPTION = true;
-  private static final Map<String, Integer> NAME_TO_EXPIRE_SECONDS = new HashMap<String, Integer>();
   private static final String PRE_DEFINED_CACHE_NAME = "pre-defined-cache";
   private static final int PRE_DEFINED_EXPIRE_SECONDS = 2;
-  static {
-    NAME_TO_EXPIRE_SECONDS.put(PRE_DEFINED_CACHE_NAME, PRE_DEFINED_EXPIRE_SECONDS);
-  }
 
-  private ArcusCacheManager cacheManager;
+  @Value("#{arcusConfig['url']}")
+  private String url;
 
-  @Before
-  public void setUp() {
-    this.cacheManager = new ArcusCacheManager(
-      ADMIN_ADDRESS,
-      SERVICE_CODE,
-      SERVICE_ID,
-      CONNECTION_FACTORY_BUILDER,
-      DEFAULT_TRANSCODER,
-      POOL_SIZE,
-      TIMEOUT_MILLIS,
-      DEFAULT_EXPIRE_SECONDS,
-      NAME_TO_EXPIRE_SECONDS,
-      WANT_TO_GET_EXCEPTION);
-  }
+  @Value("#{arcusConfig['serviceCode']}")
+  private String serviceCode;
 
-  @After
-  public void tearDown() {
-    cacheManager.destroy();
-  }
+  @Autowired
+  private ArcusCacheManager arcusCacheManagerFromClient;
 
+  @Autowired
+  private ArcusCacheManager arcusCacheManagerFromAddress;
+
+  @SuppressWarnings("deprecation")
   @Test
   public void testGetPreDefinedCache() {
-    ArcusCache cache = (ArcusCache)this.cacheManager.getCache(PRE_DEFINED_CACHE_NAME);
+    ArcusCache cache = (ArcusCache)this.arcusCacheManagerFromClient.getCache(PRE_DEFINED_CACHE_NAME);
 
     assertEquals(PRE_DEFINED_CACHE_NAME, cache.getName());
-    assertEquals(PRE_DEFINED_EXPIRE_SECONDS, cache.getExpireSeconds());
     assertEquals(SERVICE_ID, cache.getServiceId());
+    assertEquals(SERVICE_PREFIX, cache.getPrefix());
+    assertEquals(PRE_DEFINED_EXPIRE_SECONDS, cache.getExpireSeconds());
     assertEquals(TIMEOUT_MILLIS, cache.getTimeoutMilliSeconds());
-    assertEquals(DEFAULT_TRANSCODER, cache.getOperationTranscoder());
+    assertTrue(cache.getOperationTranscoder() instanceof SerializingTranscoder);
     assertEquals(WANT_TO_GET_EXCEPTION, cache.isWantToGetException());
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testGetMissingCache() {
     String nonDefinedCache = "non-defined-cache";
-    ArcusCache cache = (ArcusCache)this.cacheManager.getCache(nonDefinedCache);
+    ArcusCache cache = (ArcusCache)this.arcusCacheManagerFromClient.getCache(nonDefinedCache);
 
     assertEquals(nonDefinedCache, cache.getName());
-    assertEquals(DEFAULT_EXPIRE_SECONDS, cache.getExpireSeconds());
     assertEquals(SERVICE_ID, cache.getServiceId());
+    assertEquals(SERVICE_PREFIX, cache.getPrefix());
+    assertEquals(DEFAULT_EXPIRE_SECONDS, cache.getExpireSeconds());
     assertEquals(TIMEOUT_MILLIS, cache.getTimeoutMilliSeconds());
-    assertEquals(DEFAULT_TRANSCODER, cache.getOperationTranscoder());
+    assertTrue(cache.getOperationTranscoder() instanceof SerializingTranscoder);
     assertEquals(WANT_TO_GET_EXCEPTION, cache.isWantToGetException());
   }
 
   @Test
-  public void testGetPreDefinedCacheNames() {
-    Collection<String> preDefinedCacheNames = this.cacheManager.getCacheNames();
+  public void testGetCacheNameAndSize() {
+    String nonDefinedCache = "non-defined-cache";
+    this.arcusCacheManagerFromClient.getCache(nonDefinedCache); // Create missing cache
 
-    assertEquals(1, preDefinedCacheNames.size());
-    assertTrue(preDefinedCacheNames.contains(PRE_DEFINED_CACHE_NAME));
+    String nonDefinedCache2 = "non-defined-cache-2"; // Create missing cache
+    this.arcusCacheManagerFromClient.getCache(nonDefinedCache2);
+
+    String nonDefinedCache3 = "non-defined-cache-3"; // Create missing cache
+    this.arcusCacheManagerFromClient.getCache(nonDefinedCache3);
+
+    Collection<String> cacheNames = this.arcusCacheManagerFromClient.getCacheNames();
+
+    assertEquals(4, cacheNames.size());
+    assertTrue(cacheNames.contains(PRE_DEFINED_CACHE_NAME));
+    assertTrue(cacheNames.contains(nonDefinedCache));
+    assertTrue(cacheNames.contains(nonDefinedCache2));
+    assertTrue(cacheNames.contains(nonDefinedCache3));
   }
 
   @Test
-  public void testGetMissingCacheNames() {
-    String nonDefinedCache = "non-defined-cache";
-    this.cacheManager.getCache(nonDefinedCache); // Create missing cache
-    Collection<String> cacheNames = this.cacheManager.getCacheNames();
+  public void testDestroy() {
+    ArcusClientPool clientPool;
 
-    assertEquals(2, cacheNames.size());
-    assertTrue(cacheNames.contains(PRE_DEFINED_CACHE_NAME));
-    assertTrue(cacheNames.contains(nonDefinedCache));
+    Field clientField = ReflectionUtils.findField(ArcusCacheManager.class, "client");
+    clientField.setAccessible(true);
+
+    this.arcusCacheManagerFromClient.destroy();
+    clientPool = (ArcusClientPool) ReflectionUtils.getField(clientField, this.arcusCacheManagerFromClient);
+    for (ArcusClient client : clientPool.getAllClients()) {
+      assertFalse(client.dead);
+    }
+
+    this.arcusCacheManagerFromAddress.destroy();
+    clientPool = (ArcusClientPool) ReflectionUtils.getField(clientField, this.arcusCacheManagerFromAddress);
+    for (ArcusClient client : clientPool.getAllClients()) {
+      assertTrue(client.dead);
+    }
   }
+
 }

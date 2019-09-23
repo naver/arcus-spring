@@ -20,7 +20,6 @@ package com.navercorp.arcus.spring.cache;
 import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ArcusClientPool;
 import net.spy.memcached.ConnectionFactoryBuilder;
-import net.spy.memcached.transcoders.Transcoder;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.AbstractCacheManager;
@@ -36,42 +35,62 @@ import java.util.Map;
  * 미리 정의하지 않은 이름의 캐시에 대해 get 요청을 받으면 (SimpleCacheManager와 다르게) 기본 설정으로 새 캐시를 생성하고 저장합니다.
  */
 public class ArcusCacheManager extends AbstractCacheManager implements DisposableBean {
-  private final ArcusClientPool arcusClientPool;
-  private final String serviceId;
-  private final Transcoder<Object> operationTranscoder;
-  private final int timeoutMillis;
-  private final int defaultExpireSeconds;
-  private final Map<String, Integer> nameToExpireSeconds;
-  private final boolean wantToGetException;
+  private ArcusClientPool client;
+  protected ArcusCacheConfiguration defaultConfiguration;
+  protected Map<String, ArcusCacheConfiguration> initialCacheConfigs;
+  private boolean internalClient;
 
+  /**
+   * 외부에서 생성한 Arcus 클라이언트를 이용해 캐시 매니저를 생성합니다.
+   * 캐시 매니저의 생성, 소멸시 Arcus 클라이언트의 연결, 해제 작업을 하지 않습니다.
+   *
+   * @param client               ArcusClientPool 유형의 클라이언트
+   * @param defaultConfiguration 정의되지 않은 캐시의 기본 설정
+   * @param initialCacheConfigs  생성할 캐시들의 이름과 설정들의 집합
+   */
+  public ArcusCacheManager(
+    ArcusClientPool client,
+    ArcusCacheConfiguration defaultConfiguration,
+    Map<String, ArcusCacheConfiguration> initialCacheConfigs
+  ) {
+    this.client = client;
+    this.defaultConfiguration = defaultConfiguration;
+    this.initialCacheConfigs = initialCacheConfigs;
+    this.internalClient = false;
+  }
+
+  /**
+   * 캐시 매니저 내부에서 Arcus 클라이언트를 생성 및 소멸을 관리하기 위한 생성자.
+   *
+   * @param adminAddress             Arcus 클라이언트를 생성하기 위해 필요한 캐시의 주소
+   * @param serviceCode              Arcus 클라이언트를 생성하기 위해 필요한 서비스 코드
+   * @param connectionFactoryBuilder Arcus 클라이언트를 생성하기 위해 필요한 ConnectionFactory 빌더
+   * @param poolSize                 Arcus 클라이언트를 생성하기 위해 필요한 클라이언트 풀 사이즈
+   * @param defaultConfiguration     정의되지 않은 캐시의 기본 설정
+   * @param initialCacheConfigs      생성할 캐시들의 이름과 설정들의 집합
+   */
   public ArcusCacheManager(
     String adminAddress,
     String serviceCode,
-    String serviceId,
     ConnectionFactoryBuilder connectionFactoryBuilder,
-    Transcoder<Object> operationTranscoder,
     int poolSize,
-    int timeoutMillis,
-    int defaultExpireSeconds,
-    Map<String, Integer> nameToExpireSeconds,
-    boolean wantToGetException) {
-
-    this.arcusClientPool =
-      ArcusClient.createArcusClientPool(adminAddress, serviceCode, connectionFactoryBuilder, poolSize);
-    this.serviceId = serviceId;
-    this.operationTranscoder = operationTranscoder;
-    this.timeoutMillis = timeoutMillis;
-    this.defaultExpireSeconds = defaultExpireSeconds;
-    this.nameToExpireSeconds = nameToExpireSeconds;
-    this.wantToGetException = wantToGetException;
+    ArcusCacheConfiguration defaultConfiguration,
+    Map<String, ArcusCacheConfiguration> initialCacheConfigs
+  ) {
+    this(
+      ArcusClient.createArcusClientPool(adminAddress, serviceCode, connectionFactoryBuilder, poolSize),
+      defaultConfiguration,
+      initialCacheConfigs
+    );
+    this.internalClient = true;
   }
 
   @Override
   protected Collection<? extends Cache> loadCaches() {
-    List<Cache> caches = new ArrayList<Cache>(this.nameToExpireSeconds.size());
-    for (Map.Entry<String, Integer> nameAndExpireSeconds : this.nameToExpireSeconds.entrySet()) {
+    List<Cache> caches = new ArrayList<Cache>(initialCacheConfigs.size());
+    for (Map.Entry<String, ArcusCacheConfiguration> entry : initialCacheConfigs.entrySet()) {
       caches.add(
-        this.createCache(nameAndExpireSeconds.getKey(), nameAndExpireSeconds.getValue()));
+        createCache(entry.getKey(), entry.getValue()));
     }
 
     return caches;
@@ -79,31 +98,35 @@ public class ArcusCacheManager extends AbstractCacheManager implements Disposabl
 
   @Override
   protected Cache getMissingCache(String name) {
-    return this.createCache(name, this.defaultExpireSeconds);
+    return createCache(name, defaultConfiguration);
   }
 
   /**
    * 캐시를 생성합니다.
    *
    * @param name          생성할 캐시 이름
-   * @param expireSeconds 생성할 캐시의 TTL (초)
+   * @param configuration 생성할 캐시의 속성
    * @return 생성된 캐시
    */
-  private Cache createCache(String name, int expireSeconds) {
+  @SuppressWarnings("deprecation")
+  protected Cache createCache(String name, ArcusCacheConfiguration configuration) {
     ArcusCache cache = new ArcusCache();
     cache.setName(name);
-    cache.setExpireSeconds(expireSeconds);
-    cache.setServiceId(this.serviceId);
-    cache.setTimeoutMilliSeconds(this.timeoutMillis);
-    cache.setArcusClient(this.arcusClientPool);
-    cache.setOperationTranscoder(this.operationTranscoder);
-    cache.setWantToGetException(this.wantToGetException);
+    cache.setServiceId(configuration.getServiceId());
+    cache.setPrefix(configuration.getPrefix());
+    cache.setArcusClient(client);
+    cache.setExpireSeconds(configuration.getExpireSeconds());
+    cache.setTimeoutMilliSeconds(configuration.getTimeoutMilliSeconds());
+    cache.setOperationTranscoder(configuration.getOperationTranscoder());
+    cache.setWantToGetException(true);
 
     return cache;
   }
 
-  @Override
-  public void destroy() {
-    this.arcusClientPool.shutdown();
-  }
+    @Override
+    public void destroy() {
+      if (internalClient) {
+        client.shutdown();
+      }
+    }
 }

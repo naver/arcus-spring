@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+    <util:properties id="arcusConfig" location="classpath:/arcus.properties"/>
+
+    <bean id="arcusTranscoder" class="net.spy.memcached.transcoders.SerializingTranscoder"
+          p:charset="UTF-8" p:compressionThreshold="400"/>
+
+    <bean id="arcusClient" class="com.navercorp.arcus.spring.ArcusClientFactoryBean"
+          p:url="#{arcusConfig['url']}"
+          p:serviceCode="#{arcusConfig['serviceCode']}"
+          p:poolSize="4"/>
+
+    <bean id="default-cache" class="com.navercorp.arcus.spring.cache.ArcusCacheConfiguration"
+        p:serviceId="test-service-id"
+        p:prefix="test-prefix"
+        p:expireSeconds="1"
+        p:timeoutMilliSeconds="100"
+        p:operationTranscoder-ref="arcusTranscoder"/>
+
+    <bean id="arcusCacheManagerFromClient" class="com.navercorp.arcus.spring.cache.ArcusCacheManager">
+        <constructor-arg ref="arcusClient"/>
+        <constructor-arg ref="default-cache"/>
+        <constructor-arg>
+            <map>
+                <entry key="pre-defined-cache">
+                    <bean parent="default-cache"
+                        p:expireSeconds="2"/>
+                </entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="arcusCacheManagerFromAddress" class="com.navercorp.arcus.spring.cache.ArcusCacheManager">
+        <constructor-arg value="#{arcusConfig['url']}"/>
+        <constructor-arg value="#{arcusConfig['serviceCode']}"/>
+        <constructor-arg>
+            <bean class="net.spy.memcached.ConnectionFactoryBuilder"/>
+        </constructor-arg>
+        <constructor-arg value="4"/>
+        <constructor-arg ref="default-cache"/>
+        <constructor-arg>
+            <map>
+                <entry key="pre-defined-cache">
+                    <bean parent="default-cache"
+                        p:expireSeconds="2"/>
+                </entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
+</beans>
