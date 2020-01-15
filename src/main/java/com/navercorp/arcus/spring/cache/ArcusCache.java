@@ -271,6 +271,16 @@ public class ArcusCache implements Cache, InitializingBean {
     }
   }
 
+  /**
+   * @param key key
+   * @return always false because prior presence could not be determined.
+   */
+  @Override
+  public boolean evictIfPresent(Object key) {
+    evict(key);
+    return false;
+  }
+
   @Override
   public void clear() {
     try {
@@ -297,6 +307,15 @@ public class ArcusCache implements Cache, InitializingBean {
         throw new RuntimeException(e);
       }
     }
+  }
+
+  /**
+   * @return always false because prior presence could not be determined.
+   */
+  @Override
+  public boolean invalidate() {
+    clear();
+    return false;
   }
 
   /**

@@ -10,7 +10,7 @@ arcus-spring provides following functionalities.
 - ArcusCache: Spring Cache implementation for Arcus.
 - StringKeyGenerator: KeyGenerator implementation of Spring Cache for generating ArcusStringKey.
 - ArcusStringKey: Arcus subkey class with hash and string key without prefix.
-- Spring 4.3 cache abstract support.
+- Spring 5.2 cache abstract support.
 
 ## Getting Started
 
