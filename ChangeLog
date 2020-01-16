@@ -1,3 +1,7 @@
+2020-01-16 [version 1.11.5]
+	* [Feature] Upgrade log4j version for security vulnerabilities.
+	* [Doc]     Provide a way of "getting started" in README.
+
 2019-10-01 [version 1.11.4]
 	* [Feature] Upgrade arcus-java-client. 1.9.7 => 1.11.4.
 	* [Feature] Support new 3 APIs of spring version 4.3.0.
