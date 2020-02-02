@@ -1,5 +1,6 @@
-2020-01-16 [version 1.11.5]
+2020-02-02 [version 1.11.5] (revised)
 	* [Feature] Upgrade log4j version for security vulnerabilities.
+	* [Feature] Change maven repo because it no longer supports insecure HTTP.
 	* [Doc]     Provide a way of "getting started" in README.
 
 2019-10-01 [version 1.11.4]
