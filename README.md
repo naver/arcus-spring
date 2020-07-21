@@ -8,7 +8,7 @@ arcus-spring provides following functionalities.
 - ArcusCacheManager: AbstractCacheManager implementation of Spring Cache for managing ArcusCache.
 - ArcusCacheConfiguration: Configuration class representing properties of ArcusCache
 - ArcusCache: Spring Cache implementation for Arcus.
-- StringKeyGenerator: KeyGenerator implementation of Spring Cache for generating ArcusStringKey.
+- StringKeyGenerator, SimpleStringKeyGenerator: KeyGenerator implementation of Spring Cache for generating ArcusStringKey.
 - ArcusStringKey: Arcus subkey class with hash and string key without prefix.
 - Spring 4.3 cache abstract support.
 
@@ -37,8 +37,19 @@ dependencies {
 }
 ```
 
+### KeyGenerator
+
+Arcus-spring provides two types of key generator. These two are StringKeyGenerator and SimpleStringKeyGenerator.
+
+- StringKeyGenerator: it generate the key by combining the parameters and hashcode of the parameters.
+It's because the key can have invalid characters. This generator replace invalid characters to valid characters.
+But if the generator do that, even though the keys are different, they can be the same. So the generator adds hashcode to distinguish the keys.
+- SimpleStringKeyGenerator: it generate the key simply by combining the parameters. So this generator can generate invalid keys or duplicate keys.
+
+For example, when the parameters are 'a', 'b', 'c', StringKeyGenerator creates the key 'a,b,c317' and SimpleStringKeyGenerator creates the key 'a,b,c'.
+
 ### Configuration
-Spring Cache configuration is required before using arcus-spring. Create ArcusCacheManager and StringKeyGenerator with the following configuration. 
+Spring Cache configuration is required before using arcus-spring. Create ArcusCacheManager and StringKeyGenerator with the following configuration.
 
 #### XML
 ```
