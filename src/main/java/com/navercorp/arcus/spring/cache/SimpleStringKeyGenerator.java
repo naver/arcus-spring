@@ -1,6 +1,6 @@
 /*
  * arcus-spring - Arcus as a caching provider for the Spring Cache Abstraction
- * Copyright 2016 JaM2in Co., Ltd.
+ * Copyright 2020 JaM2in JaM2in Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,24 @@
 
 package com.navercorp.arcus.spring.cache;
 
-public class ArcusStringKey {
-  public static int light_hash(String str) {
-    int hash = 7;
-    for (int i = 0; i < str.length(); i++) {
-      hash = hash * 31 + str.charAt(i);
+import org.springframework.cache.interceptor.KeyGenerator;
+
+import java.lang.reflect.Method;
+
+public class SimpleStringKeyGenerator implements KeyGenerator {
+  private static final String DEFAULT_SEPARTOR = ",";
+
+  @Override
+  public Object generate(Object target, Method method, Object... params) {
+    StringBuilder keyBuilder = new StringBuilder();
+    for (int i = 0, n = params.length; i < n; i++) {
+      if (i > 0) {
+        keyBuilder.append(DEFAULT_SEPARTOR);
+      }
+      if (params[i] != null) {
+        keyBuilder.append(params[i]);
+      }
     }
-    return hash;
-  }
-
-  private String stringKey = null;
-
-  public ArcusStringKey(String key) {
-    this.stringKey = key;
-  }
-
-  public String getStringKey() {
-    return stringKey;
+    return new ArcusStringKey(keyBuilder.toString());
   }
 }

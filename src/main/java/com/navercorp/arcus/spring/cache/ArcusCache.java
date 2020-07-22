@@ -318,8 +318,7 @@ public class ArcusCache implements Cache, InitializingBean {
     String keyString, arcusKey;
 
     if (key instanceof ArcusStringKey) {
-      keyString = ((ArcusStringKey) key).getStringKey().replace(' ', '_') +
-              String.valueOf(((ArcusStringKey) key).getHash());
+      keyString = ((ArcusStringKey) key).getStringKey();
     } else if (key instanceof Integer) {
       keyString = key.toString();
     } else {
