@@ -23,12 +23,13 @@ import java.lang.reflect.Method;
 
 /**
  * 스프링 Cache의 KeyGenerator 구현체.
- * <p/>
+ * <p>
  * Arcus의 key 구조는 prefix:subkey 입니다.
  * 여기서 생성하는 키 값은 Arcus key 구조에서 subkey에 해당합니다.
- * <p/>
+ * </p>
+ * <p>
  * 기본적으로 메서드 매개변수를 조합해서 키 값을 생성합니다.
- * <p/>
+ * </p>
  */
 public class StringKeyGenerator implements KeyGenerator {
   private static final String DEFAULT_SEPARTOR = ",";

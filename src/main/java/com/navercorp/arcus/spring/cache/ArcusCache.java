@@ -41,35 +41,34 @@ import java.util.concurrent.TimeUnit;
  * Arcus의 key 구조는 prefix:subkey 입니다. prefix는 사용자가 그룹으로 생성하고자 하는 subkey들의 집합이며
  * ArcusCache에서는 서비스 또는 빌드 단계 등의 구분을 위해 serviceId + name으로 정의합니다. serviceCode
  * 속성과 name는 반드시 설정되어야 합니다.
- * <p>
- * <pre class="code">
- * <p>
+ * </p>
+ * <pre>{@code
  * <bean id="operationTranscoderA" class="net.spy.memcached.transcoders.SerializingTranscoder">
- * <property name="charset" value="UTF-8" />
- * <property name="compressionThreshold" value="400" />
+ *   <property name="charset" value="UTF-8" />
+ *   <property name="compressionThreshold" value="400" />
  * </bean>
- * <p>
+ *
  * <bean id="operationTranscoderB" class="net.spy.memcached.transcoders.SerializingTranscoder">
- * <property name="charset" value="UTF-8" />
- * <property name="compressionThreshold" value="1024" />
+ *   <property name="charset" value="UTF-8" />
+ *   <property name="compressionThreshold" value="1024" />
  * </bean>
- * <p>
+ *
  * <bean id="arcusCacheManager" class="org.springframework.cache.support.SimpleCacheManager">
- * <property name="caches">
- * <list>
- * <bean p:name="member" p:timeoutMilliSeconds="500" parent="defaultArcusCache" p:operationTranscoder-ref="operationTranscoderA" />
- * <bean p:name="memberList" p:expireSeconds="3000"	parent="defaultArcusCache" p:operationTranscoder-ref="operationTranscoderB" />
- * </list>
- * </property>
+ *   <property name="caches">
+ *     <list>
+ *       <bean p:name="member" p:timeoutMilliSeconds="500" parent="defaultArcusCache" p:operationTranscoder-ref="operationTranscoderA" />
+ *       <bean p:name="memberList" p:expireSeconds="3000" parent="defaultArcusCache" p:operationTranscoder-ref="operationTranscoderB" />
+ *     </list>
+ *   </property>
  * </bean>
- * <p>
+ *
  * <bean id="defaultArcusCache" class="com.navercorp.arcus.spring.cache.ArcusCache"
  * p:arcusClient-ref="arcusClient" p:timeoutMilliSeconds="500"
  * p:expireSeconds="3000" abstract="true" serviceId="beta-" />
- * <p>
- * </pre>
+ * }</pre>
  * <p>
  * 이렇게 설정했을때, 캐시의 키 값으로 생성되는 값은 <span>beta-member:메서드 매개변수로 만든 문자열</span>이 됩니다.
+ * </p>
  */
 @SuppressWarnings("DeprecatedIsStillUsed")
 public class ArcusCache implements Cache, InitializingBean {
@@ -303,15 +302,14 @@ public class ArcusCache implements Cache, InitializingBean {
   /**
    * serviceId, prefix, name 값을 사용하여 아커스 키를 생성합니다. serviceId는 필수값이며, prefix 또는
    * name 둘 중에 하나가 반드시 있어야 합니다. name과 prefix값이 모두 있다면 prefix 값을 사용합니다.
-   * <p>
-   * 키 생성 로직은 다음과 같습니다.
-   * <p>
-   * serviceId + (prefix | name) + ":" + key.toString();
-   * <p>
-   * 만약 전체 키의 길이가 250자를 넘을 경우에는 key.toString() 대신 그 값을 MD5로 압축한 값을 사용합니다.
    *
-   * @param key
-   * @return
+   * <p>키 생성 로직은 다음과 같습니다.</p>
+   * <p>serviceId + (prefix | name) + ":" + key.toString();</p>
+   * <p>만약 전체 키의 길이가 250자를 넘을 경우에는 key.toString() 대신 그 값을 MD5로 압축한 값을 사용합니다.</p>
+   *
+   * @param key key
+   * @return 입력받은 키를 기반으로 캐시 용도의 키를 생성하고 이를 리턴한다. 입력받은 키의 타입에 따라 다른 형태의
+   * 캐시 키를 생성할 수 있다
    */
   public String createArcusKey(final Object key) {
     Assert.notNull(key);
