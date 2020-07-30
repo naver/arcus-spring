@@ -1,3 +1,6 @@
+2020-07-30 [version 1.11.6.2]
+	* [Doc] Fix the javadoc generation errors
+
 2020-07-22 [version 1.11.6]
 	* [FEATURE] added old string key generator for the backward compatibility.
 	* [FEATURE] upgrade to the latest log4j version (2.8.2 => 2.13.3).
