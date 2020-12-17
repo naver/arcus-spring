@@ -322,19 +322,22 @@ public class ArcusCache implements Cache, InitializingBean {
     } else {
       keyString = key.toString();
       int hash = ArcusStringKey.light_hash(keyString);
-      keyString = keyString.replace(' ', '_') + String.valueOf(hash);
+      keyString = keyString.replace(' ', '_') + hash;
     }
 
-    arcusKey = serviceId + name + ":" + keyString;
     if (this.prefix != null) {
       arcusKey = serviceId + prefix + ":" + keyString;
+    } else {
+      arcusKey = serviceId + name + ":" + keyString;
     }
+
     if (arcusKey.length() > 250) {
       String digestedString = DigestUtils.md5DigestAsHex(keyString
               .getBytes());
-      arcusKey = serviceId + name + ":" + digestedString;
       if (this.prefix != null) {
         arcusKey = serviceId + prefix + ":" + digestedString;
+      } else {
+        arcusKey = serviceId + name + ":" + digestedString;
       }
     }
     return arcusKey;
