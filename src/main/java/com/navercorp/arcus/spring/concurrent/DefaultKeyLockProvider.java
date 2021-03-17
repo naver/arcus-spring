@@ -18,6 +18,7 @@
 package com.navercorp.arcus.spring.concurrent;
 
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @SuppressWarnings("WeakerAccess")
@@ -53,7 +54,7 @@ public class DefaultKeyLockProvider implements KeyLockProvider {
     if (key == null) {
       return 0;
     }
-    return key.hashCode() & (mutexes.length - 1);
+    return key.hashCode() % (mutexes.length - 1);
   }
 
 }
