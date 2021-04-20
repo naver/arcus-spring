@@ -25,7 +25,7 @@ The artifact for arcus-spring is in the central Maven repository. To use it, add
     <dependency>
         <groupId>com.navercorp.arcus</groupId>
         <artifactId>arcus-spring</artifactId>
-        <version>1.11.6.2</version>
+        <version>1.12.0</version>
     </dependency>
 </dependencies>
 ```
@@ -33,7 +33,7 @@ The artifact for arcus-spring is in the central Maven repository. To use it, add
 #### Gradle (build.gradle)
 ```
 dependencies {
-    compile 'com.navercorp.arcus:arcus-spring:1.11.6.2'
+    compile 'com.navercorp.arcus:arcus-spring:1.12.0'
 }
 ```
 
