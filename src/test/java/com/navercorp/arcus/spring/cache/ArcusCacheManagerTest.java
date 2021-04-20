@@ -113,16 +113,19 @@ public class ArcusCacheManagerTest {
     Field clientField = ReflectionUtils.findField(ArcusCacheManager.class, "client");
     clientField.setAccessible(true);
 
+    Field deadField = ReflectionUtils.findField(ArcusClient.class, "dead");
+    deadField.setAccessible(true);
+
     this.arcusCacheManagerFromClient.destroy();
     clientPool = (ArcusClientPool) ReflectionUtils.getField(clientField, this.arcusCacheManagerFromClient);
     for (ArcusClient client : clientPool.getAllClients()) {
-      assertFalse(client.dead);
+      assertFalse((Boolean) ReflectionUtils.getField(deadField, client));
     }
 
     this.arcusCacheManagerFromAddress.destroy();
     clientPool = (ArcusClientPool) ReflectionUtils.getField(clientField, this.arcusCacheManagerFromAddress);
     for (ArcusClient client : clientPool.getAllClients()) {
-      assertTrue(client.dead);
+      assertTrue((Boolean) ReflectionUtils.getField(deadField, client));
     }
   }
 
