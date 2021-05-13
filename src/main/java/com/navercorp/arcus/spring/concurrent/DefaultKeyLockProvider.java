@@ -1,6 +1,6 @@
 /*
  * arcus-spring - Arcus as a caching provider for the Spring Cache Abstraction
- * Copyright 2019 JaM2in Co., Ltd.
+ * Copyright 2019-2021 JaM2in Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ package com.navercorp.arcus.spring.concurrent;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-@SuppressWarnings("WeakerAccess")
 public class DefaultKeyLockProvider implements KeyLockProvider {
 
   public static final int DEFAULT_EXPONENT_OF_LOCKS = 11;

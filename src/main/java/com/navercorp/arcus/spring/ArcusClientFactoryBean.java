@@ -1,6 +1,7 @@
 /*
  * arcus-spring - Arcus as a caching provider for the Spring Cache Abstraction
  * Copyright 2011-2014 NAVER Corp.
+ * Copyright 2014-2021 JaM2in Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,14 +88,14 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
   }
 
   @Override
-  public void destroy() throws Exception {
+  public void destroy() {
     if (this.client != null) {
       this.client.shutdown();
     }
   }
 
   @Override
-  public ArcusClientPool getObject() throws Exception {
+  public ArcusClientPool getObject() {
     ConnectionFactoryBuilder cfb = new ConnectionFactoryBuilder();
     cfb.setFrontCacheExpireTime(frontCacheExpireTime);
     cfb.setTimeoutExceptionThreshold(timeoutExceptionThreshold);
@@ -123,7 +124,7 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
   }
 
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() {
     Assert.notNull(this.url, "Url property must be provided.");
     Assert.notNull(this.serviceCode,
             "ServiceCode property must be provided.");
