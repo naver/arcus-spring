@@ -8,7 +8,7 @@
     <name>arcus-spring</name>
     <packaging>jar</packaging>
     <url>https://github.com/naver/arcus-spring</url>
-    <version>1.13.0</version>
+    <version>1.13.2</version>
 
     <properties>
         <org.springframework.version>4.3.0.RELEASE</org.springframework.version>
