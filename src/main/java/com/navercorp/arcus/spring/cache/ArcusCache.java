@@ -1,7 +1,7 @@
 /*
  * arcus-spring - Arcus as a caching provider for the Spring Cache Abstraction
  * Copyright 2011-2014 NAVER Corp.
- * Copyright 2014-2019 JaM2in Co., Ltd.
+ * Copyright 2014-2021 JaM2in Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("DeprecatedIsStillUsed")
 public class ArcusCache implements Cache, InitializingBean {
 
-  private Logger logger = LoggerFactory.getLogger(this.getClass());
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   private String name;
   private String prefix;
@@ -99,9 +99,8 @@ public class ArcusCache implements Cache, InitializingBean {
   @Override
   public ValueWrapper get(Object key) {
     Object value = null;
-    String cacheKey = null;
     try {
-      cacheKey = createArcusKey(key);
+      String cacheKey = createArcusKey(key);
       logger.debug("getting value by key: {}", cacheKey);
 
       Future<Object> future;
@@ -179,8 +178,8 @@ public class ArcusCache implements Cache, InitializingBean {
               value != null ? value.getClass().getName() : null);
 
       if (value == null) {
-        logger.info("arcus cannot put NULL value. key: {}, value: {}",
-                key.toString(), value);
+        logger.info("arcus cannot put NULL value. key: {}",
+                key.toString());
         return;
       }
 
@@ -261,7 +260,7 @@ public class ArcusCache implements Cache, InitializingBean {
               TimeUnit.MILLISECONDS);
 
       if (logger.isDebugEnabled() && !success) {
-        logger.debug("failed to evivt a key: {}", key.toString());
+        logger.debug("failed to evict a key: {}", key.toString());
       }
     } catch (Exception e) {
       logger.info(e.getMessage());
@@ -360,7 +359,7 @@ public class ArcusCache implements Cache, InitializingBean {
   }
 
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() {
     if (name == null && prefix == null) {
       throw new IllegalArgumentException(
               "ArcusCache's 'name' or 'prefix' property must have a value.");
@@ -437,10 +436,6 @@ public class ArcusCache implements Cache, InitializingBean {
     } else {
       return new RuntimeException(e);
     }
-  }
-
-  private ValueWrapper toValueWrapper(Object value) {
-    return (value != null ? new SimpleValueWrapper(value) : null);
   }
 
   private Object getValue(String arcusKey) throws Exception {

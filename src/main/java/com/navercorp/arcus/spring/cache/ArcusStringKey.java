@@ -1,6 +1,6 @@
 /*
  * arcus-spring - Arcus as a caching provider for the Spring Cache Abstraction
- * Copyright 2016 JaM2in Co., Ltd.
+ * Copyright 2016-2021 JaM2in Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ public class ArcusStringKey {
     return hash;
   }
 
-  private String stringKey = null;
+  private final String stringKey;
 
   public ArcusStringKey(String key) {
     this.stringKey = key;

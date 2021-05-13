@@ -70,7 +70,7 @@ public class ArcusCacheConfiguration implements InitializingBean {
   }
 
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() {
     Assert.isTrue(timeoutMilliSeconds > 0, "TimeoutMilliSeconds must be larger than 0.");
   }
 
