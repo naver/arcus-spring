@@ -35,4 +35,21 @@ public class ArcusStringKey {
   public String getStringKey() {
     return stringKey;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    return stringKey.equals(((ArcusStringKey) o).stringKey);
+  }
+
+  @Override
+  public int hashCode() {
+    return stringKey.hashCode();
+  }
+
 }
