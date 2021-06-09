@@ -1,6 +1,6 @@
 /*
  * arcus-spring - Arcus as a caching provider for the Spring Cache Abstraction
- * Copyright 2019 JaM2in Co., Ltd.
+ * Copyright 2019-2021 JaM2in Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 package com.navercorp.arcus.spring.cache;
 
+import com.navercorp.arcus.spring.cache.front.ArcusFrontCache;
 import net.spy.memcached.transcoders.Transcoder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -26,8 +27,11 @@ public class ArcusCacheConfiguration implements InitializingBean {
   private String serviceId;
   private String prefix;
   private int expireSeconds;
+  private int frontExpireSeconds;
   private int timeoutMilliSeconds;
   private Transcoder<Object> operationTranscoder;
+  private ArcusFrontCache arcusFrontCache;
+  private boolean forceFrontCaching;
 
   public String getServiceId() {
     return serviceId;
@@ -53,6 +57,14 @@ public class ArcusCacheConfiguration implements InitializingBean {
     this.expireSeconds = expireSeconds;
   }
 
+  public int getFrontExpireSeconds() {
+    return frontExpireSeconds;
+  }
+
+  public void setFrontExpireSeconds(int frontExpireSeconds) {
+    this.frontExpireSeconds = frontExpireSeconds;
+  }
+
   public int getTimeoutMilliSeconds() {
     return timeoutMilliSeconds;
   }
@@ -67,6 +79,22 @@ public class ArcusCacheConfiguration implements InitializingBean {
 
   public void setOperationTranscoder(Transcoder<Object> operationTranscoder) {
     this.operationTranscoder = operationTranscoder;
+  }
+
+  public ArcusFrontCache getArcusFrontCache() {
+    return arcusFrontCache;
+  }
+
+  public void setArcusFrontCache(ArcusFrontCache arcusFrontCache) {
+    this.arcusFrontCache = arcusFrontCache;
+  }
+
+  public boolean isForceFrontCaching() {
+    return forceFrontCaching;
+  }
+
+  public void setForceFrontCaching(boolean forceFrontCaching) {
+    this.forceFrontCaching = forceFrontCaching;
   }
 
   @Override
