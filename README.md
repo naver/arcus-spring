@@ -218,6 +218,92 @@ public class ProductService {
 }
 ```
 
+## Front Cache
+
+You can use the front cache to provide fast responsiveness of cache requests. The front cache takes precedence over ARCUS and performs cache requests. To enable this feature, create an implementation of the `ArcusFrontCache` interface and set it to the `ArcusCache`. 
+
+### Configuration
+
+```java
+@Bean
+public ArcusCache testCache() {
+    ArcusCache arcusCache = new ArcusCache();
+    arcusCache.setServiceId("TEST-");
+    arcusCache.setPrefix("PRODUCT");
+    arcusCache.setExpireSeconds(60);
+    arcusCache.setTimeoutMilliSeconds(800);
+    /* front cache configuration */
+    arcusCache.setArcusFrontCache(testArcusFrontCache());
+    arcusCache.setFrontExpireSeconds(120);
+    arcusCache.setForceFrontCache(false);
+    /* front cache configuration */
+    return arcusCache;
+}
+
+@Bean
+public ArcusCache devCache() {
+    ArcusCache arcusCache = new ArcusCache();
+    arcusCache.setServiceId("DEV-");
+    arcusCache.setPrefix("PRODUCT");
+    arcusCache.setExpireSeconds(60);
+    arcusCache.setTimeoutMilliSeconds(800);
+    /* front cache configuration */
+    arcusCache.setArcusFrontCache(devArcusFrontCache());
+    arcusCache.setFrontExpireSeconds(240);
+    arcusCache.setForceFrontCache(true);
+    /* front cache configuration */
+    return arcusCache;
+}
+
+@Bean
+public ArcusFrontCache testArcusFrontCache() {
+    return new DefaultArcusFrontCache("test" /*name*/, 10000 /*maxEntries*/, false /*copyOnRead*/, false /*copyOnWrite*/);
+}
+
+@Bean
+public ArcusFrontCache devArcusFrontCache() {
+    return new DefaultArcusFrontCache("dev" /*name*/, 20000 /*maxEntries*/, false /*copyOnRead*/, false /*copyOnWrite*/);
+}
+```
+
+The properties added to the `ArcusCache` class related to Front Cache are as follows.
+
+- `setArcusFrontCache(ArcusFrontCache arcusFrontCache)`
+  - Front Cache instance setting. If it is a null value, Front Cache does not work.
+- `setFrontExpireSeconds(int frontExpireSeconds)`
+  - Front Cache TTL(TimeToLive) setting.
+- `setForceFrontCaching(int forceFrontCaching)`
+  - true: Even if the change request of ARCUS fails, the change request is reflected in Front Cache. When a request fails due to an ARCUS failure, the Front Cache function can be worked. But, it is prone to data consistency issues, so we recommend using it only for data that doesn't change frequently. 
+  - false: If the change request of ARCUS fails, the change request is not reflected in Front Cache.
+   
+Front Caching is not always performed. It is performed depending on the attribute of `forceFrontCaching` property and the result of the ARCUS request.
+
+| ArcusCache API | ARCUS Result | forceFrontCaching=false | forceFrontCaching=true |
+|-------------|----------------------|-------------------------|------------------------|
+| get         | success              | O                       | O                      |
+| get         | failure              | X                       | X                      |
+| put         | success              | O                       | O                      |
+| put         | failure              | X                       | O                      |
+| putIfAbsent | success              | O                       | O                      |
+| putIfAbsent | failure              | X                       | X                      |
+| evict       | success              | O                       | O                      |
+| evict       | failure              | O                       | O                      |
+| clear       | success              | O                       | O                      |
+| clear       | failure              | X                       | X                      |
+
+### DefaultArcusFrontCache
+
+`ArcusFrontCache` consists of a simple interface for Front Cache. You can implement and use the `ArcusFrontCache` interface, or you can use the `DefaultArcusFrontCache` implementation provided by default in the library. Four options are required to use DefaultArcusFrontCache.
+
+- name 
+  - Cache name. It must be unique each time an instance is created.
+- maxEntries 
+  - The maximum number of items that can be stored in the front cache.
+- copyOnRead 
+  - Whether the Front Cache should copy elements it returns.  
+- copyOnWrite
+  - Whether the Front Cache should copy elements it gets.
+  
 ## Issues
 
 If you find a bug, please report it via the GitHub issues page.
