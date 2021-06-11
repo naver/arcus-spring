@@ -28,7 +28,7 @@ public class ArcusCacheConfiguration implements InitializingBean {
   private String prefix;
   private int expireSeconds;
   private int frontExpireSeconds;
-  private int timeoutMilliSeconds;
+  private long timeoutMilliSeconds = ArcusCache.DEFAULT_TIMEOUT_MILLISECONDS;
   private Transcoder<Object> operationTranscoder;
   private ArcusFrontCache arcusFrontCache;
   private boolean forceFrontCaching;
@@ -65,11 +65,11 @@ public class ArcusCacheConfiguration implements InitializingBean {
     this.frontExpireSeconds = frontExpireSeconds;
   }
 
-  public int getTimeoutMilliSeconds() {
+  public long getTimeoutMilliSeconds() {
     return timeoutMilliSeconds;
   }
 
-  public void setTimeoutMilliSeconds(int timeoutMilliSeconds) {
+  public void setTimeoutMilliSeconds(long timeoutMilliSeconds) {
     this.timeoutMilliSeconds = timeoutMilliSeconds;
   }
 
