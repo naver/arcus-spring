@@ -73,6 +73,8 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("DeprecatedIsStillUsed")
 public class ArcusCache implements Cache, InitializingBean {
 
+  public static final long DEFAULT_TIMEOUT_MILLISECONDS = 700L;
+
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   private String name;
@@ -80,7 +82,7 @@ public class ArcusCache implements Cache, InitializingBean {
   private String serviceId;
   private int expireSeconds;
   private int frontExpireSeconds;
-  private long timeoutMilliSeconds = 300L;
+  private long timeoutMilliSeconds = DEFAULT_TIMEOUT_MILLISECONDS;
   private ArcusClientPool arcusClient;
   @Deprecated
   private boolean wantToGetException;
