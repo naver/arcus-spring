@@ -1,3 +1,9 @@
+2021-06-15 [version 1.13.3]
+	* [FEATURE] change default operation timeout to 700ms.
+	* [FEATURE] support front cache for ArcusCache.
+	* [FEATURE] support key generator for other cache implementations.
+	* [CLEANUP] remove lint warnings.
+
 2021-05-13 [version 1.13.2]
 	* [FEATURE] upgrade arcus-java-client version (1.13.0 => 1.13.2)
 
