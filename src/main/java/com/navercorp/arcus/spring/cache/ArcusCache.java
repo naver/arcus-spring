@@ -451,6 +451,7 @@ public class ArcusCache implements Cache, InitializingBean {
 
     if (arcusFrontCache != null &&
         (value = arcusFrontCache.get(arcusKey)) != null) {
+      logger.debug("front cache hit for {}", arcusKey);
       return value;
     }
 
@@ -465,8 +466,11 @@ public class ArcusCache implements Cache, InitializingBean {
 
     value = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
 
-    if (value != null && arcusFrontCache != null) {
-      arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
+    if (value != null) {
+      logger.debug("arcus cache hit for {}", arcusKey);
+      if (arcusFrontCache != null) {
+        arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
+      }
     }
 
     return value;
