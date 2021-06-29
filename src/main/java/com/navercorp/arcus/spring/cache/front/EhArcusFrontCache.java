@@ -18,11 +18,27 @@
 package com.navercorp.arcus.spring.cache.front;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 public class EhArcusFrontCache implements ArcusFrontCache {
 
   private final Cache cache;
+
+  public EhArcusFrontCache(String name) {
+    this(name, CacheManager.getInstance());
+  }
+
+  public EhArcusFrontCache(String name, CacheManager cacheManager) {
+    Cache cache = cacheManager.getCache(name);
+
+    if (cache == null) {
+      cacheManager.addCache(name);
+      cache = cacheManager.getCache(name);
+    }
+
+    this.cache = cache;
+  }
 
   public EhArcusFrontCache(Cache cache) {
     this.cache = cache;
