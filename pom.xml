@@ -13,7 +13,7 @@
     <properties>
         <org.springframework.version>4.3.0.RELEASE</org.springframework.version>
         <org.slf4j.version>1.7.24</org.slf4j.version>
-        <org.apache.logging.log4j.version>2.13.3</org.apache.logging.log4j.version>
+        <org.apache.logging.log4j.version>2.15.0</org.apache.logging.log4j.version>
         <arcus.client.version>1.13.2</arcus.client.version>
         <junit.version>4.13.1</junit.version>
         <org.mockito.version>1.7</org.mockito.version>
