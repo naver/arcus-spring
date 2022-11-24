@@ -20,7 +20,7 @@ The artifact for arcus-spring is in the central Maven repository. To use it, add
 
 #### Maven (pom.xml)
 
-```
+```xml
 <dependencies>
     <dependency>
         <groupId>com.navercorp.arcus</groupId>
@@ -31,7 +31,7 @@ The artifact for arcus-spring is in the central Maven repository. To use it, add
 ```
 
 #### Gradle (build.gradle)
-```
+```groovy
 dependencies {
     compile 'com.navercorp.arcus:arcus-spring:1.13.3'
 }
@@ -52,7 +52,7 @@ For example, when the parameters are 'a', 'b', 'c', StringKeyGenerator creates t
 Spring Cache configuration is required before using arcus-spring. Create ArcusCacheManager and StringKeyGenerator with the following configuration.
 
 #### XML
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -112,7 +112,7 @@ Spring Cache configuration is required before using arcus-spring. Create ArcusCa
 ```
 
 #### Java
-```
+```java
 @Configuration
 @EnableCaching
 public class ArcusConfiguration extends CachingConfigurerSupport {
@@ -186,7 +186,7 @@ public class ArcusConfiguration extends CachingConfigurerSupport {
 
 Apply the cache using the key(cacheNames) stored in the initialCacheConfig map of ArcusCacheManager you created with XML or Java configuration. 
 
-```
+```java
 @Service
 public class ProductService {
 
