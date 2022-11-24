@@ -18,8 +18,6 @@
 
 package com.navercorp.arcus.spring.cache;
 
-import org.springframework.cache.interceptor.KeyGenerator;
-
 import java.lang.reflect.Method;
 
 /**
@@ -32,9 +30,7 @@ import java.lang.reflect.Method;
  * 기본적으로 메서드 매개변수를 조합해서 키 값을 생성합니다.
  * </p>
  */
-public class StringKeyGenerator implements KeyGenerator {
-  private static final String DEFAULT_SEPARTOR = ",";
-
+public class StringKeyGenerator extends ArcusKeyGenerator {
   @Override
   public Object generate(Object target, Method method, Object... params) {
     int hash = 0;

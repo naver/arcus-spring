@@ -17,13 +17,9 @@
 
 package com.navercorp.arcus.spring.cache;
 
-import org.springframework.cache.interceptor.KeyGenerator;
-
 import java.lang.reflect.Method;
 
-public class SimpleStringKeyGenerator implements KeyGenerator {
-  private static final String DEFAULT_SEPARTOR = ",";
-
+public class SimpleStringKeyGenerator extends ArcusKeyGenerator {
   @Override
   public Object generate(Object target, Method method, Object... params) {
     StringBuilder keyBuilder = new StringBuilder();

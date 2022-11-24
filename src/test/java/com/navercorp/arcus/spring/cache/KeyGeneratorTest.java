@@ -18,29 +18,30 @@
 package com.navercorp.arcus.spring.cache;
 
 import org.junit.Test;
-import org.springframework.cache.interceptor.KeyGenerator;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
 
 public class KeyGeneratorTest {
-  StringKeyGenerator stringKeyGenerator = new StringKeyGenerator();
-  SimpleStringKeyGenerator simpleStringKeyGenerator = new SimpleStringKeyGenerator();
+  ArcusKeyGenerator stringKeyGenerator = new StringKeyGenerator();
+  ArcusKeyGenerator simpleStringKeyGenerator = new SimpleStringKeyGenerator();
 
 
-  private void testGenExtract(KeyGenerator keyGenerator) throws Exception {
+  private void testGenExtract(ArcusKeyGenerator keyGenerator) throws Exception {
     StringBuilder longParam = new StringBuilder();
     for (int i = 0; i < 255; i++) {
       longParam.append(i);
     }
-    String key = ((ArcusStringKey) (keyGenerator.generate(null, null, longParam))).getStringKey();
+    String key = ((ArcusStringKey) (keyGenerator.generate(longParam))).getStringKey();
     assertThat(key.length() > 255, is(true));
     System.out.println(key);
   }
 
-  private void testGenDuplicatedKeysWithColons(KeyGenerator keyGenerator, boolean allowDupKey) {
-    ArcusStringKey arcusKey1 = (ArcusStringKey) keyGenerator.generate(null, null, "a,b", "c", "de");
-    ArcusStringKey arcusKey2 = (ArcusStringKey) keyGenerator.generate(null, null, "a,b", "c,de");
+  private void testGenDuplicatedKeysWithColons(ArcusKeyGenerator keyGenerator, boolean allowDupKey) {
+    ArcusStringKey arcusKey1 = (ArcusStringKey) keyGenerator.generate("a,b", "c", "de");
+    ArcusStringKey arcusKey2 = (ArcusStringKey) keyGenerator.generate("a,b", "c,de");
 
     if (allowDupKey) {
       assertEquals(arcusKey1.getStringKey(), arcusKey2.getStringKey());
