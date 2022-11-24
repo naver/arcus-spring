@@ -191,6 +191,8 @@ public class ArcusConfiguration extends CachingConfigurerSupport {
 
 ### Example
 
+#### @Cacheable
+
 Apply the cache using the key(cacheNames) stored in the initialCacheConfig map of ArcusCacheManager you created with XML or Java configuration. 
 
 ```java
@@ -222,6 +224,59 @@ public class ProductService {
         return new Product(id);
     }
 
+}
+```
+
+#### CacheManager
+
+```java
+@Service
+public class ProductService {
+    @Autowired
+    private CacheManager cacheManager;
+    
+    @Autowired
+    private ArcusKeyGenerator keyGenerator;
+
+    /*
+        using the "testCache" cache with 60 expire seconds and "TEST-PRODUCT" prefix.
+    */
+    public Product getProduct_TestCache(int id) {
+      Product product = cacheManager.getCache("testCache")
+              .get(keyGenerator.generate(id), Product.class);
+      
+      if (product == null) {
+        return new Product(id);
+      }
+      return product;
+    }
+    
+    /*
+        using the "devCache" cache with 120 expire seconds and "DEV-PRODUCT" prefix.
+    */  
+    public Product getProduct_DevCache(int id) {
+      Product product = cacheManager.getCache("devCache")
+              .get(keyGenerator.generate(id), Product.class);
+      
+      if (product == null) {
+        return new Product(id);
+      }
+      return product;
+    }
+
+    /*
+        using the "missingCache" cache with 60 expire seconds and "DEFAULT" prefix.
+    */
+    public Product getProduct_DefaultCache(int id) {
+      Product product = cacheManager.getCache("missingCache")
+              .get(keyGenerator.generate(id), Product.class);
+      
+      if (product == null) {
+        return new Product(id);
+      }
+      return product;
+    }
+    
 }
 ```
 
