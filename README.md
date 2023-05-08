@@ -31,9 +31,16 @@ The artifact for arcus-spring is in the central Maven repository. To use it, add
 ```
 
 #### Gradle (build.gradle)
+##### version 7.0 before
 ```groovy
 dependencies {
     compile 'com.navercorp.arcus:arcus-spring:1.13.3'
+}
+```
+##### version 7.0 or later
+```groovy
+dependencies {
+  implementation 'com.navercorp.arcus:arcus-spring:1.13.3'
 }
 ```
 
