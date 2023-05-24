@@ -227,39 +227,39 @@ public class ProductService {
 
 ## Front Cache
 
-You can use the front cache to provide fast responsiveness of cache requests. The front cache takes precedence over ARCUS and performs cache requests. To enable this feature, create an implementation of the `ArcusFrontCache` interface and set it to the `ArcusCache`. 
+You can use the front cache to provide fast responsiveness of cache requests. The front cache takes precedence over ARCUS and performs cache requests. To enable this feature, create an implementation of the `ArcusFrontCache` interface and set it to the `ArcusCacheConfiguration`.
 
 ### Configuration
 
 ```java
 @Bean
-public ArcusCache testCache() {
-    ArcusCache arcusCache = new ArcusCache();
-    arcusCache.setServiceId("TEST-");
-    arcusCache.setPrefix("PRODUCT");
-    arcusCache.setExpireSeconds(60);
-    arcusCache.setTimeoutMilliSeconds(800);
+public ArcusCacheConfiguration testCacheConfig() {
+    ArcusCacheConfiguration cacheConfig = new ArcusCacheConfiguration();
+    cacheConfig.setServiceId("TEST-");
+    cacheConfig.setPrefix("PRODUCT");
+    cacheConfig.setExpireSeconds(60);
+    cacheConfig.setTimeoutMilliSeconds(800);
     /* front cache configuration */
-    arcusCache.setArcusFrontCache(testArcusFrontCache());
-    arcusCache.setFrontExpireSeconds(120);
-    arcusCache.setForceFrontCache(false);
+    cacheConfig.setArcusFrontCache(testArcusFrontCache());
+    cacheConfig.setFrontExpireSeconds(120);
+    cacheConfig.setForceFrontCaching(false);
     /* front cache configuration */
-    return arcusCache;
+    return cacheConfig;
 }
 
 @Bean
-public ArcusCache devCache() {
-    ArcusCache arcusCache = new ArcusCache();
-    arcusCache.setServiceId("DEV-");
-    arcusCache.setPrefix("PRODUCT");
-    arcusCache.setExpireSeconds(60);
-    arcusCache.setTimeoutMilliSeconds(800);
+public ArcusCacheConfiguration devCacheConfig() {
+    ArcusCacheConfiguration cacheConfig = new ArcusCacheConfiguration();
+    cacheConfig.setServiceId("DEV-");
+    cacheConfig.setPrefix("PRODUCT");
+    cacheConfig.setExpireSeconds(120);
+    cacheConfig.setTimeoutMilliSeconds(800);
     /* front cache configuration */
-    arcusCache.setArcusFrontCache(devArcusFrontCache());
-    arcusCache.setFrontExpireSeconds(240);
-    arcusCache.setForceFrontCache(true);
+    cacheConfig.setArcusFrontCache(devArcusFrontCache());
+    cacheConfig.setFrontExpireSeconds(240);
+    cacheConfig.setForceFrontCaching(true);
     /* front cache configuration */
-    return arcusCache;
+    return cacheConfig;
 }
 
 @Bean
