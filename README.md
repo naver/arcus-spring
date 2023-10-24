@@ -23,7 +23,7 @@ The artifact for arcus-spring is in the central Maven repository. To use it, add
 ```xml
 <dependencies>
     <dependency>
-        <groupId>com.navercorp.arcus</groupId>
+        <groupId>com.jam2in.arcus</groupId>
         <artifactId>arcus-spring</artifactId>
         <version>1.13.3</version>
     </dependency>
@@ -34,13 +34,13 @@ The artifact for arcus-spring is in the central Maven repository. To use it, add
 ##### version 7.0 before
 ```groovy
 dependencies {
-    compile 'com.navercorp.arcus:arcus-spring:1.13.3'
+    compile 'com.jam2in.arcus:arcus-spring:1.13.3'
 }
 ```
 ##### version 7.0 or later
 ```groovy
 dependencies {
-  implementation 'com.navercorp.arcus:arcus-spring:1.13.3'
+  implementation 'com.jam2in.arcus:arcus-spring:1.13.3'
 }
 ```
 
