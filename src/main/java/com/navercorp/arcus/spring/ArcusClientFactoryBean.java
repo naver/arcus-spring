@@ -28,6 +28,8 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
+import javax.annotation.Nullable;
+
 public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
         DisposableBean, InitializingBean {
 
@@ -67,7 +69,7 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
     this.frontCacheCopyOnWrite = copyOnWrite;
   }
 
-  public void setGlobalTranscoder(Transcoder<Object> tc) {
+  public void setGlobalTranscoder(@Nullable Transcoder<Object> tc) {
     this.globalTranscoder = tc;
   }
 

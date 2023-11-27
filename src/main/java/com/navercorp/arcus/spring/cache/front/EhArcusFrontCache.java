@@ -21,6 +21,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import javax.annotation.Nullable;
+
 public class EhArcusFrontCache implements ArcusFrontCache {
 
   private final Cache cache;
@@ -44,6 +46,7 @@ public class EhArcusFrontCache implements ArcusFrontCache {
     this.cache = cache;
   }
 
+  @Nullable
   @Override
   public Object get(String key) {
     Element element = cache.get(key);
@@ -51,7 +54,7 @@ public class EhArcusFrontCache implements ArcusFrontCache {
   }
 
   @Override
-  public void set(String key, Object value, int expireTime) {
+  public void set(String key, @Nullable Object value, int expireTime) {
     Element element = new Element(key, value);
     element.setTimeToLive(expireTime);
     element.setTimeToIdle(0);
