@@ -21,15 +21,17 @@ import org.springframework.cache.interceptor.KeyGenerator;
 
 import java.lang.reflect.Method;
 
+import javax.annotation.Nullable;
+
 public class SimpleStringKeyGenerator implements KeyGenerator {
-  private static final String DEFAULT_SEPARTOR = ",";
+  private static final String DEFAULT_SEPARATOR = ",";
 
   @Override
-  public Object generate(Object target, Method method, Object... params) {
+  public Object generate(@Nullable Object target, @Nullable Method method, Object... params) {
     StringBuilder keyBuilder = new StringBuilder();
     for (int i = 0, n = params.length; i < n; i++) {
       if (i > 0) {
-        keyBuilder.append(DEFAULT_SEPARTOR);
+        keyBuilder.append(DEFAULT_SEPARATOR);
       }
       if (params[i] != null) {
         keyBuilder.append(params[i]);
