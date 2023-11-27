@@ -22,6 +22,8 @@ import net.spy.memcached.transcoders.Transcoder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
+import javax.annotation.Nullable;
+
 public class ArcusCacheConfiguration implements InitializingBean {
 
   private String serviceId;
@@ -41,11 +43,12 @@ public class ArcusCacheConfiguration implements InitializingBean {
     this.serviceId = serviceId;
   }
 
+  @Nullable
   public String getPrefix() {
     return prefix;
   }
 
-  public void setPrefix(String prefix) {
+  public void setPrefix(@Nullable String prefix) {
     this.prefix = prefix;
   }
 
@@ -73,19 +76,21 @@ public class ArcusCacheConfiguration implements InitializingBean {
     this.timeoutMilliSeconds = timeoutMilliSeconds;
   }
 
+  @Nullable
   public Transcoder<Object> getOperationTranscoder() {
     return operationTranscoder;
   }
 
-  public void setOperationTranscoder(Transcoder<Object> operationTranscoder) {
+  public void setOperationTranscoder(@Nullable Transcoder<Object> operationTranscoder) {
     this.operationTranscoder = operationTranscoder;
   }
 
+  @Nullable
   public ArcusFrontCache getArcusFrontCache() {
     return arcusFrontCache;
   }
 
-  public void setArcusFrontCache(ArcusFrontCache arcusFrontCache) {
+  public void setArcusFrontCache(@Nullable ArcusFrontCache arcusFrontCache) {
     this.arcusFrontCache = arcusFrontCache;
   }
 

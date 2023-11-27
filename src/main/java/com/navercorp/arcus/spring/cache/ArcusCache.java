@@ -31,6 +31,7 @@ import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -101,6 +102,7 @@ public class ArcusCache implements Cache, InitializingBean {
     return this.arcusClient;
   }
 
+  @Nullable
   @Override
   public ValueWrapper get(Object key) {
     Object value = null;
@@ -116,6 +118,7 @@ public class ArcusCache implements Cache, InitializingBean {
   }
 
   @SuppressWarnings("unchecked")
+  @Nullable
   @Override
   public <T> T get(Object key, Class<T> type) {
     try {
@@ -132,6 +135,7 @@ public class ArcusCache implements Cache, InitializingBean {
   }
 
   @SuppressWarnings("unchecked")
+  @Nullable
   @Override
   public <T> T get(Object key, Callable<T> valueLoader) {
     String arcusKey = createArcusKey(key);
@@ -182,6 +186,7 @@ public class ArcusCache implements Cache, InitializingBean {
    * 수행되기 때문에 중간에 다른 캐시 연산 수행으로 인하여 새로운 값이 리턴 될 수 있으며 혹은 캐시 만료로 인해
    * ValueWrapper의 내부 value가 null이 되어 리턴될 수 있다.
    */
+  @Nullable
   @Override
   public ValueWrapper putIfAbsent(Object key, Object value) {
     String arcusKey = createArcusKey(key);
@@ -374,35 +379,39 @@ public class ArcusCache implements Cache, InitializingBean {
     return arcusClient;
   }
 
+  @Nullable
   public Transcoder<Object> getOperationTranscoder() {
     return operationTranscoder;
   }
 
-  public void setOperationTranscoder(Transcoder<Object> operationTranscoder) {
+  public void setOperationTranscoder(@Nullable Transcoder<Object> operationTranscoder) {
     this.operationTranscoder = operationTranscoder;
   }
 
+  @Nullable
   public String getPrefix() {
     return prefix;
   }
 
-  public void setPrefix(String prefix) {
+  public void setPrefix(@Nullable String prefix) {
     this.prefix = prefix;
   }
 
+  @Nullable
   public KeyLockProvider getKeyLockProvider() {
     return keyLockProvider;
   }
 
-  public void setKeyLockProvider(KeyLockProvider keyLockProvider) {
+  public void setKeyLockProvider(@Nullable KeyLockProvider keyLockProvider) {
     this.keyLockProvider = keyLockProvider;
   }
 
+  @Nullable
   public ArcusFrontCache getArcusFrontCache() {
     return arcusFrontCache;
   }
 
-  public void setArcusFrontCache(ArcusFrontCache arcusFrontCache) {
+  public void setArcusFrontCache(@Nullable ArcusFrontCache arcusFrontCache) {
     this.arcusFrontCache = arcusFrontCache;
   }
 
@@ -438,6 +447,7 @@ public class ArcusCache implements Cache, InitializingBean {
     }
   }
 
+  @Nullable
   private Object getValue(String arcusKey) throws Exception {
     logger.debug("getting value by key: {}", arcusKey);
 

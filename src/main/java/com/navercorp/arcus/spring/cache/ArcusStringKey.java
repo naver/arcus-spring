@@ -17,6 +17,8 @@
 
 package com.navercorp.arcus.spring.cache;
 
+import javax.annotation.Nullable;
+
 public class ArcusStringKey {
   public static int light_hash(String str) {
     int hash = 7;
@@ -37,7 +39,7 @@ public class ArcusStringKey {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
