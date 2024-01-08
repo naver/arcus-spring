@@ -290,7 +290,7 @@ public class ArcusCache implements Cache, InitializingBean {
    * @return 입력받은 키를 기반으로 캐시 키를 생성하고 반환한다. 입력받은 키의 타입에 따라 캐시 키의 형태가 달라질 수 있다
    */
   public String createArcusKey(final Object key) {
-    Assert.notNull(key);
+    Assert.notNull(key, "key must not be null.");
     String keyString;
 
     if (key instanceof ArcusStringKey) {
