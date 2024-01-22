@@ -281,16 +281,13 @@ public class ArcusCache implements Cache, InitializingBean {
   }
 
   /**
-   * serviceId, prefix, name 값을 사용하여 아커스 키를 생성합니다. serviceId는 필수값이며, prefix 또는
-   * name 둘 중에 하나가 반드시 있어야 합니다. name과 prefix값이 모두 있다면 prefix 값을 사용합니다.
-   *
-   * <p>키 생성 로직은 다음과 같습니다.</p>
-   * <p>serviceId + (prefix | name) + ":" + key.toString();</p>
-   * <p>만약 전체 키의 길이가 250자를 넘을 경우에는 key.toString() 대신 그 값을 MD5로 압축한 값을 사용합니다.</p>
+   * serviceId, prefix, name 값을 사용하여 Arcus 캐시 키를 생성합니다.
+   * <p> 캐시 키는 serviceId + (prefix | name) + ":" + key.toString() 형태로 구성됩니다. </p>
+   * <p> prefix가 주어지지 않았다면, name을 prefix처럼 사용합니다. </p>
+   * <p> 캐시 키의 길이가 250자를 넘을 경우에는 key.toString() 부분을 MD5로 해싱하여 사용합니다. </p>
    *
    * @param key key
-   * @return 입력받은 키를 기반으로 캐시 용도의 키를 생성하고 이를 리턴한다. 입력받은 키의 타입에 따라 다른 형태의
-   * 캐시 키를 생성할 수 있다
+   * @return 입력받은 키를 기반으로 캐시 키를 생성하고 반환한다. 입력받은 키의 타입에 따라 캐시 키의 형태가 달라질 수 있다
    */
   public String createArcusKey(final Object key) {
     Assert.notNull(key, "[Assertion failed] - this argument is required; it must not be null");
@@ -306,22 +303,19 @@ public class ArcusCache implements Cache, InitializingBean {
       keyString = keyString.replace(' ', '_') + hash;
     }
 
-    if (this.prefix != null) {
-      arcusKey = serviceId + prefix + ":" + keyString;
-    } else {
-      arcusKey = serviceId + name + ":" + keyString;
-    }
+    String prefixString = getPrefixString();
 
-    if (arcusKey.length() > 250) {
-      String digestedString = DigestUtils.md5DigestAsHex(keyString
-              .getBytes());
-      if (this.prefix != null) {
-        arcusKey = serviceId + prefix + ":" + digestedString;
-      } else {
-        arcusKey = serviceId + name + ":" + digestedString;
-      }
+    if (prefixString.length() + keyString.length() > 250) {
+      return prefixString + DigestUtils.md5DigestAsHex(keyString.getBytes());
     }
-    return arcusKey;
+    return prefixString + keyString;
+  }
+
+  private String getPrefixString() {
+    if (this.prefix != null) {
+      return serviceId + prefix + ":";
+    }
+    return serviceId + name + ":";
   }
 
   public void setName(String name) {

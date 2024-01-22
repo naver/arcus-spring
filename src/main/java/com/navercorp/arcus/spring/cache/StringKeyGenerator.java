@@ -22,6 +22,8 @@ import org.springframework.cache.interceptor.KeyGenerator;
 
 import java.lang.reflect.Method;
 
+import javax.annotation.Nullable;
+
 /**
  * 스프링 Cache의 KeyGenerator 구현체.
  * <p>
@@ -33,15 +35,15 @@ import java.lang.reflect.Method;
  * </p>
  */
 public class StringKeyGenerator implements KeyGenerator {
-  private static final String DEFAULT_SEPARTOR = ",";
+  private static final String DEFAULT_SEPARATOR = ",";
 
   @Override
-  public Object generate(Object target, Method method, Object... params) {
+  public Object generate(@Nullable Object target, @Nullable Method method, Object... params) {
     int hash = 0;
     StringBuilder keyBuilder = new StringBuilder();
     for (int i = 0, n = params.length; i < n; i++) {
       if (i > 0) {
-        keyBuilder.append(DEFAULT_SEPARTOR);
+        keyBuilder.append(DEFAULT_SEPARATOR);
       }
       if (params[i] != null) {
         keyBuilder.append(params[i]);
