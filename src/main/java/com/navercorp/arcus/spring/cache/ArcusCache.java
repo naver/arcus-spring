@@ -293,7 +293,7 @@ public class ArcusCache implements Cache, InitializingBean {
    * 캐시 키를 생성할 수 있다
    */
   public String createArcusKey(final Object key) {
-    Assert.notNull(key);
+    Assert.notNull(key, "[Assertion failed] - this argument is required; it must not be null");
     String keyString, arcusKey;
 
     if (key instanceof ArcusStringKey) {
