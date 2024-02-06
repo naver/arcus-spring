@@ -19,15 +19,18 @@ package com.navercorp.arcus.spring.cache;
 
 import org.springframework.cache.interceptor.KeyGenerator;
 
-import java.lang.reflect.Method;
-
 import javax.annotation.Nullable;
+import java.lang.reflect.Method;
 
 public class SimpleStringKeyGenerator implements KeyGenerator {
   private static final String DEFAULT_SEPARATOR = ",";
 
   @Override
   public Object generate(@Nullable Object target, @Nullable Method method, Object... params) {
+    return generateKey(params);
+  }
+
+  public static ArcusStringKey generateKey(Object... params) {
     StringBuilder keyBuilder = new StringBuilder();
     for (int i = 0, n = params.length; i < n; i++) {
       if (i > 0) {

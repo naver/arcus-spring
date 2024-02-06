@@ -20,9 +20,8 @@ package com.navercorp.arcus.spring.cache;
 
 import org.springframework.cache.interceptor.KeyGenerator;
 
-import java.lang.reflect.Method;
-
 import javax.annotation.Nullable;
+import java.lang.reflect.Method;
 
 /**
  * 스프링 Cache의 KeyGenerator 구현체.
@@ -39,6 +38,10 @@ public class StringKeyGenerator implements KeyGenerator {
 
   @Override
   public Object generate(@Nullable Object target, @Nullable Method method, Object... params) {
+    return generateKey(params);
+  }
+
+  public static ArcusStringKey generateKey(Object... params) {
     int hash = 0;
     StringBuilder keyBuilder = new StringBuilder();
     for (int i = 0, n = params.length; i < n; i++) {
