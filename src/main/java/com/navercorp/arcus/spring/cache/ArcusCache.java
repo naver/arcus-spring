@@ -92,6 +92,26 @@ public class ArcusCache implements Cache, InitializingBean {
   private KeyLockProvider keyLockProvider = new DefaultKeyLockProvider();
   private ArcusFrontCache arcusFrontCache;
 
+  public ArcusCache() {
+
+  }
+
+  ArcusCache(String name, ArcusClientPool clientPool, ArcusCacheConfiguration configuration) {
+    this.name = name;
+    this.arcusClient = clientPool;
+    this.serviceId = configuration.getServiceId();
+    this.prefix = configuration.getPrefix();
+    this.expireSeconds = configuration.getExpireSeconds();
+    this.timeoutMilliSeconds = configuration.getTimeoutMilliSeconds();
+    this.operationTranscoder = configuration.getOperationTranscoder();
+    this.arcusFrontCache = configuration.getArcusFrontCache();
+    this.frontExpireSeconds = configuration.getFrontExpireSeconds();
+    this.forceFrontCaching = configuration.isForceFrontCaching();
+    this.wantToGetException = true;
+
+    this.afterPropertiesSet();
+  }
+
   @Override
   public String getName() {
     return this.name;
@@ -384,7 +404,7 @@ public class ArcusCache implements Cache, InitializingBean {
     return operationTranscoder;
   }
 
-  public void setOperationTranscoder(@Nullable Transcoder<Object> operationTranscoder) {
+  public void setOperationTranscoder(Transcoder<Object> operationTranscoder) {
     this.operationTranscoder = operationTranscoder;
   }
 
@@ -393,7 +413,7 @@ public class ArcusCache implements Cache, InitializingBean {
     return prefix;
   }
 
-  public void setPrefix(@Nullable String prefix) {
+  public void setPrefix(String prefix) {
     this.prefix = prefix;
   }
 
@@ -402,7 +422,7 @@ public class ArcusCache implements Cache, InitializingBean {
     return keyLockProvider;
   }
 
-  public void setKeyLockProvider(@Nullable KeyLockProvider keyLockProvider) {
+  public void setKeyLockProvider(KeyLockProvider keyLockProvider) {
     this.keyLockProvider = keyLockProvider;
   }
 
@@ -411,7 +431,7 @@ public class ArcusCache implements Cache, InitializingBean {
     return arcusFrontCache;
   }
 
-  public void setArcusFrontCache(@Nullable ArcusFrontCache arcusFrontCache) {
+  public void setArcusFrontCache(ArcusFrontCache arcusFrontCache) {
     this.arcusFrontCache = arcusFrontCache;
   }
 
