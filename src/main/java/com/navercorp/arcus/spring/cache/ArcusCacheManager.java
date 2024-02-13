@@ -108,22 +108,8 @@ public class ArcusCacheManager extends AbstractCacheManager implements Disposabl
    * @param configuration 생성할 캐시의 속성
    * @return 생성된 캐시
    */
-  @SuppressWarnings("deprecation")
   protected Cache createCache(String name, ArcusCacheConfiguration configuration) {
-    ArcusCache cache = new ArcusCache();
-    cache.setName(name);
-    cache.setServiceId(configuration.getServiceId());
-    cache.setPrefix(configuration.getPrefix());
-    cache.setArcusClient(client);
-    cache.setArcusFrontCache(configuration.getArcusFrontCache());
-    cache.setExpireSeconds(configuration.getExpireSeconds());
-    cache.setFrontExpireSeconds(configuration.getFrontExpireSeconds());
-    cache.setTimeoutMilliSeconds(configuration.getTimeoutMilliSeconds());
-    cache.setOperationTranscoder(configuration.getOperationTranscoder());
-    cache.setForceFrontCaching(configuration.isForceFrontCaching());
-    cache.setWantToGetException(true);
-
-    return cache;
+    return new ArcusCache(name, client, configuration);
   }
 
     @Override
