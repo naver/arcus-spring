@@ -112,10 +112,10 @@ public class ArcusCacheManager extends AbstractCacheManager implements Disposabl
     return new ArcusCache(name, client, configuration);
   }
 
-    @Override
-    public void destroy() {
-      if (internalClient) {
-        client.shutdown();
-      }
+  @Override
+  public void destroy() {
+    if (internalClient) {
+      client.shutdown();
     }
+  }
 }
