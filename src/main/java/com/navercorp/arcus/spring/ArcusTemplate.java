@@ -17,7 +17,6 @@
 
 package com.navercorp.arcus.spring;
 
-import com.navercorp.arcus.spring.callback.ArcusCallBack;
 import net.spy.memcached.ArcusClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,9 @@ public class ArcusTemplate {
     this.arcusClient = arcusClient;
   }
 
-  public <T> T execute(final ArcusCallBack<T> methodCall) {
+  // There is NO way to avoid deprecated warnings when import deprecated classes.
+  // Use full class path to avoid them.
+  public <T> T execute(final com.navercorp.arcus.spring.callback.ArcusCallBack<T> methodCall) {
     return executeAndHandleException(methodCall, new FutureGetter<T>() {
       public T get(Future<T> future) throws InterruptedException,
               ExecutionException {
@@ -47,7 +48,8 @@ public class ArcusTemplate {
     });
   }
 
-  public <T> T execute(final ArcusCallBack<T> methodCall, final long timeout,
+  public <T> T execute(final com.navercorp.arcus.spring.callback.ArcusCallBack<T> methodCall,
+                       final long timeout,
                        final TimeUnit unit) {
     return executeAndHandleException(methodCall, new FutureGetter<T>() {
       public T get(Future<T> future) throws InterruptedException,
@@ -57,7 +59,7 @@ public class ArcusTemplate {
     });
   }
 
-  private <T> T executeAndHandleException(final ArcusCallBack<T> methodCall,
+  private <T> T executeAndHandleException(final com.navercorp.arcus.spring.callback.ArcusCallBack<T> methodCall,
                                           FutureGetter<T> futureGetter) {
     T arcusResponse = null;
     Future<T> link = null;
