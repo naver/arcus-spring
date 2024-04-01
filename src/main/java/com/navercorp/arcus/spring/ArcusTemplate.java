@@ -30,9 +30,9 @@ import java.util.concurrent.TimeoutException;
 @Deprecated
 public class ArcusTemplate {
 
-  private Logger logger = LoggerFactory.getLogger(this.getClass());
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  private ArcusClient arcusClient;
+  private final ArcusClient arcusClient;
 
   public ArcusTemplate(ArcusClient arcusClient) {
     this.arcusClient = arcusClient;
@@ -64,23 +64,16 @@ public class ArcusTemplate {
     try {
       link = methodCall.doInArcus(arcusClient);
       arcusResponse = futureGetter.get(link);
-    } catch (InterruptedException e) {
-      link.cancel(true);
-      logger.error(e.getMessage());
-    } catch (ExecutionException e) {
-      link.cancel(true);
-      logger.error(e.getMessage());
-    } catch (TimeoutException e) {
-      link.cancel(true);
-      logger.error(e.getMessage());
     } catch (Exception e) {
-      link.cancel(true);
+      if (link != null) {
+        link.cancel(true);
+      }
       logger.error(e.getMessage());
     }
     return arcusResponse;
   }
 
-  static interface FutureGetter<T> {
+  private interface FutureGetter<T> {
     T get(Future<T> future) throws InterruptedException,
             ExecutionException, TimeoutException;
   }

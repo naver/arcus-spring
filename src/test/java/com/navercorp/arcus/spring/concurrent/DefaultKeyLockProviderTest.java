@@ -73,11 +73,11 @@ public class DefaultKeyLockProviderTest {
     assertEquals(count, maxCount * threads.length);
   }
 
-  static class TestObject {
+  private static class TestObject {
 
-    private int i;
+    private final int i;
 
-    TestObject(int i) {
+    private TestObject(int i) {
       this.i = i;
     }
 

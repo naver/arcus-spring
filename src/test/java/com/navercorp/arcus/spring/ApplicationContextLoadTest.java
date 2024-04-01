@@ -34,7 +34,7 @@ import static org.junit.Assert.assertTrue;
 public class ApplicationContextLoadTest {
 
   @Autowired
-  ApplicationContext context;
+  private ApplicationContext context;
 
   @Test
   public void contextLoaded() {

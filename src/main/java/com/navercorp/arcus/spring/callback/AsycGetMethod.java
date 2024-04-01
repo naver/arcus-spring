@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
 @Deprecated
 public class AsycGetMethod implements ArcusCallBack<Object> {
 
-  private String key;
+  private final String key;
 
   public AsycGetMethod(String key) {
     this.key = key;

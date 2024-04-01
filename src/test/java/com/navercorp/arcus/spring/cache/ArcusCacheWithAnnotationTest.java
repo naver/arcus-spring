@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration("/arcus_spring_arcusCache_annotation_test.xml")
 public class ArcusCacheWithAnnotationTest {
   @Autowired
-  TestService testService;
+  private TestService testService;
 
   @After
   public void tearDown() {
@@ -49,23 +49,22 @@ public class ArcusCacheWithAnnotationTest {
     assertEquals(response2, response1);
   }
 
-}
+  private interface TestService {
+    String cachePopulate(String param1, String param2);
 
-interface TestService {
-  String cachePopulate(String param1, String param2);
-
-  void cacheEvict(String param1, String param2);
-}
-
-class TestServiceImpl implements TestService {
-  @Override
-  @Cacheable(value = "arcusCache")
-  public String cachePopulate(String param1, String param2) {
-    return "response " + new Random().nextInt();
+    void cacheEvict(String param1, String param2);
   }
 
-  @CacheEvict(value = "arcusCache")
-  public void cacheEvict(String param1, String param2) {
-    // Do nothing
+  private static class TestServiceImpl implements TestService {
+    @Override
+    @Cacheable(value = "arcusCache")
+    public String cachePopulate(String param1, String param2) {
+      return "response " + new Random().nextInt();
+    }
+
+    @CacheEvict(value = "arcusCache")
+    public void cacheEvict(String param1, String param2) {
+      // Do nothing
+    }
   }
 }

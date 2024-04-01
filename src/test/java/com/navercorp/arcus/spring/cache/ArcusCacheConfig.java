@@ -25,11 +25,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ArcusCacheConfig {
 
-  static String ADMIN = "127.0.0.1:2181";
-  static String SERVICE_CODE = "test";
-  static String PREFIX = "arcusCache";
-  static int POOLSIZE = 4;
-  static long TIMEOUT = 100;
+  private static final String ADMIN = "127.0.0.1:2181";
+  private static final String SERVICE_CODE = "test";
+  private static final String PREFIX = "arcusCache";
+  private static final int POOLSIZE = 4;
+  private static final long TIMEOUT = 100;
 
   @Bean
   public ArcusClientFactoryBean arcusClientFactory() {
@@ -45,7 +45,7 @@ public class ArcusCacheConfig {
   }
 
   @Bean
-  public ArcusCache arcusCache() throws Exception {
+  public ArcusCache arcusCache() {
     ArcusCache c = defaultArcusCache();
 
     c.setName("arcusCache");
@@ -55,7 +55,7 @@ public class ArcusCacheConfig {
     return c;
   }
 
-  private ArcusCache defaultArcusCache() throws Exception {
+  private ArcusCache defaultArcusCache() {
     ArcusCache c = new ArcusCache();
 
     c.setServiceId(SERVICE_CODE);

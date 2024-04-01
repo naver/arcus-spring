@@ -20,13 +20,13 @@ package com.navercorp.arcus.spring.cache;
 import org.junit.Test;
 import org.springframework.cache.interceptor.KeyGenerator;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 public class KeyGeneratorTest {
-  StringKeyGenerator stringKeyGenerator = new StringKeyGenerator();
-  SimpleStringKeyGenerator simpleStringKeyGenerator = new SimpleStringKeyGenerator();
-
+  private final StringKeyGenerator stringKeyGenerator = new StringKeyGenerator();
+  private final SimpleStringKeyGenerator simpleStringKeyGenerator = new SimpleStringKeyGenerator();
 
   private void testGenExtract(KeyGenerator keyGenerator) throws Exception {
     StringBuilder longParam = new StringBuilder();
@@ -34,7 +34,7 @@ public class KeyGeneratorTest {
       longParam.append(i);
     }
     String key = ((ArcusStringKey) (keyGenerator.generate(null, null, longParam))).getStringKey();
-    assertThat(key.length() > 255, is(true));
+    assertTrue(key.length() > 255);
     System.out.println(key);
   }
 

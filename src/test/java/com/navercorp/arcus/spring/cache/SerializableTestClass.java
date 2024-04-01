@@ -20,8 +20,9 @@ package com.navercorp.arcus.spring.cache;
 import java.io.Serializable;
 
 public class SerializableTestClass implements Serializable {
+  private static final long serialVersionUID = 7369163677735018101L;
 
-  String name;
+  private String name;
 
   public String getName() {
     return name;

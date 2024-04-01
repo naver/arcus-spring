@@ -24,7 +24,10 @@ import org.junit.Test;
 
 import java.io.Serializable;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class DefaultArcusFrontCacheTest {
 
@@ -100,10 +103,13 @@ public class DefaultArcusFrontCacheTest {
 
     // when
     TestObject object = (TestObject) frontCache.get("1");
+    assertNotNull(object);
     object.value = 2;
 
     // then
-    assertEquals(object.value, ((TestObject) frontCache.get("1")).value);
+    Object value = frontCache.get("1");
+    assertNotNull(value);
+    assertEquals(object.value, ((TestObject) value).value);
   }
 
   @Test
@@ -114,10 +120,13 @@ public class DefaultArcusFrontCacheTest {
 
     // when
     TestObject object = (TestObject) frontCache.get("1");
+    assertNotNull(object);
     object.value = 2;
 
     // then
-    assertNotEquals(object.value, ((TestObject) frontCache.get("1")).value);
+    Object value = frontCache.get("1");
+    assertNotNull(value);
+    assertNotEquals(object.value, ((TestObject) value).value);
   }
 
   @Test
@@ -131,7 +140,9 @@ public class DefaultArcusFrontCacheTest {
     object.value = 2;
 
     // then
-    assertEquals(object.value, ((TestObject) frontCache.get("1")).value);
+    Object value = frontCache.get("1");
+    assertNotNull(value);
+    assertEquals(object.value, ((TestObject) value).value);
   }
 
   @Test
@@ -142,10 +153,13 @@ public class DefaultArcusFrontCacheTest {
 
     // when
     TestObject object = (TestObject) frontCache.get("1");
+    assertNotNull(object);
     object.value = 2;
 
     // then
-    assertNotEquals(object.value, ((TestObject) frontCache.get("1")).value);
+    Object value = frontCache.get("1");
+    assertNotNull(value);
+    assertNotEquals(object.value, ((TestObject) value).value);
   }
 
   @Test
@@ -179,7 +193,9 @@ public class DefaultArcusFrontCacheTest {
   }
 
   static class TestObject implements Serializable {
-    public int value = 0;
+    private static final long serialVersionUID = 7471908963811659119L;
+
+    private int value;
 
     public TestObject(int value) {
       this.value = value;
