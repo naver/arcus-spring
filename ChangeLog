@@ -1,3 +1,20 @@
+# 2024-04-01 [version 1.13.5]
+## 🐣 New Features
+* Add @Nullable annotation for support JSR-305
+## 🔧 Enhancements
+* Generate prefix key only once in createArcusKey method
+* Add generateKey() method with only non-nullable parameters
+* Add package-private ArcusCache constructor for clean code
+* Remove compile warnings and IDE warnings
+## 🐛 Bug Fixes
+* Fix deprecated spring assert
+## 📝 Documentation
+* Update Arcus front cache documentation
+* Add user guide
+## ✅ Testing
+* Add CI config
+* Remove deprecated test
+
 2023-10-25 [version 1.13.4]
 	* [FEATURE] upgrade arcus-java-client version (1.13.2 => 1.13.4)
 	* [FEATURE] add cache hit log
