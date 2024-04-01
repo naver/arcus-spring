@@ -23,9 +23,9 @@ import java.util.concurrent.Future;
 
 @Deprecated
 public class AsyncLopDeleteByRangeMethod implements ArcusCallBack<Boolean> {
-  private String key;
-  private int from;
-  private int to;
+  private final String key;
+  private final int from;
+  private final int to;
 
   public AsyncLopDeleteByRangeMethod(String key, int from, int to) {
     this.key = key;

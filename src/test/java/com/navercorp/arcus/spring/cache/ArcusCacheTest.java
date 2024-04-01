@@ -33,8 +33,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ArcusCacheTest {
 
@@ -87,6 +93,7 @@ public class ArcusCacheTest {
     // then
     verify(arcusClientPool, times(1))
         .asyncGet(arcusKey);
+    assertNotNull(value);
     assertEquals(VALUE, value.get());
   }
 
@@ -103,10 +110,12 @@ public class ArcusCacheTest {
     // then
     verify(arcusClientPool, times(1))
         .asyncGet(arcusKey, OPERATION_TRANSCODER);
+    assertNotNull(value);
     assertEquals(VALUE, value.get());
   }
 
   @Test(expected = TestException.class)
+  @SuppressWarnings("deprecation")
   public void testGet_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -161,6 +170,7 @@ public class ArcusCacheTest {
         .get(arcusKey);
     verify(arcusFrontCache, never())
         .set(arcusKey, VALUE, FRONT_EXPIRE_SECONDS);
+    assertNotNull(value);
     assertEquals(VALUE, value.get());
   }
 
@@ -184,6 +194,7 @@ public class ArcusCacheTest {
         .get(arcusKey);
     verify(arcusFrontCache, times(1))
         .set(arcusKey, VALUE, FRONT_EXPIRE_SECONDS);
+    assertNotNull(value);
     assertEquals(VALUE, value.get());
   }
 
@@ -257,6 +268,7 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
+  @SuppressWarnings("deprecation")
   public void testPut_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -419,6 +431,7 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
+  @SuppressWarnings("deprecation")
   public void testEvict_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -566,6 +579,7 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
+  @SuppressWarnings("deprecation")
   public void testClear_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -1168,6 +1182,7 @@ public class ArcusCacheTest {
         .asyncGet(arcusKey);
     verify(arcusFrontCache, times(1))
         .set(arcusKey, VALUE.toString() + VALUE.toString(), FRONT_EXPIRE_SECONDS);
+    assertNotNull(value);
     assertEquals(VALUE.toString() + VALUE.toString(), value.get());
   }
 
@@ -1395,6 +1410,7 @@ public class ArcusCacheTest {
   }
 
   private static class TestException extends RuntimeException {
+    private static final long serialVersionUID = -3103959625477003804L;
   }
 
 }

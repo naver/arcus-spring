@@ -23,9 +23,9 @@ import java.util.concurrent.Future;
 
 @Deprecated
 public class SetMethod implements ArcusCallBack<Boolean> {
-  private String key;
-  private String value;
-  private int expSeconds;
+  private final String key;
+  private final String value;
+  private final int expSeconds;
 
   public SetMethod(String key, int expSeconds, String value) {
     this.key = key;

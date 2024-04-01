@@ -23,8 +23,8 @@ import java.util.concurrent.Future;
 
 @Deprecated
 public class AsyncLopDeleteByIndexMethod implements ArcusCallBack<Boolean> {
-  private String key;
-  private int index;
+  private final String key;
+  private final int index;
 
   public AsyncLopDeleteByIndexMethod(String key, int index) {
     this.key = key;

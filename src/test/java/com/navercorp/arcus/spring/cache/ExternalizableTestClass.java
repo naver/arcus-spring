@@ -24,9 +24,10 @@ import java.io.ObjectOutput;
 
 public class ExternalizableTestClass implements Externalizable {
 
-  int age;
+  private static final long serialVersionUID = 4768344623013275449L;
 
-  SerializableTestClass serializable;
+  private int age;
+  private SerializableTestClass serializable;
 
   public int getAge() {
     return age;

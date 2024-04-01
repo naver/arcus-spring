@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 
 @Deprecated
 public class DeleteMethod implements ArcusCallBack<Boolean> {
-  private String key;
+  private final String key;
 
   public DeleteMethod(String key) {
     this.key = key;

@@ -31,7 +31,6 @@ import java.util.Map;
 
 /**
  * 스프링 CacheManager의 Arcus 구현체.
- *
  * 미리 정의하지 않은 이름의 캐시에 대해 get 요청을 받으면 (SimpleCacheManager와 다르게) 기본 설정으로 새 캐시를 생성하고 저장합니다.
  */
 public class ArcusCacheManager extends AbstractCacheManager implements DisposableBean {

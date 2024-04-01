@@ -17,8 +17,6 @@
 
 package com.navercorp.arcus.spring;
 
-import com.navercorp.arcus.spring.callback.AsycGetMethod;
-import com.navercorp.arcus.spring.callback.SetMethod;
 import net.spy.memcached.ArcusClientPool;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +27,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.navercorp.arcus.spring.callback.ArusCallBackFactory.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -41,8 +38,7 @@ public class ArcusTemplateTest {
 
   @Autowired
   private ArcusClientPool client;
-  String key = "sample:testKey";
-  ArcusTemplate arcus;
+  private ArcusTemplate arcus;
 
   @Before
   public void setUp() {
@@ -50,12 +46,14 @@ public class ArcusTemplateTest {
   }
 
   @Test
-  public void valueShouldBeSetAndGot() throws Exception {
+  public void valueShouldBeSetAndGot() {
     // given
+    String key = "sample:testKey";
+    int expireTime = 300;
     String value = "setTest";
 
     // when
-    Boolean worked = arcus.execute(set(key, 300, value));
+    Boolean worked = arcus.execute(set(key, expireTime, value));
 
     String valueGot = (String) arcus.execute(asyncGet(key));
 
@@ -64,10 +62,13 @@ public class ArcusTemplateTest {
   }
 
   @Test
-  public void valueShouldBeSetAndDelete() throws Exception {
+  public void valueShouldBeSetAndDelete() {
     // given
+    String key = "sample:testKey";
+    int expireTime = 300;
     String value = "setAndDeleteTest";
-    Boolean setWorked = arcus.execute(new SetMethod(key, 300, value));
+
+    Boolean setWorked = arcus.execute(createSetMethod(key, expireTime, value));
     assertThat(setWorked, is(true));
 
     // when
@@ -75,21 +76,44 @@ public class ArcusTemplateTest {
 
     // then
     assertThat(deleteWorked, is(true));
-    String valueGot = (String) arcus.execute(new AsycGetMethod(key));
+    String valueGot = (String) arcus.execute(createAsyncGetMethod(key));
     assertThat(valueGot, is(nullValue()));
   }
 
   @Test
   public void valueShouldSetAndExpired() throws Exception {
     // given
-    final String value = "expireTest";
+    String key = "sample:testKey";
+    String value = "expireTest";
 
     // when
-    arcus.execute(new SetMethod(key, 1, value));
+    arcus.execute(createSetMethod(key, 1, value));
 
     // then
     TimeUnit.SECONDS.sleep(3); // cache가 expired 될 때까지 기다림
-    String valueGot = (String) arcus.execute(new AsycGetMethod(key));
+    String valueGot = (String) arcus.execute(createAsyncGetMethod(key));
     assertThat(valueGot, is(nullValue()));
+  }
+
+  // There is NO way to avoid deprecated warnings when import deprecated classes.
+  // Use full class path to avoid them.
+  private com.navercorp.arcus.spring.callback.SetMethod set(String key, int expireTime, String value) {
+    return com.navercorp.arcus.spring.callback.ArusCallBackFactory.set(key, expireTime, value);
+  }
+
+  private com.navercorp.arcus.spring.callback.AsycGetMethod asyncGet(String key) {
+    return com.navercorp.arcus.spring.callback.ArusCallBackFactory.asyncGet(key);
+  }
+
+  private com.navercorp.arcus.spring.callback.DeleteMethod delete(String key) {
+    return com.navercorp.arcus.spring.callback.ArusCallBackFactory.delete(key);
+  }
+
+  private com.navercorp.arcus.spring.callback.SetMethod createSetMethod(String key, int expireTime, String value) {
+    return new com.navercorp.arcus.spring.callback.SetMethod(key, expireTime, value);
+  }
+
+  private com.navercorp.arcus.spring.callback.AsycGetMethod createAsyncGetMethod(String key) {
+    return new com.navercorp.arcus.spring.callback.AsycGetMethod(key);
   }
 }

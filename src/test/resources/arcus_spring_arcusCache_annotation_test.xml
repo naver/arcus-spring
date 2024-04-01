@@ -13,7 +13,7 @@
     <cache:annotation-driven key-generator="arcusKeyGenerator" cache-manager="arcusCacheManager"/>
 
     <bean id="arcusKeyGenerator" class="com.navercorp.arcus.spring.cache.StringKeyGenerator"/>
-    <bean id="testService" class="com.navercorp.arcus.spring.cache.TestServiceImpl"/>
+    <bean id="testService" class="com.navercorp.arcus.spring.cache.ArcusCacheWithAnnotationTest.TestServiceImpl"/>
     <bean id="arcusClient" class="com.navercorp.arcus.spring.ArcusClientFactoryBean"
           p:url="#{arcusConfig['url']}"
           p:serviceCode="#{arcusConfig['serviceCode']}"

@@ -23,5 +23,5 @@ import java.util.concurrent.Future;
 
 @Deprecated
 public interface ArcusCallBack<T> {
-  public Future<T> doInArcus(ArcusClient arcusClient);
+  Future<T> doInArcus(ArcusClient arcusClient);
 }
