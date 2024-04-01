@@ -11,7 +11,7 @@
   <dependency>
     <groupId>com.jam2in.arcus</groupId>
     <artifactId>arcus-spring</artifactId>
-    <version>1.13.4</version>
+    <version>1.13.5</version>
   </dependency>
 </dependencies>
 ```
@@ -20,13 +20,13 @@
 #### version 7.0 before
 ```groovy
 dependencies {
-  compile 'com.jam2in.arcus:arcus-spring:1.13.4'
+  compile 'com.jam2in.arcus:arcus-spring:1.13.5'
 }
 ```
 #### version 7.0 or later
 ```groovy
 dependencies {
-  implementation 'com.jam2in.arcus:arcus-spring:1.13.4'
+  implementation 'com.jam2in.arcus:arcus-spring:1.13.5'
 }
 ```
 
