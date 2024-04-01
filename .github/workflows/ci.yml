@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - develop
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Update apt-get
+        run: sudo apt-get update
+      - name: Install ARCUS
+        run: |
+          # clone
+          git clone https://github.com/naver/arcus.git $HOME/arcus
+          
+          # build server
+          cd ~/arcus && docker compose up -d 
+
+      - name: Build ARCUS Client
+        run: mvn clean verify
