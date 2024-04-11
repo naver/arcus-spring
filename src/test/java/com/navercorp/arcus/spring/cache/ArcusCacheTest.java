@@ -1067,7 +1067,7 @@ public class ArcusCacheTest {
   @Test
   public void testGetValueLoader_ValueLoader_Exception() throws Exception {
     // given
-    TestException exception = null;
+    Cache.ValueRetrievalException exception = null;
     arcusCache.setKeyLockProvider(keyLockProvider);
     when(arcusClientPool.asyncGet(arcusKey))
         .thenReturn(createGetFuture(null));
@@ -1083,7 +1083,7 @@ public class ArcusCacheTest {
     // when
     try {
       arcusCache.get(ARCUS_STRING_KEY, valueLoader);
-    } catch (TestException e) {
+    } catch (Cache.ValueRetrievalException e) {
       exception = e;
     }
 
