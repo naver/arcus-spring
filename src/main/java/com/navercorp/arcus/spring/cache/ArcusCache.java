@@ -174,7 +174,11 @@ public class ArcusCache implements Cache, InitializingBean {
       acquireWriteLockOnKey(arcusKey);
       value = getValue(arcusKey);
       if (value == null) {
-        value = valueLoader.call();
+        try {
+          value = valueLoader.call();
+        } catch (Exception e) {
+          throw new ValueRetrievalException(key, valueLoader, e);
+        }
         putValue(arcusKey, value);
       }
       return (T) value;
