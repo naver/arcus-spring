@@ -20,25 +20,25 @@ package com.navercorp.arcus.spring.cache;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
-import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ArcusClientPool;
 import net.spy.memcached.transcoders.SerializingTranscoder;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.ReflectionUtils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("deprecation")
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("/arcus_spring_arcusCacheManager_test.xml")
 public class ArcusCacheManagerTest {
 
@@ -110,26 +110,27 @@ public class ArcusCacheManagerTest {
   }
 
   @Test
-  public void testDestroy() {
-    ArcusClientPool clientPool;
-
+  public void testDestroy() throws Exception {
     Field clientField = ReflectionUtils.findField(ArcusCacheManager.class, "client");
+    assertNotNull(clientField);
     clientField.setAccessible(true);
 
-    Field deadField = ReflectionUtils.findField(ArcusClient.class, "dead");
-    deadField.setAccessible(true);
-
     this.arcusCacheManagerFromClient.destroy();
-    clientPool = (ArcusClientPool) ReflectionUtils.getField(clientField, this.arcusCacheManagerFromClient);
-    for (ArcusClient client : clientPool.getAllClients()) {
-      assertFalse((Boolean) ReflectionUtils.getField(deadField, client));
-    }
+    ArcusClientPool client1 = (ArcusClientPool) ReflectionUtils.getField(clientField, this.arcusCacheManagerFromClient);
+    assertNotNull(client1);
+
+    String key = Math.random() + this.getClass().getSimpleName();
+    String value = this.getClass().getSimpleName() + Math.random();
+
+    assertTrue(client1.set(key, 0, value).get());
+    assertEquals(client1.get(key), value);
 
     this.arcusCacheManagerFromAddress.destroy();
-    clientPool = (ArcusClientPool) ReflectionUtils.getField(clientField, this.arcusCacheManagerFromAddress);
-    for (ArcusClient client : clientPool.getAllClients()) {
-      assertTrue((Boolean) ReflectionUtils.getField(deadField, client));
-    }
-  }
+    ArcusClientPool client2 = (ArcusClientPool) ReflectionUtils.getField(clientField, this.arcusCacheManagerFromAddress);
+    assertNotNull(client2);
 
+    assertThrows(IllegalStateException.class, () -> {
+      client2.get(key);
+    });
+  }
 }
