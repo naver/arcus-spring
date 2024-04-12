@@ -33,15 +33,16 @@ import net.spy.memcached.ops.StatusCode;
 import net.spy.memcached.transcoders.SerializingTranscoder;
 import net.spy.memcached.transcoders.Transcoder;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.NullValue;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -62,12 +63,13 @@ public class ArcusCacheTest {
   private ArcusClientPool arcusClientPool;
   private ArcusFrontCache arcusFrontCache;
   private String arcusKey;
-  private Callable<?> valueLoader;
+  private Callable<Object> valueLoader;
   private KeyLockProvider keyLockProvider;
   private ReadWriteLock readWriteLock;
   private Lock lock;
 
-  @Before
+  @BeforeEach
+  @SuppressWarnings("unchecked")
   public void before() {
     arcusClientPool = mock(ArcusClientPool.class);
 
@@ -122,7 +124,7 @@ public class ArcusCacheTest {
     assertEquals(VALUE, value.get());
   }
 
-  @Test(expected = TestException.class)
+  @Test
   public void testGet_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -130,7 +132,9 @@ public class ArcusCacheTest {
         .thenThrow(new TestException());
 
     // when
-    arcusCache.get(ARCUS_STRING_KEY);
+    assertThrows(TestException.class, () -> {
+      arcusCache.get(ARCUS_STRING_KEY);
+    });
   }
 
   @Test
@@ -290,7 +294,7 @@ public class ArcusCacheTest {
         .set(arcusKey, EXPIRE_SECONDS, null);
   }
 
-  @Test(expected = TestException.class)
+  @Test
   public void testPut_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -299,7 +303,9 @@ public class ArcusCacheTest {
         .thenThrow(new TestException());
 
     // when
-    arcusCache.put(ARCUS_STRING_KEY, VALUE);
+    assertThrows(TestException.class, () -> {
+      arcusCache.put(ARCUS_STRING_KEY, VALUE);
+    });
   }
 
   @Test
@@ -452,7 +458,7 @@ public class ArcusCacheTest {
         .delete(arcusKey);
   }
 
-  @Test(expected = TestException.class)
+  @Test
   public void testEvict_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -460,7 +466,9 @@ public class ArcusCacheTest {
         .thenThrow(new TestException());
 
     // when
-    arcusCache.evict(ARCUS_STRING_KEY);
+    assertThrows(TestException.class, () -> {
+      arcusCache.evict(ARCUS_STRING_KEY);
+    });
   }
 
   @Test
@@ -599,7 +607,7 @@ public class ArcusCacheTest {
         .flush(arcusCache.getServiceId() + arcusCache.getPrefix());
   }
 
-  @Test(expected = TestException.class)
+  @Test
   public void testClear_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -607,7 +615,9 @@ public class ArcusCacheTest {
         .thenReturn(createOperationFutureException());
 
     // when
-    arcusCache.clear();
+    assertThrows(TestException.class, () -> {
+      arcusCache.clear();
+    });
   }
 
   @Test
@@ -747,17 +757,19 @@ public class ArcusCacheTest {
     assertEquals(VALUE, value);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void testGetType_DifferentType() {
     // given
     when(arcusClientPool.asyncGet(arcusKey))
         .thenReturn(createGetFuture(VALUE));
 
     // when
-    arcusCache.get(ARCUS_STRING_KEY, Integer.class);
+    assertThrows(IllegalStateException.class, () -> {
+      arcusCache.get(ARCUS_STRING_KEY, Integer.class);
+    });
   }
 
-  @Test(expected = TestException.class)
+  @Test
   public void testGetType_Exception() {
     // given
     arcusCache.setWantToGetException(true);
@@ -765,10 +777,12 @@ public class ArcusCacheTest {
         .thenThrow(new TestException());
 
     // when
-    arcusCache.get(ARCUS_STRING_KEY, String.class);
+    assertThrows(TestException.class, () -> {
+      arcusCache.get(ARCUS_STRING_KEY, String.class);
+    });
   }
 
-  @Test(expected = TestException.class)
+  @Test
   public void testGetType_FutureException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -776,7 +790,9 @@ public class ArcusCacheTest {
         .thenReturn(createGetFutureException());
 
     // when
-    arcusCache.get(ARCUS_STRING_KEY, String.class);
+    assertThrows(TestException.class, () -> {
+      arcusCache.get(ARCUS_STRING_KEY, String.class);
+    });
   }
 
   @Test

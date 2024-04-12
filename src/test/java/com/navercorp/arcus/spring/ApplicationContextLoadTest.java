@@ -17,21 +17,25 @@
 
 package com.navercorp.arcus.spring;
 
-import net.spy.memcached.ArcusClient;
+import com.navercorp.arcus.spring.cache.ArcusCache;
+
 import net.spy.memcached.ArcusClientPool;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("/arcus_spring_basic_context_test.xml")
 public class ApplicationContextLoadTest {
 
@@ -41,11 +45,15 @@ public class ApplicationContextLoadTest {
   @Test
   public void contextLoaded() {
     assertNotNull(context);
-    ArcusClientPool clients = context.getBean(ArcusClientPool.class);
-    assertNotNull(clients);
-    for (ArcusClient client : clients.getAllClients()) {
-      assertTrue(client.isAlive());
-    }
+
+    ArcusClientPool client = context.getBean(ArcusClientPool.class);
+    CacheManager cacheManager = context.getBean(CacheManager.class);
+    Cache Cache = cacheManager.getCache("testCache");
+
+    assertNotNull(client);
+    assertNotNull(cacheManager);
+    assertInstanceOf(ArcusCache.class, Cache);
+    assertSame(((ArcusCache) Cache).getArcusClient(), client);
   }
 
 }
