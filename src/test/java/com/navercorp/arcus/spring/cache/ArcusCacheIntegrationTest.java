@@ -19,21 +19,22 @@ package com.navercorp.arcus.spring.cache;
 
 import java.util.concurrent.Callable;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("/arcus_spring_arcusCache_test.xml")
 public class ArcusCacheIntegrationTest {
   private static final String TEST_KEY = "arcus_test_key";
@@ -45,7 +46,7 @@ public class ArcusCacheIntegrationTest {
   @Autowired
   private ArcusCache arcusCacheWithoutAllowingNullValue;
 
-  @After
+  @AfterEach
   public void tearDown() {
     arcusCache.evict(TEST_KEY);
   }
@@ -83,12 +84,14 @@ public class ArcusCacheIntegrationTest {
     assertNull(arcusCache.get(TEST_KEY + TEST_KEY, Integer.class));
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void testGetWithClassExpectedException() {
     assertNull(arcusCache.get(TEST_KEY));
 
     arcusCache.put(TEST_KEY, TEST_VALUE);
-    arcusCache.get(TEST_KEY, Integer.class);
+    assertThrows(IllegalStateException.class, () -> {
+      arcusCache.get(TEST_KEY, Integer.class);
+    });
   }
 
   @Test
@@ -104,17 +107,16 @@ public class ArcusCacheIntegrationTest {
     assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY, valueLoader));
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test
   public void testGetWithValueLoaderExpectedException() {
-    Callable<String> valueLoader = new Callable<String>() {
-      @Override
-      public String call() {
-        throw new RuntimeException();
-      }
+    Callable<String> valueLoader = () -> {
+      throw new RuntimeException();
     };
 
     assertNull(arcusCache.get(TEST_KEY));
-    assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY, valueLoader));
+    assertThrows(RuntimeException.class, () -> {
+      assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY, valueLoader));
+    });
   }
 
   @Test
@@ -164,9 +166,11 @@ public class ArcusCacheIntegrationTest {
     assertNull(result.get());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void putTheNullValueIfAllowNullValuesIsFalse() {
-    arcusCacheWithoutAllowingNullValue.put(TEST_KEY, null);
+    assertThrows(IllegalArgumentException.class, () -> {
+      arcusCacheWithoutAllowingNullValue.put(TEST_KEY, null);
+    });
   }
 
   @Test

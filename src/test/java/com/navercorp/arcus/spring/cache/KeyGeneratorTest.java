@@ -17,13 +17,13 @@
 
 package com.navercorp.arcus.spring.cache;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.cache.interceptor.KeyGenerator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class KeyGeneratorTest {
   private final StringKeyGenerator stringKeyGenerator = new StringKeyGenerator();

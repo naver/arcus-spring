@@ -22,25 +22,29 @@ import java.io.Serializable;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.ObjectExistsException;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 public class DefaultArcusFrontCacheTest {
 
-  @After
+  @AfterEach
   public void after() {
     CacheManager.getInstance().shutdown();
   }
 
-  @Test(expected = ObjectExistsException.class)
+  @Test
   public void testConstruct_NameConflict() {
     new DefaultArcusFrontCache("test", 3L, false, false);
-    new DefaultArcusFrontCache("test", 3L, false, false);
+    assertThrows(ObjectExistsException.class, () -> {
+      new DefaultArcusFrontCache("test", 3L, false, false);
+    });
   }
 
   @Test
