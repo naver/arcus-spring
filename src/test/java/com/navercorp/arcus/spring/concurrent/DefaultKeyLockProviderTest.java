@@ -17,10 +17,10 @@
 
 package com.navercorp.arcus.spring.concurrent;
 
-import org.junit.Test;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 

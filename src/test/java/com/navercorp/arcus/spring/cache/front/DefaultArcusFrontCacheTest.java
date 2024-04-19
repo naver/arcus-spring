@@ -17,12 +17,13 @@
 
 package com.navercorp.arcus.spring.cache.front;
 
+import java.io.Serializable;
+
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.ObjectExistsException;
+
 import org.junit.After;
 import org.junit.Test;
-
-import java.io.Serializable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;

@@ -19,23 +19,27 @@ package com.navercorp.arcus.spring.cache;
 
 import com.navercorp.arcus.spring.cache.front.ArcusFrontCache;
 import com.navercorp.arcus.spring.concurrent.KeyLockProvider;
-import net.spy.memcached.ArcusClientPool;
-import net.spy.memcached.internal.GetFuture;
-import net.spy.memcached.internal.OperationFuture;
-import net.spy.memcached.transcoders.SerializingTranscoder;
-import net.spy.memcached.transcoders.Transcoder;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.cache.Cache;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
+import net.spy.memcached.ArcusClientPool;
+import net.spy.memcached.internal.GetFuture;
+import net.spy.memcached.internal.OperationFuture;
+import net.spy.memcached.transcoders.SerializingTranscoder;
+import net.spy.memcached.transcoders.Transcoder;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.cache.Cache;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;

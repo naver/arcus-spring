@@ -17,19 +17,21 @@
 
 package com.navercorp.arcus.spring.cache;
 
+import java.lang.reflect.Field;
+import java.util.Collection;
+
 import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ArcusClientPool;
 import net.spy.memcached.transcoders.SerializingTranscoder;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ReflectionUtils;
-
-import java.lang.reflect.Field;
-import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
