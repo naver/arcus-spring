@@ -17,10 +17,11 @@
 
 package com.navercorp.arcus.spring.cache;
 
-import org.springframework.cache.interceptor.KeyGenerator;
+import java.lang.reflect.Method;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Method;
+
+import org.springframework.cache.interceptor.KeyGenerator;
 
 public class SimpleStringKeyGenerator implements KeyGenerator {
   private static final String DEFAULT_SEPARATOR = ",";

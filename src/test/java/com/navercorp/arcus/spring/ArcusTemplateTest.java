@@ -17,18 +17,21 @@
 
 package com.navercorp.arcus.spring;
 
+import java.util.concurrent.TimeUnit;
+
 import net.spy.memcached.ArcusClientPool;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.concurrent.TimeUnit;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+
 import static org.junit.Assert.assertThat;
 
 @Deprecated

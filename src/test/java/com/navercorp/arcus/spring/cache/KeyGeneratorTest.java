@@ -18,6 +18,7 @@
 package com.navercorp.arcus.spring.cache;
 
 import org.junit.Test;
+
 import org.springframework.cache.interceptor.KeyGenerator;
 
 import static org.junit.Assert.assertEquals;

@@ -8,3 +8,7 @@ reports/
 junit*
 *.iml
 *~
+!.idea
+.idea/*
+!.idea/codeStyles
+!.idea/codeStyles/**

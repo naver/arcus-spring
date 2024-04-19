@@ -18,17 +18,18 @@
 
 package com.navercorp.arcus.spring;
 
+import javax.annotation.Nullable;
+
 import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ArcusClientPool;
 import net.spy.memcached.ConnectionFactoryBuilder;
 import net.spy.memcached.DefaultConnectionFactory;
 import net.spy.memcached.transcoders.Transcoder;
+
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
-
-import javax.annotation.Nullable;
 
 public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
         DisposableBean, InitializingBean {
