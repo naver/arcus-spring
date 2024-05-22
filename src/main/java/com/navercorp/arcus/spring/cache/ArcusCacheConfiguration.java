@@ -36,6 +36,7 @@ public class ArcusCacheConfiguration implements InitializingBean {
   private Transcoder<Object> operationTranscoder;
   private ArcusFrontCache arcusFrontCache;
   private boolean forceFrontCaching;
+  private boolean allowNullValues = ArcusCache.DEFAULT_ALLOW_NULL_VALUES;
 
   public String getServiceId() {
     return serviceId;
@@ -102,6 +103,14 @@ public class ArcusCacheConfiguration implements InitializingBean {
 
   public void setForceFrontCaching(boolean forceFrontCaching) {
     this.forceFrontCaching = forceFrontCaching;
+  }
+
+  public boolean isAllowNullValues() {
+    return this.allowNullValues;
+  }
+
+  public void setAllowNullValues(boolean allowNullValues) {
+    this.allowNullValues = allowNullValues;
   }
 
   @Override
