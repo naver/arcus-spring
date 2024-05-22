@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.cache.Cache;
+import org.springframework.cache.support.AbstractValueAdaptingCache;
 import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
@@ -76,9 +76,11 @@ import org.springframework.util.DigestUtils;
  * </p>
  */
 @SuppressWarnings("DeprecatedIsStillUsed")
-public class ArcusCache implements Cache, InitializingBean {
+public class ArcusCache extends AbstractValueAdaptingCache implements InitializingBean {
 
   public static final long DEFAULT_TIMEOUT_MILLISECONDS = 700L;
+
+  public static final boolean DEFAULT_ALLOW_NULL_VALUES = true;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -97,10 +99,11 @@ public class ArcusCache implements Cache, InitializingBean {
   private ArcusFrontCache arcusFrontCache;
 
   public ArcusCache() {
-
+    super(DEFAULT_ALLOW_NULL_VALUES);
   }
 
   ArcusCache(String name, ArcusClientPool clientPool, ArcusCacheConfiguration configuration) {
+    super(configuration.isAllowNullValues());
     this.name = name;
     this.arcusClient = clientPool;
     this.serviceId = configuration.getServiceId();
@@ -128,33 +131,25 @@ public class ArcusCache implements Cache, InitializingBean {
 
   @Nullable
   @Override
-  public ValueWrapper get(Object key) {
-    Object value = null;
+  protected Object lookup(Object key) {
     try {
-      value = getValue(createArcusKey(key));
+      return getValue(createArcusKey(key));
     } catch (Exception e) {
-      logger.info(e.getMessage());
-      if (wantToGetException) {
-        throw toRuntimeException(e);
-      }
+      throw toRuntimeException(e);
     }
-    return (value != null ? new SimpleValueWrapper(value) : null);
   }
 
-  @SuppressWarnings("unchecked")
   @Nullable
   @Override
-  public <T> T get(Object key, Class<T> type) {
+  public ValueWrapper get(Object key) {
     try {
-      Object value = getValue(createArcusKey(key));
-      if (value != null && type != null && !type.isInstance(value)) {
-        throw new IllegalStateException(
-            "Cached value is not of required type [" + type.getName() + "]: " + value);
+      return super.get(key);
+    } catch (RuntimeException e) {
+      if (wantToGetException) {
+        throw e;
       }
-      return (T) value;
-    } catch (Exception e) {
       logger.info(e.getMessage());
-      throw toRuntimeException(e);
+      return null;
     }
   }
 
@@ -162,36 +157,39 @@ public class ArcusCache implements Cache, InitializingBean {
   @Nullable
   @Override
   public <T> T get(Object key, Callable<T> valueLoader) {
+    ValueWrapper result = super.get(key);
+    return result != null ? (T) result.get() : getSynchronized(key, valueLoader);
+  }
+
+  @Nullable
+  @SuppressWarnings("unchecked")
+  private <T> T getSynchronized(Object key, Callable<T> valueLoader) {
     String arcusKey = createArcusKey(key);
-    Object value;
     try {
-      value = getValue(arcusKey);
-      if (value != null) {
-        return (T) value;
-      }
+      acquireWriteLockOnKey(arcusKey);
+      ValueWrapper result = super.get(key);
+      return result != null ? (T) result.get() : loadValue(arcusKey, valueLoader);
+    } finally {
+      releaseWriteLockOnKey(arcusKey);
+    }
+  }
+
+  private <T> T loadValue(String key, Callable<T> valueLoader) {
+    T value;
+    try {
+      value = valueLoader.call();
+    } catch (Exception e) {
+      throw new ValueRetrievalException(key, valueLoader, e);
+    }
+
+    try {
+      putValue(key, value);
     } catch (Exception e) {
       logger.info(e.getMessage());
       throw toRuntimeException(e);
     }
 
-    try {
-      acquireWriteLockOnKey(arcusKey);
-      value = getValue(arcusKey);
-      if (value == null) {
-        try {
-          value = valueLoader.call();
-        } catch (Exception e) {
-          throw new ValueRetrievalException(key, valueLoader, e);
-        }
-        putValue(arcusKey, value);
-      }
-      return (T) value;
-    } catch (Exception e) {
-      logger.info(e.getMessage());
-      throw toRuntimeException(e);
-    } finally {
-      releaseWriteLockOnKey(arcusKey);
-    }
+    return value;
   }
 
   @Override

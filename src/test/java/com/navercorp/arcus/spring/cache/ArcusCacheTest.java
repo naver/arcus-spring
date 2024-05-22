@@ -35,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.cache.Cache;
+import org.springframework.cache.support.NullValue;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -223,6 +224,22 @@ public class ArcusCacheTest {
     verify(arcusFrontCache, never())
         .set(arcusKey, VALUE, FRONT_EXPIRE_SECONDS);
     assertNull(value);
+  }
+
+  @Test
+  public void testGet_NullValue() {
+    // given
+    when(arcusClientPool.asyncGet(arcusKey))
+        .thenReturn(createGetFuture(NullValue.INSTANCE));
+
+    // when
+    Cache.ValueWrapper value = arcusCache.get(ARCUS_STRING_KEY);
+
+    // then
+    verify(arcusClientPool, times(1))
+        .asyncGet(arcusKey);
+    assertNotNull(value);
+    assertNull(value.get());
   }
 
   @Test
