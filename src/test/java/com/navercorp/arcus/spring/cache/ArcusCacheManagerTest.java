@@ -45,7 +45,7 @@ public class ArcusCacheManagerTest {
   private static final String SERVICE_PREFIX = "test-prefix";
   private static final int TIMEOUT_MILLIS = 100;
   private static final int DEFAULT_EXPIRE_SECONDS = 1;
-  private static final boolean WANT_TO_GET_EXCEPTION = true;
+  private static final boolean WANT_TO_GET_EXCEPTION = false;
   private static final String PRE_DEFINED_CACHE_NAME = "pre-defined-cache";
   private static final int PRE_DEFINED_EXPIRE_SECONDS = 2;
 
