@@ -23,12 +23,14 @@ import com.navercorp.arcus.spring.concurrent.DefaultKeyLockProvider;
 import com.navercorp.arcus.spring.concurrent.KeyLockProvider;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
 import net.spy.memcached.ArcusClientPool;
+import net.spy.memcached.internal.GetFuture;
+import net.spy.memcached.internal.OperationFuture;
+import net.spy.memcached.ops.OperationStatus;
 import net.spy.memcached.transcoders.Transcoder;
 
 import org.slf4j.Logger;
@@ -219,24 +221,23 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     }
 
     try {
-      Future<Boolean> future;
-
+      OperationFuture<Boolean> future;
       if (operationTranscoder != null) {
-        future = arcusClient.add(arcusKey, expireSeconds, value,
-                operationTranscoder);
+        future = arcusClient.add(arcusKey, expireSeconds, value, operationTranscoder);
       } else {
         future = arcusClient.add(arcusKey, expireSeconds, value);
       }
 
-      boolean added = future.get(timeoutMilliSeconds,
-              TimeUnit.MILLISECONDS);
-
-      if (added && arcusFrontCache != null) {
+      boolean success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
+      if (!success) {
+        OperationStatus status = future.getStatus();
+        logger.info("failed to putIfAbsent a key: {}, status: {}", arcusKey, status.getMessage());
+      } else if (arcusFrontCache != null) {
         arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
       }
 
       // FIXME: maybe returned with a different value.
-      return added ? null : new SimpleValueWrapper(getValue(arcusKey));
+      return success ? null : new SimpleValueWrapper(getValue(arcusKey));
     } catch (Exception e) {
       if (wantToGetException) {
         throw toRuntimeException(e);
@@ -254,13 +255,11 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     boolean success = false;
 
     try {
-      Future<Boolean> future = arcusClient.delete(arcusKey);
-
-      success = future.get(timeoutMilliSeconds,
-              TimeUnit.MILLISECONDS);
-
+      OperationFuture<Boolean> future = arcusClient.delete(arcusKey);
+      success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
       if (!success) {
-        logger.info("failed to evict a key: {}", arcusKey);
+        OperationStatus status = future.getStatus();
+        logger.info("failed to evict a key: {}, status: {}", arcusKey, status.getMessage());
       }
     } catch (Exception e) {
       if (wantToGetException) {
@@ -283,15 +282,11 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     boolean success = false;
 
     try {
-      Future<Boolean> future = arcusClient.flush(arcusPrefix);
-
-      success = future.get(timeoutMilliSeconds,
-          TimeUnit.MILLISECONDS);
-
+      OperationFuture<Boolean> future = arcusClient.flush(arcusPrefix);
+      success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
       if (!success) {
-        logger.info(
-            "failed to evicting every key that uses the prefix: {}",
-            arcusPrefix);
+        OperationStatus status = future.getStatus();
+        logger.info("failed to clear a prefix: {}, status: {}", arcusPrefix, status.getMessage());
       }
     } catch (Exception e) {
       if (wantToGetException) {
@@ -480,9 +475,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
       return value;
     }
 
-    Future<Object> future;
-
-    // operation transcoder can't be null.
+    GetFuture<Object> future;
     if (operationTranscoder != null) {
       future = arcusClient.asyncGet(arcusKey, operationTranscoder);
     } else {
@@ -490,11 +483,16 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     }
 
     value = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
-
     if (value != null) {
       logger.debug("arcus cache hit for {}", arcusKey);
       if (arcusFrontCache != null) {
         arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
+      }
+    } else {
+      logger.debug("arcus cache miss for {}", arcusKey);
+      OperationStatus status = future.getStatus();
+      if (!status.isSuccess()) {
+        logger.info("failed to get a key: {}, status: {}", arcusKey, status.getMessage());
       }
     }
 
@@ -512,19 +510,17 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     boolean success = false;
 
     try {
-      Future<Boolean> future;
-
+      OperationFuture<Boolean> future;
       if (operationTranscoder != null) {
-        future = arcusClient.set(arcusKey, expireSeconds, value,
-            operationTranscoder);
+        future = arcusClient.set(arcusKey, expireSeconds, value, operationTranscoder);
       } else {
         future = arcusClient.set(arcusKey, expireSeconds, value);
       }
 
       success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
-
       if (!success) {
-        logger.info("failed to put a key: {}", arcusKey);
+        OperationStatus status = future.getStatus();
+        logger.info("failed to put a key: {}, status: {}", arcusKey, status.getMessage());
       }
     } finally {
       if (arcusFrontCache != null &&
