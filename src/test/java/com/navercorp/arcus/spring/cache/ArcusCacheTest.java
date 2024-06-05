@@ -28,6 +28,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import net.spy.memcached.ArcusClientPool;
 import net.spy.memcached.internal.GetFuture;
 import net.spy.memcached.internal.OperationFuture;
+import net.spy.memcached.ops.OperationStatus;
+import net.spy.memcached.ops.StatusCode;
 import net.spy.memcached.transcoders.SerializingTranscoder;
 import net.spy.memcached.transcoders.Transcoder;
 
@@ -1359,6 +1361,11 @@ public class ArcusCacheTest {
       public Object get(long timeout, TimeUnit unit) {
         return value;
       }
+
+      @Override
+      public OperationStatus getStatus() {
+        return new OperationStatus(true, "END", StatusCode.SUCCESS);
+      }
     };
   }
 
@@ -1387,6 +1394,11 @@ public class ArcusCacheTest {
       @Override
       public Object get(long timeout, TimeUnit unit) {
         throw new TestException();
+      }
+
+      @Override
+      public OperationStatus getStatus() {
+        return new OperationStatus(false, "UNDEFINED", StatusCode.UNDEFINED);
       }
     };
   }
@@ -1418,6 +1430,14 @@ public class ArcusCacheTest {
       public Boolean get(long timeout, TimeUnit unit) {
         return value;
       }
+
+      @Override
+      public OperationStatus getStatus() {
+        if (value) {
+          return new OperationStatus(true, "OK", StatusCode.SUCCESS);
+        }
+        return new OperationStatus(false, "UNDEFINED", StatusCode.UNDEFINED);
+      }
     };
   }
 
@@ -1446,6 +1466,11 @@ public class ArcusCacheTest {
       @Override
       public Boolean get(long timeout, TimeUnit unit) {
         throw new TestException();
+      }
+
+      @Override
+      public OperationStatus getStatus() {
+        return new OperationStatus(false, "UNDEFINED", StatusCode.UNDEFINED);
       }
     };
   }
