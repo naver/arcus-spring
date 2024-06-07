@@ -195,8 +195,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
       if (wantToGetException) {
         throw toRuntimeException(e);
       }
-      logger.info("failed to put. error: {}, key: {}, value: {}",
-              e.getMessage(), arcusKey, getValueType(value));
+      logger.info("failed to put. error: {}, key: {}", e.getMessage(), arcusKey);
     }
   }
 
@@ -212,8 +211,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   @Override
   public ValueWrapper putIfAbsent(Object key, Object value) {
     String arcusKey = createArcusKey(key);
-    String valueType = getValueType(value);
-    logger.debug("trying to add key: {}, value: {}", arcusKey, valueType);
+    logger.debug("trying to add key: {}", arcusKey);
 
     if (value == null) {
       throw new IllegalArgumentException("arcus cannot add NULL value. key: " +
@@ -243,8 +241,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
       if (wantToGetException) {
         throw toRuntimeException(e);
       }
-      logger.info("failed to putIfAbsent. error: {}, key: {}, value: {}",
-              e.getMessage(), arcusKey, valueType);
+      logger.info("failed to putIfAbsent. error: {}, key: {}", e.getMessage(), arcusKey);
       return null;
     }
   }
@@ -345,13 +342,6 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
       return serviceId + prefix + ":";
     }
     return serviceId + name + ":";
-  }
-
-  private String getValueType(Object value) {
-    if (value == null) {
-      return null;
-    }
-    return value.getClass().getName();
   }
 
   public void setName(String name) {
@@ -512,8 +502,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   }
 
   private void putValue(String arcusKey, Object value) throws Exception {
-    String valueType = getValueType(value);
-    logger.debug("trying to put key: {}, value: {}", arcusKey, valueType);
+    logger.debug("trying to put key: {}", arcusKey);
 
     if (value == null) {
       logger.info("arcus cannot put NULL value. key: {}", arcusKey);
@@ -535,7 +524,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
       success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
 
       if (!success) {
-        logger.info("failed to put a key: {}, value: {}", arcusKey, valueType);
+        logger.info("failed to put a key: {}", arcusKey);
       }
     } finally {
       if (arcusFrontCache != null &&
