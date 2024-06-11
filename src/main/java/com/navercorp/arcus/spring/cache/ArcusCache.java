@@ -75,7 +75,7 @@ import org.springframework.util.DigestUtils;
  * 이렇게 설정했을때, 캐시의 키 값으로 생성되는 값은 <span>beta-member:메서드 매개변수로 만든 문자열</span>이 됩니다.
  * </p>
  */
-@SuppressWarnings("DeprecatedIsStillUsed")
+@SuppressWarnings({"DeprecatedIsStillUsed", "deprecation"})
 public class ArcusCache extends AbstractValueAdaptingCache implements InitializingBean {
 
   public static final long DEFAULT_TIMEOUT_MILLISECONDS = 700L;
@@ -114,7 +114,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     this.arcusFrontCache = configuration.getArcusFrontCache();
     this.frontExpireSeconds = configuration.getFrontExpireSeconds();
     this.forceFrontCaching = configuration.isForceFrontCaching();
-    this.wantToGetException = false;
+    this.wantToGetException = configuration.isWantToGetException();
 
     this.afterPropertiesSet();
   }
