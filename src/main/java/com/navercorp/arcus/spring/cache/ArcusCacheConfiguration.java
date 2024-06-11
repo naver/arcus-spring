@@ -26,6 +26,7 @@ import net.spy.memcached.transcoders.Transcoder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
+@SuppressWarnings("DeprecatedIsStillUsed")
 public class ArcusCacheConfiguration implements InitializingBean {
 
   private String serviceId;
@@ -35,6 +36,8 @@ public class ArcusCacheConfiguration implements InitializingBean {
   private long timeoutMilliSeconds = ArcusCache.DEFAULT_TIMEOUT_MILLISECONDS;
   private Transcoder<Object> operationTranscoder;
   private ArcusFrontCache arcusFrontCache;
+  @Deprecated
+  private boolean wantToGetException = false;
   private boolean forceFrontCaching;
   private boolean allowNullValues = ArcusCache.DEFAULT_ALLOW_NULL_VALUES;
 
@@ -95,6 +98,16 @@ public class ArcusCacheConfiguration implements InitializingBean {
 
   public void setArcusFrontCache(@Nullable ArcusFrontCache arcusFrontCache) {
     this.arcusFrontCache = arcusFrontCache;
+  }
+
+  @Deprecated
+  public boolean isWantToGetException() {
+    return wantToGetException;
+  }
+
+  @Deprecated
+  public void setWantToGetException(boolean wantToGetException) {
+    this.wantToGetException = wantToGetException;
   }
 
   public boolean isForceFrontCaching() {
