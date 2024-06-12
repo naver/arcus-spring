@@ -1139,7 +1139,7 @@ public class ArcusCacheTest {
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
     when(arcusClientPool.add(arcusKey, EXPIRE_SECONDS, VALUE))
         .thenReturn(createOperationFuture(true));
-    when(arcusClientPool.get(arcusKey))
+    when(arcusClientPool.asyncGet(arcusKey))
         .thenReturn(createGetFuture(VALUE));
 
     // when
@@ -1160,7 +1160,7 @@ public class ArcusCacheTest {
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
     when(arcusClientPool.add(arcusKey, EXPIRE_SECONDS, VALUE, OPERATION_TRANSCODER))
         .thenReturn(createOperationFuture(true));
-    when(arcusClientPool.get(arcusKey, OPERATION_TRANSCODER))
+    when(arcusClientPool.asyncGet(arcusKey, OPERATION_TRANSCODER))
         .thenReturn(createGetFuture(VALUE));
 
     // when
