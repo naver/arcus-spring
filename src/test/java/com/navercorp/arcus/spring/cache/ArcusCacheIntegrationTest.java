@@ -35,6 +35,7 @@ import static org.junit.Assert.assertNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/arcus_spring_arcusCache_test.xml")
+@SuppressWarnings("deprecation")
 public class ArcusCacheIntegrationTest {
   private static final String TEST_KEY = "arcus_test_key";
   private static final String TEST_VALUE = "arcus_test_value";
@@ -103,6 +104,7 @@ public class ArcusCacheIntegrationTest {
 
   @Test(expected = RuntimeException.class)
   public void testGetWithValueLoaderExpectedException() {
+    arcusCache.setWantToGetException(true);
     Callable<String> valueLoader = new Callable<String>() {
       @Override
       public String call() {

@@ -49,6 +49,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("deprecation")
 public class ArcusCacheTest {
 
   private static final ArcusStringKey ARCUS_STRING_KEY = new ArcusStringKey("KEY");
@@ -122,7 +123,6 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
-  @SuppressWarnings("deprecation")
   public void testGet_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -291,7 +291,6 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
-  @SuppressWarnings("deprecation")
   public void testPut_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -454,7 +453,6 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
-  @SuppressWarnings("deprecation")
   public void testEvict_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -602,7 +600,6 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
-  @SuppressWarnings("deprecation")
   public void testClear_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -761,7 +758,6 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
-  @SuppressWarnings("deprecation")
   public void testGetType_Exception() {
     // given
     arcusCache.setWantToGetException(true);
@@ -773,7 +769,6 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
-  @SuppressWarnings("deprecation")
   public void testGetType_FutureException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -868,7 +863,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testGetValueLoader_Get_Exception() throws Exception {
     // given
     TestException exception = null;
@@ -902,7 +896,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testGetValueLoader_Get_FutureException() throws Exception {
     // given
     TestException exception = null;
@@ -936,7 +929,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testGetValueLoader_Get_SecondException() throws Exception {
     // given
     TestException exception = null;
@@ -971,7 +963,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testGetValueLoader_Get_SecondFutureException() throws Exception {
     // given
     TestException exception = null;
@@ -1006,7 +997,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testGetValueLoader_Put_Exception() throws Exception {
     // given
     TestException exception = null;
@@ -1041,7 +1031,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testGetValueLoader_Put_FutureException() throws Exception {
     // given
     TestException exception = null;
@@ -1108,6 +1097,7 @@ public class ArcusCacheTest {
     // given
     Cache.ValueRetrievalException exception = null;
     arcusCache.setKeyLockProvider(keyLockProvider);
+    arcusCache.setWantToGetException(true);
     when(arcusClientPool.asyncGet(arcusKey))
         .thenReturn(createGetFuture(null));
     when(arcusClientPool.set(arcusKey, EXPIRE_SECONDS, VALUE))
@@ -1232,7 +1222,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testPutIfAbsent_FrontCache_Exception() {
      // given
     TestException exception = null;
@@ -1269,7 +1258,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testPutIfAbsent_FrontCache_FutureException() {
      // given
     TestException exception = null;
@@ -1312,6 +1300,7 @@ public class ArcusCacheTest {
     arcusCache.setArcusFrontCache(arcusFrontCache);
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
     arcusCache.setFrontExpireSeconds(FRONT_EXPIRE_SECONDS);
+    arcusCache.setWantToGetException(true);
     when(arcusClientPool.add(arcusKey, EXPIRE_SECONDS, VALUE))
         .thenReturn(createOperationFuture(true));
     when(arcusClientPool.asyncGet(arcusKey))

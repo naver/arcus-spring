@@ -134,8 +134,9 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   @Nullable
   @Override
   protected Object lookup(Object key) {
-    String arcusKey = createArcusKey(key);
+    String arcusKey = null;
     try {
+      arcusKey = createArcusKey(key);
       return getValue(arcusKey);
     } catch (Exception e) {
       if (wantToGetException) {
@@ -150,14 +151,27 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   @Nullable
   @Override
   public <T> T get(Object key, Callable<T> valueLoader) {
-    ValueWrapper result = super.get(key);
-    return result != null ? (T) result.get() : getSynchronized(key, valueLoader);
+    String arcusKey = null;
+    try {
+      ValueWrapper result = super.get(key);
+      if (result != null) {
+        return (T) result.get();
+      }
+
+      arcusKey = createArcusKey(key);
+      return getSynchronized(key, arcusKey, valueLoader);
+    } catch (Exception e) {
+      if (wantToGetException) {
+        throw toRuntimeException(e);
+      }
+      logger.info("failed to get. error: {}, key: {}", e.getMessage(), arcusKey);
+      return null;
+    }
   }
 
   @Nullable
   @SuppressWarnings("unchecked")
-  private <T> T getSynchronized(Object key, Callable<T> valueLoader) {
-    String arcusKey = createArcusKey(key);
+  private <T> T getSynchronized(Object key, String arcusKey, Callable<T> valueLoader) throws Exception {
     try {
       acquireWriteLockOnKey(arcusKey);
       ValueWrapper result = super.get(key);
@@ -167,7 +181,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     }
   }
 
-  private <T> T loadValue(String arcusKey, Callable<T> valueLoader) {
+  private <T> T loadValue(String arcusKey, Callable<T> valueLoader) throws Exception {
     T value;
     try {
       value = valueLoader.call();
@@ -175,23 +189,15 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
       throw new ValueRetrievalException(arcusKey, valueLoader, e);
     }
 
-    try {
-      putValue(arcusKey, value);
-    } catch (Exception e) {
-      if (wantToGetException) {
-        throw toRuntimeException(e);
-      }
-      logger.info("failed to loadValue. error: {}, key: {}", e.getMessage(), arcusKey);
-      return null;
-    }
-
+    putValue(arcusKey, value);
     return value;
   }
 
   @Override
   public void put(final Object key, final Object value) {
-    String arcusKey = createArcusKey(key);
+    String arcusKey = null;
     try {
+      arcusKey = createArcusKey(key);
       putValue(arcusKey, value);
     } catch (Exception e) {
       if (wantToGetException) {
@@ -212,15 +218,15 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   @Nullable
   @Override
   public ValueWrapper putIfAbsent(Object key, Object value) {
-    String arcusKey = createArcusKey(key);
-    logger.debug("trying to add key: {}", arcusKey);
-
-    if (value == null) {
-      throw new IllegalArgumentException("arcus cannot add NULL value. key: " +
-          arcusKey);
-    }
-
+    String arcusKey = null;
     try {
+      arcusKey = createArcusKey(key);
+      logger.debug("trying to add key: {}", arcusKey);
+
+      if (value == null) {
+        throw new IllegalArgumentException("arcus cannot add NULL value. key: " + arcusKey);
+      }
+
       OperationFuture<Boolean> future;
       if (operationTranscoder != null) {
         future = arcusClient.add(arcusKey, expireSeconds, value, operationTranscoder);
@@ -249,12 +255,13 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
 
   @Override
   public void evict(final Object key) {
-    String arcusKey = createArcusKey(key);
-    logger.debug("evicting a key: {}", arcusKey);
-
+    String arcusKey = null;
     boolean success = false;
 
     try {
+      arcusKey = createArcusKey(key);
+      logger.debug("evicting a key: {}", arcusKey);
+
       OperationFuture<Boolean> future = arcusClient.delete(arcusKey);
       success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
       if (!success) {
