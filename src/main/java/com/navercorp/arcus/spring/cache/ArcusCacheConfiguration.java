@@ -37,7 +37,7 @@ public class ArcusCacheConfiguration implements InitializingBean {
   private Transcoder<Object> operationTranscoder;
   private ArcusFrontCache arcusFrontCache;
   @Deprecated
-  private boolean wantToGetException = false;
+  private boolean wantToGetException = ArcusCache.DEFAULT_WANT_TO_GET_EXCEPTION;
   private boolean forceFrontCaching;
   private boolean allowNullValues = ArcusCache.DEFAULT_ALLOW_NULL_VALUES;
 

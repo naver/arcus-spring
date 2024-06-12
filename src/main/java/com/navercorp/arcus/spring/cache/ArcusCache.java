@@ -81,7 +81,8 @@ import org.springframework.util.DigestUtils;
 public class ArcusCache extends AbstractValueAdaptingCache implements InitializingBean {
 
   public static final long DEFAULT_TIMEOUT_MILLISECONDS = 700L;
-
+  @Deprecated
+  public static final boolean DEFAULT_WANT_TO_GET_EXCEPTION = false;
   public static final boolean DEFAULT_ALLOW_NULL_VALUES = true;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -94,7 +95,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   private long timeoutMilliSeconds = DEFAULT_TIMEOUT_MILLISECONDS;
   private ArcusClientPool arcusClient;
   @Deprecated
-  private boolean wantToGetException = false;
+  private boolean wantToGetException = DEFAULT_WANT_TO_GET_EXCEPTION;
   private boolean forceFrontCaching;
   private Transcoder<Object> operationTranscoder;
   private KeyLockProvider keyLockProvider = new DefaultKeyLockProvider();
