@@ -1306,12 +1306,14 @@ public class ArcusCacheTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testPutIfAbsent_FrontCache_Null() {
     // given
-    IllegalArgumentException exception = null;
+    Exception exception = null;
     arcusCache.setArcusFrontCache(arcusFrontCache);
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
     arcusCache.setFrontExpireSeconds(FRONT_EXPIRE_SECONDS);
+    arcusCache.setWantToGetException(true);
     when(arcusClientPool.add(arcusKey, EXPIRE_SECONDS, VALUE))
         .thenReturn(createOperationFuture(true));
     when(arcusClientPool.asyncGet(arcusKey))
@@ -1320,18 +1322,18 @@ public class ArcusCacheTest {
     // when
     try {
       arcusCache.putIfAbsent(ARCUS_STRING_KEY, null);
-    } catch (IllegalArgumentException e) {
+    } catch (Exception e) {
       exception = e;
     }
 
     // then
     verify(arcusClientPool, never())
         .add(arcusKey, EXPIRE_SECONDS, VALUE);
-    verify(arcusClientPool, never())
+    verify(arcusClientPool, times(1))
         .asyncGet(arcusKey);
-    verify(arcusFrontCache, never())
+    verify(arcusFrontCache, times(1))
         .set(arcusKey, VALUE, FRONT_EXPIRE_SECONDS);
-    assertNotNull(exception);
+    assertNull(exception);
   }
 
   private static GetFuture<Object> createGetFuture(

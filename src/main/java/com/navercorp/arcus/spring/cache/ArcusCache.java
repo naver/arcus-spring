@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
+import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
 
@@ -215,7 +216,8 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     logger.debug("trying to add key: {}", arcusKey);
 
     if (value == null) {
-      throw new IllegalArgumentException("arcus cannot add NULL value. key: " + arcusKey);
+      logger.info("arcus cannot putIfAbsent NULL value. key: {}", arcusKey);
+      return toValueWrapper(lookup(key));
     }
 
     try {
@@ -240,7 +242,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
         throw toRuntimeException(e);
       }
       logger.info("failed to putIfAbsent. error: {}, key: {}", e.getMessage(), arcusKey);
-      return null;
+      return toValueWrapper(lookup(key));
     }
   }
 
