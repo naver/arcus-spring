@@ -216,8 +216,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     logger.debug("trying to add key: {}", arcusKey);
 
     if (value == null) {
-      throw new IllegalArgumentException("arcus cannot add NULL value. key: " +
-          arcusKey);
+      throw new IllegalArgumentException("arcus cannot add NULL value. key: " + arcusKey);
     }
 
     try {
@@ -267,8 +266,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
       }
       logger.info("failed to evict. error: {}, key: {}", e.getMessage(), arcusKey);
     } finally {
-      if (arcusFrontCache != null &&
-          (success || forceFrontCaching)) {
+      if (arcusFrontCache != null && (success || forceFrontCaching)) {
         arcusFrontCache.delete(arcusKey);
       }
     }
@@ -294,8 +292,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
       }
       logger.info("failed to clear. error: {}, prefix: {}", e.getMessage(), arcusPrefix);
     } finally {
-      if (arcusFrontCache != null &&
-          (success || forceFrontCaching)) {
+      if (arcusFrontCache != null && (success || forceFrontCaching)) {
         arcusFrontCache.clear();
       }
     }
@@ -358,11 +355,9 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   @Override
   public void afterPropertiesSet() {
     if (name == null && prefix == null) {
-      throw new IllegalArgumentException(
-              "ArcusCache's 'name' or 'prefix' property must have a value.");
+      throw new IllegalArgumentException("ArcusCache's 'name' or 'prefix' property must have a value.");
     }
-    Assert.notNull(serviceId,
-            "ArcusCache's serviceId property must have a value.");
+    Assert.notNull(serviceId, "ArcusCache's serviceId property must have a value.");
   }
 
   public String getServiceId() {
@@ -466,11 +461,9 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   @Nullable
   private Object getValue(String arcusKey) throws Exception {
     logger.debug("getting value by key: {}", arcusKey);
-
     Object value;
 
-    if (arcusFrontCache != null &&
-        (value = arcusFrontCache.get(arcusKey)) != null) {
+    if (arcusFrontCache != null && (value = arcusFrontCache.get(arcusKey)) != null) {
       logger.debug("front cache hit for {}", arcusKey);
       return value;
     }
@@ -523,8 +516,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
         logger.info("failed to put a key: {}, status: {}", arcusKey, status.getMessage());
       }
     } finally {
-      if (arcusFrontCache != null &&
-          (success || forceFrontCaching)) {
+      if (arcusFrontCache != null && (success || forceFrontCaching)) {
         arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
       }
     }

@@ -89,8 +89,7 @@ public class ArcusCacheManager extends AbstractCacheManager implements Disposabl
   protected Collection<? extends Cache> loadCaches() {
     List<Cache> caches = new ArrayList<Cache>(initialCacheConfigs.size());
     for (Map.Entry<String, ArcusCacheConfiguration> entry : initialCacheConfigs.entrySet()) {
-      caches.add(
-        createCache(entry.getKey(), entry.getValue()));
+      caches.add(createCache(entry.getKey(), entry.getValue()));
     }
 
     return caches;
