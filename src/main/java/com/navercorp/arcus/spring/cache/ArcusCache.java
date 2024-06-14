@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
-import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
 
@@ -236,8 +235,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
         arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
       }
 
-      // FIXME: maybe returned with a different value.
-      return success ? null : new SimpleValueWrapper(getValue(arcusKey));
+      return success ? null : toValueWrapper(getValue(arcusKey));
     } catch (Exception e) {
       if (wantToGetException) {
         throw toRuntimeException(e);
