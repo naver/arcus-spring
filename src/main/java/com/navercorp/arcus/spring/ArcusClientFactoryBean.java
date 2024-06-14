@@ -111,8 +111,7 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
     if (globalTranscoder != null) {
       cfb.setTranscoder(globalTranscoder);
     }
-    client = ArcusClient.createArcusClientPool(url, serviceCode, cfb,
-            poolSize);
+    client = ArcusClient.createArcusClientPool(url, serviceCode, cfb, poolSize);
     return client;
   }
 
@@ -129,13 +128,9 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
   @Override
   public void afterPropertiesSet() {
     Assert.notNull(this.url, "Url property must be provided.");
-    Assert.notNull(this.serviceCode,
-            "ServiceCode property must be provided.");
-    Assert.isTrue(this.poolSize > 0,
-            "PoolSize property must be larger than 0.");
-    Assert.isTrue(this.timeoutExceptionThreshold > 0,
-            "TimeoutExceptionThreshold must be larger than 0.");
-    Assert.isTrue(this.maxReconnectDelay > 0,
-            "MaxReconnectDelay must be larger than 0.");
+    Assert.notNull(this.serviceCode, "ServiceCode property must be provided.");
+    Assert.isTrue(this.poolSize > 0, "PoolSize property must be larger than 0.");
+    Assert.isTrue(this.timeoutExceptionThreshold > 0, "TimeoutExceptionThreshold must be larger than 0.");
+    Assert.isTrue(this.maxReconnectDelay > 0, "MaxReconnectDelay must be larger than 0.");
   }
 }
