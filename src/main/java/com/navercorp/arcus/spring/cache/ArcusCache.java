@@ -181,8 +181,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
       if (wantToGetException) {
         throw toRuntimeException(e);
       }
-      logger.info("failed to loadValue. error: {}, key: {}", e.getMessage(), arcusKey);
-      return null;
+      logger.info("failed to put value got from valueLoader. error: {}, key: {}", e.getMessage(), arcusKey);
     }
 
     return value;
