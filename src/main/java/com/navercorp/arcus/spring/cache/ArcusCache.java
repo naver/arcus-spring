@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
-import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
 
@@ -147,9 +146,9 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Nullable
   @Override
+  @SuppressWarnings("unchecked")
   public <T> T get(Object key, Callable<T> valueLoader) {
     ValueWrapper result = super.get(key);
     return result != null ? (T) result.get() : getSynchronized(key, valueLoader);

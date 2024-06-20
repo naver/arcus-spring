@@ -49,10 +49,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("deprecation")
 public class ArcusCacheTest {
 
   private static final ArcusStringKey ARCUS_STRING_KEY = new ArcusStringKey("KEY");
-  private static final Object VALUE = "VALUE";
+  private static final String VALUE = "VALUE";
   private static final int EXPIRE_SECONDS = 100;
   private static final int FRONT_EXPIRE_SECONDS = 50;
   private static final Transcoder<Object> OPERATION_TRANSCODER = new SerializingTranscoder();
@@ -122,7 +123,6 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
-  @SuppressWarnings("deprecation")
   public void testGet_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -291,7 +291,6 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
-  @SuppressWarnings("deprecation")
   public void testPut_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -454,7 +453,6 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
-  @SuppressWarnings("deprecation")
   public void testEvict_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -602,7 +600,6 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
-  @SuppressWarnings("deprecation")
   public void testClear_WantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -761,7 +758,6 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
-  @SuppressWarnings("deprecation")
   public void testGetType_Exception() {
     // given
     arcusCache.setWantToGetException(true);
@@ -773,7 +769,6 @@ public class ArcusCacheTest {
   }
 
   @Test(expected = TestException.class)
-  @SuppressWarnings("deprecation")
   public void testGetType_FutureException() {
     // given
     arcusCache.setWantToGetException(true);
@@ -868,7 +863,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testGetValueLoader_Get_Exception() throws Exception {
     // given
     TestException exception = null;
@@ -902,7 +896,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testGetValueLoader_Get_FutureException() throws Exception {
     // given
     TestException exception = null;
@@ -936,7 +929,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testGetValueLoader_Get_SecondException() throws Exception {
     // given
     TestException exception = null;
@@ -971,7 +963,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testGetValueLoader_Get_SecondFutureException() throws Exception {
     // given
     TestException exception = null;
@@ -1006,7 +997,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testGetValueLoader_Put_Exception() throws Exception {
     // given
     TestException exception = null;
@@ -1041,7 +1031,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testGetValueLoader_Put_FutureException() throws Exception {
     // given
     TestException exception = null;
@@ -1209,7 +1198,7 @@ public class ArcusCacheTest {
     when(arcusClientPool.add(arcusKey, EXPIRE_SECONDS, VALUE))
         .thenReturn(createOperationFuture(false));
     when(arcusClientPool.asyncGet(arcusKey))
-        .thenReturn(createGetFuture(VALUE.toString() + VALUE.toString()));
+        .thenReturn(createGetFuture(VALUE + VALUE));
 
     // when
     Cache.ValueWrapper value = arcusCache.putIfAbsent(ARCUS_STRING_KEY, VALUE);
@@ -1220,9 +1209,9 @@ public class ArcusCacheTest {
     verify(arcusClientPool, times(1))
         .asyncGet(arcusKey);
     verify(arcusFrontCache, times(1))
-        .set(arcusKey, VALUE.toString() + VALUE.toString(), FRONT_EXPIRE_SECONDS);
+        .set(arcusKey, VALUE + VALUE, FRONT_EXPIRE_SECONDS);
     assertNotNull(value);
-    assertEquals(VALUE.toString() + VALUE.toString(), value.get());
+    assertEquals(VALUE + VALUE, value.get());
   }
 
   @Test
@@ -1232,7 +1221,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testPutIfAbsent_FrontCache_Exception() {
      // given
     TestException exception = null;
@@ -1269,7 +1257,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testPutIfAbsent_FrontCache_FutureException() {
      // given
     TestException exception = null;
@@ -1306,7 +1293,6 @@ public class ArcusCacheTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testPutIfAbsent_FrontCache_Null() {
     // given
     Exception exception = null;
@@ -1336,8 +1322,7 @@ public class ArcusCacheTest {
     assertNull(exception);
   }
 
-  private static GetFuture<Object> createGetFuture(
-      @SuppressWarnings("SameParameterValue") final Object value) {
+  private static GetFuture<Object> createGetFuture(final Object value) {
     return new GetFuture<Object>(null, 0) {
       @Override
       public boolean cancel(boolean mayInterruptIfRunning) {
@@ -1405,8 +1390,7 @@ public class ArcusCacheTest {
     };
   }
 
-  private static OperationFuture<Boolean> createOperationFuture(
-      @SuppressWarnings("SameParameterValue") final Boolean value) {
+  private static OperationFuture<Boolean> createOperationFuture(final Boolean value) {
     return new OperationFuture<Boolean>(null, 0) {
       @Override
       public boolean cancel(boolean mayInterruptIfRunning) {

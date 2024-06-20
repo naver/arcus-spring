@@ -37,6 +37,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+@SuppressWarnings("deprecation")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/arcus_spring_arcusCacheManager_test.xml")
 public class ArcusCacheManagerTest {
@@ -61,7 +62,6 @@ public class ArcusCacheManagerTest {
   @Autowired
   private ArcusCacheManager arcusCacheManagerFromAddress;
 
-  @SuppressWarnings("deprecation")
   @Test
   public void testGetPreDefinedCache() {
     ArcusCache cache = (ArcusCache)this.arcusCacheManagerFromClient.getCache(PRE_DEFINED_CACHE_NAME);
@@ -75,7 +75,6 @@ public class ArcusCacheManagerTest {
     assertEquals(WANT_TO_GET_EXCEPTION, cache.isWantToGetException());
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   public void testGetMissingCache() {
     String nonDefinedCache = "non-defined-cache";
