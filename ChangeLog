@@ -1,3 +1,16 @@
+# 2024-06-20 [version 1.13.6]
+## 🐣 New Features
+* Read and return null if cache server stored NullValue instance.
+* Throw ValueRetrievalException if failed to get original value.
+* Add setter method to ArcusCacheConfiguration which can change value of wantToGetException.
+## 🔧 Enhancements
+* Refactored codes for better readability.
+## 🐛 Bug Fixes
+* Set default value of wantToGetException to false regardless of ArcusCache object creation method.
+* Fix inconsistent exception handling.
+## ✅ Testing
+* Fix wrong mock of ArcusClientPool in test code.
+
 # 2024-04-01 [version 1.13.5]
 ## 🐣 New Features
 * Add @Nullable annotation for support JSR-305
