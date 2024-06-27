@@ -157,41 +157,39 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   @Nullable
   @SuppressWarnings("unchecked")
   private <T> T getSynchronized(Object key, Callable<T> valueLoader) {
-    String arcusKey = createArcusKey(key);
     try {
-      acquireWriteLockOnKey(arcusKey);
+      acquireWriteLockOnKey(key);
       ValueWrapper result = super.get(key);
-      return result != null ? (T) result.get() : loadValue(arcusKey, valueLoader);
+      return result != null ? (T) result.get() : loadValue(key, valueLoader);
     } finally {
-      releaseWriteLockOnKey(arcusKey);
+      releaseWriteLockOnKey(key);
     }
   }
 
-  private <T> T loadValue(String arcusKey, Callable<T> valueLoader) {
+  private <T> T loadValue(Object key, Callable<T> valueLoader) {
     T value;
     try {
       value = valueLoader.call();
     } catch (Exception e) {
-      throw new ValueRetrievalException(arcusKey, valueLoader, e);
+      throw new ValueRetrievalException(key, valueLoader, e);
     }
 
-    try {
-      putValue(arcusKey, value);
-    } catch (Exception e) {
-      if (wantToGetException) {
-        throw toRuntimeException(e);
-      }
-      logger.info("failed to put value got from valueLoader. error: {}, key: {}", e.getMessage(), arcusKey);
-    }
+    put(key, value);
 
     return value;
   }
 
   @Override
   public void put(final Object key, final Object value) {
+    if (!isAllowNullValues() && value == null) {
+      throw new IllegalArgumentException(String.format("Cache '%s' does not allow 'null' values. " +
+              "Avoid storing null via '@Cacheable(unless=\"#result == null\")' or configure ArcusCache " +
+              "to allow 'null' via ArcusCacheConfiguration.", name));
+    }
+
     String arcusKey = createArcusKey(key);
     try {
-      putValue(arcusKey, value);
+      putValue(arcusKey, toStoreValue(value));
     } catch (Exception e) {
       if (wantToGetException) {
         throw toRuntimeException(e);
@@ -211,38 +209,16 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   @Nullable
   @Override
   public ValueWrapper putIfAbsent(Object key, Object value) {
-    String arcusKey = createArcusKey(key);
-    logger.debug("trying to add key: {}", arcusKey);
+    logger.debug("trying to add key: {}", key);
 
-    if (value == null) {
-      logger.info("arcus cannot putIfAbsent NULL value. key: {}", arcusKey);
-      return toValueWrapper(lookup(key));
+    if (!isAllowNullValues() && value == null) {
+      logger.info(String.format("Cache '%s' does not allow 'null' values. " +
+              "Avoid storing null via '@Cacheable(unless=\"#result == null\")' or configure ArcusCache " +
+              "to allow 'null' via ArcusCacheConfiguration.", name));
+      return super.get(key);
     }
 
-    try {
-      OperationFuture<Boolean> future;
-      if (operationTranscoder != null) {
-        future = arcusClient.add(arcusKey, expireSeconds, value, operationTranscoder);
-      } else {
-        future = arcusClient.add(arcusKey, expireSeconds, value);
-      }
-
-      boolean success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
-      if (!success) {
-        OperationStatus status = future.getStatus();
-        logger.info("failed to putIfAbsent a key: {}, status: {}", arcusKey, status.getMessage());
-      } else if (arcusFrontCache != null) {
-        arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
-      }
-
-      return success ? null : toValueWrapper(getValue(arcusKey));
-    } catch (Exception e) {
-      if (wantToGetException) {
-        throw toRuntimeException(e);
-      }
-      logger.info("failed to putIfAbsent. error: {}, key: {}", e.getMessage(), arcusKey);
-      return toValueWrapper(lookup(key));
-    }
+    return putIfAbsentValue(key, toStoreValue(value));
   }
 
   @Override
@@ -441,12 +417,12 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     return forceFrontCaching;
   }
 
-  private void acquireWriteLockOnKey(String arcusKey) {
-    keyLockProvider.getLockForKey(arcusKey).writeLock().lock();
+  private void acquireWriteLockOnKey(Object key) {
+    keyLockProvider.getLockForKey(key).writeLock().lock();
   }
 
-  private void releaseWriteLockOnKey(String arcusKey) {
-    keyLockProvider.getLockForKey(arcusKey).writeLock().unlock();
+  private void releaseWriteLockOnKey(Object key) {
+    keyLockProvider.getLockForKey(key).writeLock().unlock();
   }
 
   private RuntimeException toRuntimeException(Exception e) {
@@ -494,11 +470,6 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   private void putValue(String arcusKey, Object value) throws Exception {
     logger.debug("trying to put key: {}", arcusKey);
 
-    if (value == null) {
-      logger.info("arcus cannot put NULL value. key: {}", arcusKey);
-      return;
-    }
-
     boolean success = false;
 
     try {
@@ -518,6 +489,35 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
       if (arcusFrontCache != null && (success || forceFrontCaching)) {
         arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
       }
+    }
+  }
+
+  private ValueWrapper putIfAbsentValue(Object key, Object value) {
+    String arcusKey = createArcusKey(key);
+
+    try {
+      OperationFuture<Boolean> future;
+      if (operationTranscoder != null) {
+        future = arcusClient.add(arcusKey, expireSeconds, value, operationTranscoder);
+      } else {
+        future = arcusClient.add(arcusKey, expireSeconds, value);
+      }
+
+      boolean success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
+      if (!success) {
+        OperationStatus status = future.getStatus();
+        logger.info("failed to putIfAbsent a key: {}, status: {}", arcusKey, status.getMessage());
+      } else if (arcusFrontCache != null) {
+        arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
+      }
+
+      return success ? null : toValueWrapper(getValue(arcusKey));
+    } catch (Exception e) {
+      if (wantToGetException) {
+        throw toRuntimeException(e);
+      }
+      logger.info("failed to putIfAbsent. error: {}, key: {}", e.getMessage(), arcusKey);
+      return super.get(key);
     }
   }
 

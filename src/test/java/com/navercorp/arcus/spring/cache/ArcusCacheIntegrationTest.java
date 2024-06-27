@@ -42,6 +42,9 @@ public class ArcusCacheIntegrationTest {
   @Autowired
   private ArcusCache arcusCache;
 
+  @Autowired
+  private ArcusCache arcusCacheWithoutAllowingNullValue;
+
   @After
   public void tearDown() {
     arcusCache.evict(TEST_KEY);
@@ -152,11 +155,18 @@ public class ArcusCacheIntegrationTest {
   }
 
   @Test
-  public void putTheNullValue() {
+  public void putTheNullValueIfAllowNullValuesIsTrue() {
+
     arcusCache.put(TEST_KEY, null);
 
-    Object result = arcusCache.get(TEST_KEY);
-    assertNull(result);
+    Cache.ValueWrapper result = arcusCache.get(TEST_KEY);
+    assertNotNull(result);
+    assertNull(result.get());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void putTheNullValueIfAllowNullValuesIsFalse() {
+    arcusCacheWithoutAllowingNullValue.put(TEST_KEY, null);
   }
 
   @Test
