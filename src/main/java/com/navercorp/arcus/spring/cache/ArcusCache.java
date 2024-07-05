@@ -189,9 +189,15 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
 
   @Override
   public void put(final Object key, final Object value) {
+    if (value == null && !isAllowNullValues()) {
+      throw new IllegalArgumentException(String.format("Cache '%s' does not allow 'null' values. " +
+              "Avoid storing null via '@Cacheable(unless=\"#result == null\")' or configure ArcusCache " +
+              "to allow 'null' via ArcusCacheConfiguration.", name));
+    }
+
     String arcusKey = createArcusKey(key);
     try {
-      putValue(arcusKey, value);
+      putValue(arcusKey, toStoreValue(value));
     } catch (Exception e) {
       if (wantToGetException) {
         throw toRuntimeException(e);
@@ -211,37 +217,22 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   @Nullable
   @Override
   public ValueWrapper putIfAbsent(Object key, Object value) {
-    String arcusKey = createArcusKey(key);
-    logger.debug("trying to add key: {}", arcusKey);
-
-    if (value == null) {
-      logger.info("arcus cannot putIfAbsent NULL value. key: {}", arcusKey);
-      return toValueWrapper(lookup(key));
+    if (value == null && !isAllowNullValues()) {
+      logger.info(String.format("Cache '%s' does not allow 'null' values. " +
+              "Avoid storing null via '@Cacheable(unless=\"#result == null\")' or configure ArcusCache " +
+              "to allow 'null' via ArcusCacheConfiguration.", name));
+      return super.get(key);
     }
 
+    String arcusKey = createArcusKey(key);
     try {
-      OperationFuture<Boolean> future;
-      if (operationTranscoder != null) {
-        future = arcusClient.add(arcusKey, expireSeconds, value, operationTranscoder);
-      } else {
-        future = arcusClient.add(arcusKey, expireSeconds, value);
-      }
-
-      boolean success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
-      if (!success) {
-        OperationStatus status = future.getStatus();
-        logger.info("failed to putIfAbsent a key: {}, status: {}", arcusKey, status.getMessage());
-      } else if (arcusFrontCache != null) {
-        arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
-      }
-
-      return success ? null : toValueWrapper(getValue(arcusKey));
+      return putIfAbsentValue(arcusKey, toStoreValue(value));
     } catch (Exception e) {
       if (wantToGetException) {
         throw toRuntimeException(e);
       }
       logger.info("failed to putIfAbsent. error: {}, key: {}", e.getMessage(), arcusKey);
-      return toValueWrapper(lookup(key));
+      return super.get(key);
     }
   }
 
@@ -494,11 +485,6 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   private void putValue(String arcusKey, Object value) throws Exception {
     logger.debug("trying to put key: {}", arcusKey);
 
-    if (value == null) {
-      logger.info("arcus cannot put NULL value. key: {}", arcusKey);
-      return;
-    }
-
     boolean success = false;
 
     try {
@@ -519,6 +505,27 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
         arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
       }
     }
+  }
+
+  private ValueWrapper putIfAbsentValue(String arcusKey, Object value) throws Exception {
+    logger.debug("trying to add(putIfAbsent) key: {}", arcusKey);
+
+    OperationFuture<Boolean> future;
+    if (operationTranscoder != null) {
+      future = arcusClient.add(arcusKey, expireSeconds, value, operationTranscoder);
+    } else {
+      future = arcusClient.add(arcusKey, expireSeconds, value);
+    }
+
+    boolean success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
+    if (!success) {
+      OperationStatus status = future.getStatus();
+      logger.info("failed to putIfAbsent a key: {}, status: {}", arcusKey, status.getMessage());
+    } else if (arcusFrontCache != null) {
+      arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
+    }
+
+    return success ? null : toValueWrapper(getValue(arcusKey));
   }
 
 }
