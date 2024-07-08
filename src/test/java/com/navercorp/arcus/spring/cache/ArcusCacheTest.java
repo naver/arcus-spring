@@ -789,7 +789,7 @@ public class ArcusCacheTest {
         .thenReturn(createOperationFuture(true));
     when(valueLoader.call())
         .thenReturn(VALUE);
-    when(keyLockProvider.getLockForKey(arcusKey))
+    when(keyLockProvider.getLockForKey(ARCUS_STRING_KEY))
         .thenReturn(readWriteLock);
     when(readWriteLock.writeLock())
         .thenReturn(lock);
@@ -817,7 +817,7 @@ public class ArcusCacheTest {
         .thenReturn(createOperationFutureException());
     when(valueLoader.call())
         .thenReturn(VALUE);
-    when(keyLockProvider.getLockForKey(arcusKey))
+    when(keyLockProvider.getLockForKey(ARCUS_STRING_KEY))
         .thenReturn(readWriteLock);
     when(readWriteLock.writeLock())
         .thenReturn(lock);
@@ -845,7 +845,7 @@ public class ArcusCacheTest {
         .thenReturn(createOperationFuture(true));
     when(valueLoader.call())
         .thenReturn(VALUE);
-    when(keyLockProvider.getLockForKey(arcusKey))
+    when(keyLockProvider.getLockForKey(ARCUS_STRING_KEY))
         .thenReturn(readWriteLock);
     when(readWriteLock.writeLock())
         .thenReturn(lock);
@@ -941,7 +941,7 @@ public class ArcusCacheTest {
         .thenReturn(createOperationFuture(true));
     when(valueLoader.call())
         .thenReturn(VALUE);
-    when(keyLockProvider.getLockForKey(arcusKey))
+    when(keyLockProvider.getLockForKey(ARCUS_STRING_KEY))
         .thenReturn(readWriteLock);
     when(readWriteLock.writeLock())
         .thenReturn(lock);
@@ -975,7 +975,7 @@ public class ArcusCacheTest {
         .thenReturn(createOperationFuture(true));
     when(valueLoader.call())
         .thenReturn(VALUE);
-    when(keyLockProvider.getLockForKey(arcusKey))
+    when(keyLockProvider.getLockForKey(ARCUS_STRING_KEY))
         .thenReturn(readWriteLock);
     when(readWriteLock.writeLock())
         .thenReturn(lock);
@@ -1009,7 +1009,7 @@ public class ArcusCacheTest {
         .thenThrow(new TestException());
     when(valueLoader.call())
         .thenReturn(VALUE);
-    when(keyLockProvider.getLockForKey(arcusKey))
+    when(keyLockProvider.getLockForKey(ARCUS_STRING_KEY))
         .thenReturn(readWriteLock);
     when(readWriteLock.writeLock())
         .thenReturn(lock);
@@ -1043,7 +1043,7 @@ public class ArcusCacheTest {
         .thenReturn(createOperationFutureException());
     when(valueLoader.call())
         .thenReturn(VALUE);
-    when(keyLockProvider.getLockForKey(arcusKey))
+    when(keyLockProvider.getLockForKey(ARCUS_STRING_KEY))
         .thenReturn(readWriteLock);
     when(readWriteLock.writeLock())
         .thenReturn(lock);
@@ -1075,7 +1075,7 @@ public class ArcusCacheTest {
         .thenReturn(createOperationFuture(true));
     when(valueLoader.call())
         .thenReturn(null);
-    when(keyLockProvider.getLockForKey(arcusKey))
+    when(keyLockProvider.getLockForKey(ARCUS_STRING_KEY))
         .thenReturn(readWriteLock);
     when(readWriteLock.writeLock())
         .thenReturn(lock);
@@ -1103,7 +1103,7 @@ public class ArcusCacheTest {
         .thenReturn(createOperationFuture(true));
     when(valueLoader.call())
         .thenThrow(new TestException());
-    when(keyLockProvider.getLockForKey(arcusKey))
+    when(keyLockProvider.getLockForKey(ARCUS_STRING_KEY))
         .thenReturn(readWriteLock);
     when(readWriteLock.writeLock())
         .thenReturn(lock);

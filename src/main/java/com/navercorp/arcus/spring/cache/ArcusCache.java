@@ -157,32 +157,24 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   @Nullable
   @SuppressWarnings("unchecked")
   private <T> T getSynchronized(Object key, Callable<T> valueLoader) {
-    String arcusKey = createArcusKey(key);
     try {
-      acquireWriteLockOnKey(arcusKey);
+      acquireWriteLockOnKey(key);
       ValueWrapper result = super.get(key);
-      return result != null ? (T) result.get() : loadValue(arcusKey, valueLoader);
+      return result != null ? (T) result.get() : loadValue(key, valueLoader);
     } finally {
-      releaseWriteLockOnKey(arcusKey);
+      releaseWriteLockOnKey(key);
     }
   }
 
-  private <T> T loadValue(String arcusKey, Callable<T> valueLoader) {
+  private <T> T loadValue(Object key, Callable<T> valueLoader) {
     T value;
     try {
       value = valueLoader.call();
     } catch (Exception e) {
-      throw new ValueRetrievalException(arcusKey, valueLoader, e);
+      throw new ValueRetrievalException(key, valueLoader, e);
     }
 
-    try {
-      putValue(arcusKey, value);
-    } catch (Exception e) {
-      if (wantToGetException) {
-        throw toRuntimeException(e);
-      }
-      logger.info("failed to put value got from valueLoader. error: {}, key: {}", e.getMessage(), arcusKey);
-    }
+    put(key, value);
 
     return value;
   }
@@ -432,12 +424,12 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     return forceFrontCaching;
   }
 
-  private void acquireWriteLockOnKey(String arcusKey) {
-    keyLockProvider.getLockForKey(arcusKey).writeLock().lock();
+  private void acquireWriteLockOnKey(Object key) {
+    keyLockProvider.getLockForKey(key).writeLock().lock();
   }
 
-  private void releaseWriteLockOnKey(String arcusKey) {
-    keyLockProvider.getLockForKey(arcusKey).writeLock().unlock();
+  private void releaseWriteLockOnKey(Object key) {
+    keyLockProvider.getLockForKey(key).writeLock().unlock();
   }
 
   private RuntimeException toRuntimeException(Exception e) {
