@@ -17,21 +17,21 @@
 
 package com.navercorp.arcus.spring;
 
-import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ArcusClientPool;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("/arcus_spring_basic_context_test.xml")
 public class ApplicationContextLoadTest {
 
@@ -39,13 +39,16 @@ public class ApplicationContextLoadTest {
   private ApplicationContext context;
 
   @Test
-  public void contextLoaded() {
+  public void contextLoaded() throws Exception {
     assertNotNull(context);
     ArcusClientPool clients = context.getBean(ArcusClientPool.class);
     assertNotNull(clients);
-    for (ArcusClient client : clients.getAllClients()) {
-      assertTrue(client.isAlive());
-    }
+
+    String key = Math.random() + this.getClass().getSimpleName();
+    String value = this.getClass().getSimpleName() + Math.random();
+
+    assertTrue(clients.set(key, 0, value).get());
+    assertEquals(clients.get(key), value);
   }
 
 }
