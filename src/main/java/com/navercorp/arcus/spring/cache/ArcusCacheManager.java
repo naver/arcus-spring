@@ -117,4 +117,8 @@ public class ArcusCacheManager extends AbstractCacheManager implements Disposabl
       client.shutdown();
     }
   }
+
+  static String getStringFieldPlaceholder(String fieldName, Object o) {
+    return fieldName + ":" + o.getClass().getName() + "@" + o.hashCode();
+  }
 }

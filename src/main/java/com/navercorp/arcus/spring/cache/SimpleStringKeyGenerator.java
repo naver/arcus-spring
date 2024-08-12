@@ -19,9 +19,8 @@ package com.navercorp.arcus.spring.cache;
 
 import java.lang.reflect.Method;
 
-import javax.annotation.Nullable;
-
 import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.lang.Nullable;
 
 public class SimpleStringKeyGenerator implements KeyGenerator {
   private static final String DEFAULT_SEPARATOR = ",";

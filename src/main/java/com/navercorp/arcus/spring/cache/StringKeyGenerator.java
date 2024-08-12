@@ -20,9 +20,8 @@ package com.navercorp.arcus.spring.cache;
 
 import java.lang.reflect.Method;
 
-import javax.annotation.Nullable;
-
 import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.lang.Nullable;
 
 /**
  * 스프링 Cache의 KeyGenerator 구현체.
