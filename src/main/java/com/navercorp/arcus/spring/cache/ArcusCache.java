@@ -25,8 +25,6 @@ import com.navercorp.arcus.spring.concurrent.KeyLockProvider;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nullable;
-
 import net.spy.memcached.ArcusClientPool;
 import net.spy.memcached.internal.GetFuture;
 import net.spy.memcached.internal.OperationFuture;
@@ -38,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
 
@@ -87,21 +86,26 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   private String name;
+  @Nullable
   private String prefix;
   private String serviceId;
   private int expireSeconds;
   private int frontExpireSeconds;
   private long timeoutMilliSeconds = DEFAULT_TIMEOUT_MILLISECONDS;
-  private ArcusClientPool arcusClient;
+  private ArcusClientPool arcusClient = new ArcusClientPoolPlaceholder();
   @Deprecated
   private boolean wantToGetException = DEFAULT_WANT_TO_GET_EXCEPTION;
   private boolean forceFrontCaching;
+  @Nullable
   private Transcoder<Object> operationTranscoder;
   private KeyLockProvider keyLockProvider = new DefaultKeyLockProvider();
+  @Nullable
   private ArcusFrontCache arcusFrontCache;
 
   public ArcusCache() {
     super(DEFAULT_ALLOW_NULL_VALUES);
+    this.name = this.getNamePlaceholder();
+    this.serviceId = this.getServiceIdPlaceholder();
   }
 
   ArcusCache(String name, ArcusClientPool clientPool, ArcusCacheConfiguration configuration) {
@@ -180,7 +184,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   }
 
   @Override
-  public void put(final Object key, final Object value) {
+  public void put(final Object key, @Nullable final Object value) {
     if (value == null && !isAllowNullValues()) {
       throw new IllegalArgumentException(String.format("Cache '%s' does not allow 'null' values. " +
               "Avoid storing null via '@Cacheable(unless=\"#result == null\")' or configure ArcusCache " +
@@ -208,7 +212,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
    */
   @Nullable
   @Override
-  public ValueWrapper putIfAbsent(Object key, Object value) {
+  public ValueWrapper putIfAbsent(Object key, @Nullable Object value) {
     if (value == null && !isAllowNullValues()) {
       logger.info(String.format("Cache '%s' does not allow 'null' values. " +
               "Avoid storing null via '@Cacheable(unless=\"#result == null\")' or configure ArcusCache " +
@@ -336,10 +340,11 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
 
   @Override
   public void afterPropertiesSet() {
-    if (name == null && prefix == null) {
+    if (getNamePlaceholder().equals(name) && prefix == null) {
       throw new IllegalArgumentException("ArcusCache's 'name' or 'prefix' property must have a value.");
     }
-    Assert.notNull(serviceId, "ArcusCache's serviceId property must have a value.");
+    Assert.isTrue(!(arcusClient instanceof ArcusClientPoolPlaceholder), "arcusClient property must have a value.");
+    Assert.isTrue(!getServiceIdPlaceholder().equals(serviceId), "serviceId property must have a value.");
   }
 
   public String getServiceId() {
@@ -499,6 +504,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     }
   }
 
+  @Nullable
   private ValueWrapper putIfAbsentValue(String arcusKey, Object value) throws Exception {
     logger.debug("trying to add(putIfAbsent) key: {}", arcusKey);
 
@@ -520,4 +526,17 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     return success ? null : toValueWrapper(getValue(arcusKey));
   }
 
+  private String getNamePlaceholder() {
+    return ArcusCacheManager.getStringFieldPlaceholder("name", this);
+  }
+
+  private String getServiceIdPlaceholder() {
+    return ArcusCacheManager.getStringFieldPlaceholder("serviceId", this);
+  }
+
+  static class ArcusClientPoolPlaceholder extends ArcusClientPool {
+    public ArcusClientPoolPlaceholder() {
+      super(0, null);
+    }
+  }
 }

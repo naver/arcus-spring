@@ -17,6 +17,7 @@
 
 package com.navercorp.arcus.spring.concurrent;
 
+import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -49,10 +50,7 @@ public class DefaultKeyLockProvider implements KeyLockProvider {
   }
 
   private int selectLock(Object key) {
-    if (key == null) {
-      return 0;
-    }
-    return key.hashCode() & (mutexes.length - 1);
+    return Objects.hashCode(key) & (mutexes.length - 1);
   }
 
 }
