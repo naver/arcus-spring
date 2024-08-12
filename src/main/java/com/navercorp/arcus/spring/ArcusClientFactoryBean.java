@@ -18,8 +18,6 @@
 
 package com.navercorp.arcus.spring;
 
-import javax.annotation.Nullable;
-
 import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ArcusClientPool;
 import net.spy.memcached.ConnectionFactoryBuilder;
@@ -29,13 +27,17 @@ import net.spy.memcached.transcoders.Transcoder;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
         DisposableBean, InitializingBean {
 
+  @Nullable
   private ArcusClientPool client;
+  @Nullable
   private String url;
+  @Nullable
   private String serviceCode;
   private int poolSize = 4;
   private int frontCacheExpireTime = DefaultConnectionFactory.DEFAULT_FRONTCACHE_EXPIRETIME;
@@ -48,6 +50,7 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
   /**
    * global transcoder for key/value store.
    */
+  @Nullable
   private Transcoder<Object> globalTranscoder;
 
   public void setPoolSize(int poolSize) {
@@ -99,19 +102,7 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
 
   @Override
   public ArcusClientPool getObject() {
-    ConnectionFactoryBuilder cfb = new ConnectionFactoryBuilder();
-    cfb.setFrontCacheExpireTime(frontCacheExpireTime);
-    cfb.setTimeoutExceptionThreshold(timeoutExceptionThreshold);
-    cfb.setFrontCacheCopyOnRead(frontCacheCopyOnRead);
-    cfb.setFrontCacheCopyOnWrite(frontCacheCopyOnWrite);
-    cfb.setMaxReconnectDelay(maxReconnectDelay);
-    if (maxFrontCacheElements > 0) {
-      cfb.setMaxFrontCacheElements(maxFrontCacheElements);
-    }
-    if (globalTranscoder != null) {
-      cfb.setTranscoder(globalTranscoder);
-    }
-    client = ArcusClient.createArcusClientPool(url, serviceCode, cfb, poolSize);
+    this.afterPropertiesSet();
     return client;
   }
 
@@ -132,5 +123,21 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
     Assert.isTrue(this.poolSize > 0, "PoolSize property must be larger than 0.");
     Assert.isTrue(this.timeoutExceptionThreshold > 0, "TimeoutExceptionThreshold must be larger than 0.");
     Assert.isTrue(this.maxReconnectDelay > 0, "MaxReconnectDelay must be larger than 0.");
+
+    ConnectionFactoryBuilder cfb = new ConnectionFactoryBuilder()
+            .setFrontCacheExpireTime(frontCacheExpireTime)
+            .setTimeoutExceptionThreshold(timeoutExceptionThreshold)
+            .setFrontCacheCopyOnRead(frontCacheCopyOnRead)
+            .setFrontCacheCopyOnWrite(frontCacheCopyOnWrite)
+            .setMaxReconnectDelay(maxReconnectDelay);
+
+    if (maxFrontCacheElements > 0) {
+      cfb.setMaxFrontCacheElements(maxFrontCacheElements);
+    }
+    if (globalTranscoder != null) {
+      cfb.setTranscoder(globalTranscoder);
+    }
+
+    client = ArcusClient.createArcusClientPool(url, serviceCode, cfb, poolSize);
   }
 }

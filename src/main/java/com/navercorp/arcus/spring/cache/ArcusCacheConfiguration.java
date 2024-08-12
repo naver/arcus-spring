@@ -19,27 +19,33 @@ package com.navercorp.arcus.spring.cache;
 
 import com.navercorp.arcus.spring.cache.front.ArcusFrontCache;
 
-import javax.annotation.Nullable;
-
 import net.spy.memcached.transcoders.Transcoder;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 @SuppressWarnings("DeprecatedIsStillUsed")
 public class ArcusCacheConfiguration implements InitializingBean {
 
   private String serviceId = "";
+  @Nullable
   private String prefix;
   private int expireSeconds;
   private int frontExpireSeconds;
   private long timeoutMilliSeconds = ArcusCache.DEFAULT_TIMEOUT_MILLISECONDS;
+  @Nullable
   private Transcoder<Object> operationTranscoder;
+  @Nullable
   private ArcusFrontCache arcusFrontCache;
   @Deprecated
   private boolean wantToGetException = ArcusCache.DEFAULT_WANT_TO_GET_EXCEPTION;
   private boolean forceFrontCaching;
   private boolean allowNullValues = ArcusCache.DEFAULT_ALLOW_NULL_VALUES;
+
+  public ArcusCacheConfiguration() {
+    this.serviceId = this.getServiceIdPlaceholder();
+  }
 
   public String getServiceId() {
     return serviceId;
@@ -126,8 +132,13 @@ public class ArcusCacheConfiguration implements InitializingBean {
     this.allowNullValues = allowNullValues;
   }
 
+  private String getServiceIdPlaceholder() {
+    return ArcusCacheManager.getStringFieldPlaceholder("serviceId", this);
+  }
+
   @Override
   public void afterPropertiesSet() {
+    Assert.isTrue(!getServiceIdPlaceholder().equals(serviceId), "ServiceId must be set.");
     Assert.isTrue(timeoutMilliSeconds > 0, "TimeoutMilliSeconds must be larger than 0.");
   }
 

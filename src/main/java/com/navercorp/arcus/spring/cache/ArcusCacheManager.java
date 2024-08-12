@@ -134,6 +134,10 @@ public class ArcusCacheManager extends AbstractTransactionSupportingCacheManager
     }
   }
 
+  static String getStringFieldPlaceholder(String fieldName, Object o) {
+    return fieldName + ":" + o.getClass().getName() + "@" + o.hashCode();
+  }
+
   public static class ArcusCacheManagerBuilder {
     private final ArcusClientPool arcusClientPool;
     private final boolean internalClient;
