@@ -19,8 +19,12 @@ package com.navercorp.arcus.spring.cache;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ArcusClientPool;
@@ -28,13 +32,14 @@ import net.spy.memcached.ConnectionFactoryBuilder;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.cache.Cache;
-import org.springframework.cache.support.AbstractCacheManager;
+import org.springframework.cache.transaction.AbstractTransactionSupportingCacheManager;
+import org.springframework.util.Assert;
 
 /**
  * 스프링 CacheManager의 Arcus 구현체.
  * 미리 정의하지 않은 이름의 캐시에 대해 get 요청을 받으면 (SimpleCacheManager와 다르게) 기본 설정으로 새 캐시를 생성하고 저장합니다.
  */
-public class ArcusCacheManager extends AbstractCacheManager implements DisposableBean {
+public class ArcusCacheManager extends AbstractTransactionSupportingCacheManager implements DisposableBean {
   private final ArcusClientPool client;
   protected ArcusCacheConfiguration defaultConfiguration;
   protected Map<String, ArcusCacheConfiguration> initialCacheConfigs;
@@ -85,6 +90,17 @@ public class ArcusCacheManager extends AbstractCacheManager implements Disposabl
     this.internalClient = true;
   }
 
+  public static ArcusCacheManagerBuilder builder(ArcusClientPool arcusClientPool) {
+    return new ArcusCacheManagerBuilder(arcusClientPool);
+  }
+
+  public static ArcusCacheManagerBuilder builder(String adminAddress,
+                                                 String serviceCode,
+                                                 ConnectionFactoryBuilder connectionFactoryBuilder,
+                                                 int poolSize) {
+    return new ArcusCacheManagerBuilder(adminAddress, serviceCode, connectionFactoryBuilder, poolSize);
+  }
+
   @Override
   protected Collection<? extends Cache> loadCaches() {
     List<Cache> caches = new ArrayList<Cache>(initialCacheConfigs.size());
@@ -116,5 +132,83 @@ public class ArcusCacheManager extends AbstractCacheManager implements Disposabl
     if (internalClient) {
       client.shutdown();
     }
+  }
+
+  public static class ArcusCacheManagerBuilder {
+    private final ArcusClientPool arcusClientPool;
+    private final boolean internalClient;
+    private final Map<String, ArcusCacheConfiguration> initialCaches = new LinkedHashMap<>();
+    private boolean enableTransactions;
+    private ArcusCacheConfiguration defaultConfiguration = new ArcusCacheConfiguration();
+
+    private ArcusCacheManagerBuilder(ArcusClientPool arcusClientPool) {
+      this.arcusClientPool = arcusClientPool;
+      this.internalClient = false;
+    }
+
+    private ArcusCacheManagerBuilder(String adminAddress,
+                                    String serviceCode,
+                                    ConnectionFactoryBuilder connectionFactoryBuilder,
+                                    int poolSize) {
+      this.arcusClientPool = ArcusClient.createArcusClientPool(
+              adminAddress, serviceCode, connectionFactoryBuilder, poolSize);
+      this.internalClient = true;
+    }
+
+    public ArcusCacheManagerBuilder cacheDefaults(ArcusCacheConfiguration defaultCacheConfiguration) {
+      this.defaultConfiguration = defaultCacheConfiguration;
+      return this;
+    }
+
+    public ArcusCacheManagerBuilder initialCacheNames(Set<String> cacheNames) {
+      Assert.notNull(cacheNames, "Cache names must not be null");
+
+      cacheNames.forEach(cacheName -> initialCaches.put(cacheName, defaultConfiguration));
+      return this;
+    }
+
+    public ArcusCacheManagerBuilder transactionAware() {
+      this.enableTransactions = true;
+      return this;
+    }
+
+    public ArcusCacheManagerBuilder withCacheConfiguration(String cacheName, ArcusCacheConfiguration cacheConfiguration) {
+      Assert.notNull(cacheName, "Cache name must not be null");
+      Assert.notNull(cacheConfiguration, "Cache configuration must not be null");
+
+      this.initialCaches.put(cacheName, cacheConfiguration);
+      return this;
+    }
+
+    public ArcusCacheManagerBuilder withInitialCacheConfigurations(Map<String, ArcusCacheConfiguration> cacheConfigurations) {
+      Assert.notNull(cacheConfigurations, "Cache configurations must not be null");
+
+      this.initialCaches.putAll(cacheConfigurations);
+      return this;
+    }
+
+    public Optional<ArcusCacheConfiguration> getCacheConfigurationFor(String cacheName) {
+      return Optional.ofNullable(this.initialCaches.get(cacheName));
+    }
+
+    public Set<String> getConfiguredCaches() {
+      return Collections.unmodifiableSet(this.initialCaches.keySet());
+    }
+
+    /**
+     * Create new instance of {@link ArcusCacheManager} with configuration options applied.
+     *
+     * @return new instance of {@link ArcusCacheManager}.
+     */
+    public ArcusCacheManager build() {
+      Assert.state(arcusClientPool != null, "ArcusClient must not be null");
+
+      ArcusCacheManager cacheManager = new ArcusCacheManager(arcusClientPool, defaultConfiguration, initialCaches);
+      cacheManager.internalClient = this.internalClient;
+      cacheManager.setTransactionAware(this.enableTransactions);
+
+      return cacheManager;
+    }
+
   }
 }
