@@ -87,11 +87,7 @@ Spring Cache Abstraction을 통해 ARCUS Cache를 사용하려면, 다음과 같
         </constructor-arg>
     </bean>
 
-    <bean id="defaultCacheConfig" class="com.navercorp.arcus.spring.cache.ArcusCacheConfiguration">
-        <property name="serviceId" value=""/>
-        <property name="expireSeconds" value="240"/>
-        <property name="timeoutMilliSeconds" value="800"/>
-    </bean>
+    <bean id="defaultCacheConfig" class="com.navercorp.arcus.spring.cache.ArcusCacheConfiguration"/>
 
 </beans>
 ```
@@ -130,11 +126,7 @@ public class ArcusConfiguration extends CachingConfigurerSupport {
 
   @Bean
   public ArcusCacheConfiguration defaultCacheConfig() {
-    ArcusCacheConfiguration defaultCacheConfig = new ArcusCacheConfiguration();
-    defaultCacheConfig.setServiceId("");
-    defaultCacheConfig.setExpireSeconds(240);
-    defaultCacheConfig.setTimeoutMilliSeconds(800);
-    return defaultCacheConfig;
+    return new ArcusCacheConfiguration();
   }
 
   @Bean
