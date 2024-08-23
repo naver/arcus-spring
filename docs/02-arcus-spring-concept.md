@@ -62,13 +62,12 @@ ArcusCache 객체를 생성하기 위해 사용되는 캐시 설정 클래스이
 
 - `String serviceId`
   - 다음에 설명할 prefix와 조합하여 캐시 키의 Prefix를 생성하는 데 사용된다.
-  - 주로 배포 단계(test, dev, stage, prod, ...)를 구분하기 위한 문자열을 지정한다.
-  - null이 아닌 값을 필수적으로 지정해야 한다.
+  - 배포 단계(test, dev, stage, prod, ...)를 구분하기 위한 문자열을 지정한다.
   - [1장의 Cache Key 설명](01-arcus-cache-basics.md#cache-key)을 참고하여 ARCUS Cache의 캐시 키로 사용할 수 없는 문자열이 포함되지 않도록 해야 한다.
 - `String prefix`
   - serviceId와 조합하여 캐시 키의 Prefix를 생성하는 데 사용된다.
   - 주로 ARCUS Cache에 저장할 객체의 종류(Product, User, Order, ...)를 나타내는 문자열을 지정한다.
-  - 필수적으로 지정하지 않아도 되며, null을 지정할 수 있다. 이 경우 캐시 키의 Prefix를 생성할 때 serviceId와 현재 캐시 설정으로 생성하는 ArcusCache 객체의 캐시 이름이 사용된다. 
+  - 필수적으로 지정하지 않아도 되며, 이 경우 캐시 키의 Prefix를 생성할 때 serviceId와 현재 캐시 설정으로 생성하는 ArcusCache 객체의 캐시 이름이 사용된다. 
   - null이 아닌 값을 지정하는 경우, [1장의 Cache Key 설명](01-arcus-cache-basics.md#cache-key)을 참고하여 ARCUS Cache의 캐시 키로 사용할 수 없는 문자열이 포함되지 않도록 해야 한다.
 - `int expireSeconds`
   - 캐시 아이템의 Expire Time을 Seconds 단위로 지정한다.

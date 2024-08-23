@@ -44,9 +44,9 @@ import org.springframework.util.DigestUtils;
 /**
  * 스프링 Cache의 Arcus 구현체.
  * <p>
- * Arcus의 key 구조는 prefix:subkey 입니다. prefix는 사용자가 그룹으로 생성하고자 하는 subkey들의 집합이며
- * ArcusCache에서는 서비스 또는 빌드 단계 등의 구분을 위해 serviceId + name으로 정의합니다. serviceCode
- * 속성과 name는 반드시 설정되어야 합니다.
+ * Arcus 캐시 키의 기본 구조는 prefix:subkey 입니다. prefix는 사용자가 그룹으로 생성하고자 하는 subkey들의 집합이며
+ * ArcusCache에서는 서비스 또는 빌드 단계 등의 구분을 위해 serviceId + <prefix | name> 문자열을 캐시 키의 prefix로 정의합니다.
+ *
  * </p>
  * <pre>{@code
  * <bean id="operationTranscoderA" class="net.spy.memcached.transcoders.SerializingTranscoder">
@@ -87,8 +87,8 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   private String name;
+  private String serviceId = "";
   private String prefix;
-  private String serviceId;
   private int expireSeconds;
   private int frontExpireSeconds;
   private long timeoutMilliSeconds = DEFAULT_TIMEOUT_MILLISECONDS;
@@ -339,7 +339,6 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     if (name == null && prefix == null) {
       throw new IllegalArgumentException("ArcusCache's 'name' or 'prefix' property must have a value.");
     }
-    Assert.notNull(serviceId, "ArcusCache's serviceId property must have a value.");
   }
 
   public String getServiceId() {
@@ -347,6 +346,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   }
 
   public void setServiceId(String serviceId) {
+    Assert.notNull(serviceId, "ArcusCache's serviceId property must have a value.");
     this.serviceId = serviceId;
   }
 

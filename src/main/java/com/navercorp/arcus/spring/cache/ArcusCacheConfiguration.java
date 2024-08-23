@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 @SuppressWarnings("DeprecatedIsStillUsed")
 public class ArcusCacheConfiguration implements InitializingBean {
 
-  private String serviceId;
+  private String serviceId = "";
   private String prefix;
   private int expireSeconds;
   private int frontExpireSeconds;
