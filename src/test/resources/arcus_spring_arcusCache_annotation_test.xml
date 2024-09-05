@@ -18,17 +18,20 @@
           p:url="#{arcusConfig['url']}"
           p:serviceCode="#{arcusConfig['serviceCode']}"
           p:poolSize="4"/>
+    <bean id="arcusCacheConfiguration" class="com.navercorp.arcus.spring.cache.ArcusCacheConfiguration"
+          p:timeoutMilliSeconds="500"
+          p:expireSeconds="3000"
+          p:serviceId="testService-"
+          p:prefix="testPrefix"/>
 
     <bean id="arcusCacheManager" class="org.springframework.cache.support.SimpleCacheManager">
         <property name="caches">
             <list>
-                <bean id="arcusCache" class="com.navercorp.arcus.spring.cache.ArcusCache"
-                      p:name="arcusCache"
-                      p:arcusClient-ref="arcusClient"
-                      p:timeoutMilliSeconds="500"
-                      p:expireSeconds="3000"
-                      p:serviceId="testService-"
-                      p:prefix="testPrefix"/>
+                <bean id="arcusCache" class="com.navercorp.arcus.spring.cache.ArcusCache">
+                    <constructor-arg value="arcusCache"/>
+                    <constructor-arg ref="arcusClient"/>
+                    <constructor-arg ref="arcusCacheConfiguration"/>
+                </bean>
             </list>
         </property>
     </bean>

@@ -48,12 +48,12 @@ public class ApplicationContextLoadTest {
 
     ArcusClientPool client = context.getBean(ArcusClientPool.class);
     CacheManager cacheManager = context.getBean(CacheManager.class);
-    Cache Cache = cacheManager.getCache("testCache");
+    Cache cache = cacheManager.getCache("testCache");
 
     assertNotNull(client);
     assertNotNull(cacheManager);
-    assertInstanceOf(ArcusCache.class, Cache);
-    assertSame(((ArcusCache) Cache).getArcusClient(), client);
+    assertInstanceOf(ArcusCache.class, cache);
+    assertSame(cache.getNativeCache(), client);
   }
 
 }
