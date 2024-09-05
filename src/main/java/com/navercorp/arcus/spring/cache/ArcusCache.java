@@ -25,6 +25,7 @@ import com.navercorp.arcus.spring.concurrent.KeyLockProvider;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.spy.memcached.ArcusClientPool;
@@ -36,7 +37,6 @@ import net.spy.memcached.transcoders.Transcoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.support.AbstractValueAdaptingCache;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
@@ -77,7 +77,7 @@ import org.springframework.util.DigestUtils;
  * </p>
  */
 @SuppressWarnings({"DeprecatedIsStillUsed", "deprecation"})
-public class ArcusCache extends AbstractValueAdaptingCache implements InitializingBean {
+public class ArcusCache extends AbstractValueAdaptingCache {
 
   public static final long DEFAULT_TIMEOUT_MILLISECONDS = 700L;
   @Deprecated
@@ -87,48 +87,62 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   private String name;
-  private String serviceId = "";
-  private String prefix;
-  private int expireSeconds;
-  private int frontExpireSeconds;
-  private long timeoutMilliSeconds = DEFAULT_TIMEOUT_MILLISECONDS;
   private ArcusClientPool arcusClient;
-  @Deprecated
-  private boolean wantToGetException = DEFAULT_WANT_TO_GET_EXCEPTION;
-  private boolean forceFrontCaching;
-  private Transcoder<Object> operationTranscoder;
+  private final ArcusCacheConfiguration configuration;
   private KeyLockProvider keyLockProvider = new DefaultKeyLockProvider();
-  private ArcusFrontCache arcusFrontCache;
 
+  /**
+   * This constructor doesn't guarantee to make safe and complete instance.
+   * because essential fields such as name or arcusClient are not checked.
+   */
+  @Deprecated
   public ArcusCache() {
     super(DEFAULT_ALLOW_NULL_VALUES);
+    this.configuration = new ArcusCacheConfiguration();
   }
 
-  ArcusCache(String name, ArcusClientPool clientPool, ArcusCacheConfiguration configuration) {
-    super(configuration.isAllowNullValues());
-    this.name = name;
-    this.arcusClient = clientPool;
-    this.serviceId = configuration.getServiceId();
-    this.prefix = configuration.getPrefix();
-    this.expireSeconds = configuration.getExpireSeconds();
-    this.timeoutMilliSeconds = configuration.getTimeoutMilliSeconds();
-    this.operationTranscoder = configuration.getOperationTranscoder();
-    this.arcusFrontCache = configuration.getArcusFrontCache();
-    this.frontExpireSeconds = configuration.getFrontExpireSeconds();
-    this.forceFrontCaching = configuration.isForceFrontCaching();
-    this.wantToGetException = configuration.isWantToGetException();
+  public ArcusCache(String name, ArcusClientPool clientPool) {
+    this(name, clientPool, new ArcusCacheConfiguration());
+  }
 
-    this.afterPropertiesSet();
+  public ArcusCache(String name, ArcusClientPool clientPool, ArcusCacheConfiguration configuration) {
+    super(requireNonNull(configuration).isAllowNullValues());
+    this.setName(name);
+    this.setArcusClient(clientPool);
+    this.configuration = configuration;
+  }
+
+  /*
+   *  Verify if it is not null before calling the super method.
+   */
+  private static ArcusCacheConfiguration requireNonNull(ArcusCacheConfiguration cacheConfig) {
+    Assert.notNull(cacheConfig, "Cache configuration must not be null.");
+    return cacheConfig;
   }
 
   @Override
+  @Nonnull
   public String getName() {
     return this.name;
   }
 
   @Override
+  @Nonnull
   public Object getNativeCache() {
     return this.arcusClient;
+  }
+
+  public KeyLockProvider getKeyLockProvider() {
+    return keyLockProvider;
+  }
+
+  public void setKeyLockProvider(KeyLockProvider keyLockProvider) {
+    Assert.notNull(keyLockProvider, "ArcusCache's 'keyLockProvider' property must not be null.");
+    this.keyLockProvider = keyLockProvider;
+  }
+
+  public ArcusCacheConfiguration getCacheConfiguration() {
+    return this.configuration;
   }
 
   @Nullable
@@ -138,7 +152,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     try {
       return getValue(arcusKey);
     } catch (Exception e) {
-      if (wantToGetException) {
+      if (configuration.isWantToGetException()) {
         throw toRuntimeException(e);
       }
       logger.info("failed to lookup. error: {}, key: {}", e.getMessage(), arcusKey);
@@ -191,7 +205,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     try {
       putValue(arcusKey, toStoreValue(value));
     } catch (Exception e) {
-      if (wantToGetException) {
+      if (configuration.isWantToGetException()) {
         throw toRuntimeException(e);
       }
       logger.info("failed to put. error: {}, key: {}", e.getMessage(), arcusKey);
@@ -220,7 +234,7 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     try {
       return putIfAbsentValue(arcusKey, toStoreValue(value));
     } catch (Exception e) {
-      if (wantToGetException) {
+      if (configuration.isWantToGetException()) {
         throw toRuntimeException(e);
       }
       logger.info("failed to putIfAbsent. error: {}, key: {}", e.getMessage(), arcusKey);
@@ -237,18 +251,19 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
 
     try {
       OperationFuture<Boolean> future = arcusClient.delete(arcusKey);
-      success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
+      success = future.get(configuration.getTimeoutMilliSeconds(), TimeUnit.MILLISECONDS);
       if (!success) {
         OperationStatus status = future.getStatus();
         logger.info("failed to evict a key: {}, status: {}", arcusKey, status.getMessage());
       }
     } catch (Exception e) {
-      if (wantToGetException) {
+      if (configuration.isWantToGetException()) {
         throw toRuntimeException(e);
       }
       logger.info("failed to evict. error: {}, key: {}", e.getMessage(), arcusKey);
     } finally {
-      if (arcusFrontCache != null && (success || forceFrontCaching)) {
+      ArcusFrontCache arcusFrontCache = configuration.getArcusFrontCache();
+      if (arcusFrontCache != null && (success || configuration.isForceFrontCaching())) {
         arcusFrontCache.delete(arcusKey);
       }
     }
@@ -256,6 +271,8 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
 
   @Override
   public void clear() {
+    String serviceId = configuration.getServiceId();
+    String prefix = configuration.getPrefix();
     String arcusPrefix = serviceId + ((prefix != null) ? prefix : name);
     logger.debug("evicting every key that uses the prefix: {}", arcusPrefix);
 
@@ -263,18 +280,19 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
 
     try {
       OperationFuture<Boolean> future = arcusClient.flush(arcusPrefix);
-      success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
+      success = future.get(configuration.getTimeoutMilliSeconds(), TimeUnit.MILLISECONDS);
       if (!success) {
         OperationStatus status = future.getStatus();
         logger.info("failed to clear a prefix: {}, status: {}", arcusPrefix, status.getMessage());
       }
     } catch (Exception e) {
-      if (wantToGetException) {
+      if (configuration.isWantToGetException()) {
         throw toRuntimeException(e);
       }
       logger.info("failed to clear. error: {}, prefix: {}", e.getMessage(), arcusPrefix);
     } finally {
-      if (arcusFrontCache != null && (success || forceFrontCaching)) {
+      ArcusFrontCache arcusFrontCache = configuration.getArcusFrontCache();
+      if (arcusFrontCache != null && (success || configuration.isForceFrontCaching())) {
         arcusFrontCache.clear();
       }
     }
@@ -312,116 +330,123 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
   }
 
   private String getPrefixString() {
-    if (this.prefix != null) {
-      return serviceId + prefix + ":";
-    }
-    return serviceId + name + ":";
+    String serviceId = configuration.getServiceId();
+    String prefix = configuration.getPrefix();
+    return serviceId + ((prefix != null) ? prefix : name) + ":";
   }
 
+  @Deprecated
   public void setName(String name) {
+    Assert.notNull(name, "ArcusCache's 'name' property must have a value.");
     this.name = name;
   }
 
+  @Deprecated
   public void setExpireSeconds(int expireSeconds) {
-    this.expireSeconds = expireSeconds;
+    configuration.setExpireSeconds(expireSeconds);
   }
 
+  @Deprecated
   public void setTimeoutMilliSeconds(long timeoutMilliseconds) {
-    this.timeoutMilliSeconds = timeoutMilliseconds;
+    configuration.setTimeoutMilliSeconds(timeoutMilliseconds);
   }
 
+  @Deprecated
   public void setArcusClient(ArcusClientPool arcusClient) {
+    Assert.notNull(arcusClient, "ArcusCache's 'arcusClient' property must not be null.");
     this.arcusClient = arcusClient;
   }
 
-  @Override
-  public void afterPropertiesSet() {
-    if (name == null && prefix == null) {
-      throw new IllegalArgumentException("ArcusCache's 'name' or 'prefix' property must have a value.");
-    }
-  }
-
+  @Deprecated
   public String getServiceId() {
-    return serviceId;
+    return configuration.getServiceId();
   }
 
+  @Deprecated
   public void setServiceId(String serviceId) {
-    Assert.notNull(serviceId, "ArcusCache's serviceId property must have a value.");
-    this.serviceId = serviceId;
+    Assert.notNull(serviceId, "ArcusCache's 'serviceId' property must have a value.");
+    configuration.setServiceId(serviceId);
   }
 
   @Deprecated
   public boolean isWantToGetException() {
-    return wantToGetException;
+    return configuration.isWantToGetException();
   }
 
   @Deprecated
   public void setWantToGetException(boolean wantToGetException) {
-    this.wantToGetException = wantToGetException;
+    configuration.setWantToGetException(wantToGetException);
   }
 
+  @Deprecated
   public int getExpireSeconds() {
-    return expireSeconds;
+    return configuration.getExpireSeconds();
   }
 
+  @Deprecated
   public long getTimeoutMilliSeconds() {
-    return timeoutMilliSeconds;
+    return configuration.getTimeoutMilliSeconds();
   }
 
+  @Deprecated
   public ArcusClientPool getArcusClient() {
     return arcusClient;
   }
 
+  @Deprecated
   @Nullable
   public Transcoder<Object> getOperationTranscoder() {
-    return operationTranscoder;
+    return configuration.getOperationTranscoder();
   }
 
+  @Deprecated
   public void setOperationTranscoder(Transcoder<Object> operationTranscoder) {
-    this.operationTranscoder = operationTranscoder;
+    Assert.notNull(operationTranscoder, "ArcusCache's 'operationTranscoder' property must not be null.");
+    configuration.setOperationTranscoder(operationTranscoder);
   }
 
+  @Deprecated
   @Nullable
   public String getPrefix() {
-    return prefix;
+    return configuration.getPrefix();
   }
 
+  @Deprecated
   public void setPrefix(String prefix) {
-    this.prefix = prefix;
+    Assert.notNull(prefix, "ArcusCache's 'prefix' property must have a value.");
+    configuration.setPrefix(prefix);
   }
 
-  @Nullable
-  public KeyLockProvider getKeyLockProvider() {
-    return keyLockProvider;
-  }
-
-  public void setKeyLockProvider(KeyLockProvider keyLockProvider) {
-    this.keyLockProvider = keyLockProvider;
-  }
-
+  @Deprecated
   @Nullable
   public ArcusFrontCache getArcusFrontCache() {
-    return arcusFrontCache;
+    return configuration.getArcusFrontCache();
   }
 
+  @Deprecated
   public void setArcusFrontCache(ArcusFrontCache arcusFrontCache) {
-    this.arcusFrontCache = arcusFrontCache;
+    Assert.notNull(arcusFrontCache, "ArcusCache's 'arcusFrontCache' property must not be null.");
+    configuration.setArcusFrontCache(arcusFrontCache);
   }
 
+  @Deprecated
   public int getFrontExpireSeconds() {
-    return frontExpireSeconds;
+    return configuration.getFrontExpireSeconds();
   }
 
+  @Deprecated
   public void setFrontExpireSeconds(int frontExpireSeconds) {
-    this.frontExpireSeconds = frontExpireSeconds;
+    configuration.setFrontExpireSeconds(frontExpireSeconds);
   }
 
+  @Deprecated
   public void setForceFrontCaching(boolean forceFrontCaching) {
-    this.forceFrontCaching = forceFrontCaching;
+    this.configuration.setForceFrontCaching(forceFrontCaching);
   }
 
+  @Deprecated
   public boolean getForceFrontCaching() {
-    return forceFrontCaching;
+    return this.configuration.isForceFrontCaching();
   }
 
   private void acquireWriteLockOnKey(Object key) {
@@ -445,23 +470,25 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     logger.debug("getting value by key: {}", arcusKey);
     Object value;
 
+    ArcusFrontCache arcusFrontCache = configuration.getArcusFrontCache();
     if (arcusFrontCache != null && (value = arcusFrontCache.get(arcusKey)) != null) {
       logger.debug("front cache hit for {}", arcusKey);
       return value;
     }
 
     GetFuture<Object> future;
+    Transcoder<Object> operationTranscoder = configuration.getOperationTranscoder();
     if (operationTranscoder != null) {
       future = arcusClient.asyncGet(arcusKey, operationTranscoder);
     } else {
       future = arcusClient.asyncGet(arcusKey);
     }
 
-    value = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
+    value = future.get(configuration.getTimeoutMilliSeconds(), TimeUnit.MILLISECONDS);
     if (value != null) {
       logger.debug("arcus cache hit for {}", arcusKey);
       if (arcusFrontCache != null) {
-        arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
+        arcusFrontCache.set(arcusKey, value, configuration.getFrontExpireSeconds());
       }
     } else {
       logger.debug("arcus cache miss for {}", arcusKey);
@@ -481,20 +508,22 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
 
     try {
       OperationFuture<Boolean> future;
+      Transcoder<Object> operationTranscoder = configuration.getOperationTranscoder();
       if (operationTranscoder != null) {
-        future = arcusClient.set(arcusKey, expireSeconds, value, operationTranscoder);
+        future = arcusClient.set(arcusKey, configuration.getExpireSeconds(), value, operationTranscoder);
       } else {
-        future = arcusClient.set(arcusKey, expireSeconds, value);
+        future = arcusClient.set(arcusKey, configuration.getExpireSeconds(), value);
       }
 
-      success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
+      success = future.get(configuration.getTimeoutMilliSeconds(), TimeUnit.MILLISECONDS);
       if (!success) {
         OperationStatus status = future.getStatus();
         logger.info("failed to put a key: {}, status: {}", arcusKey, status.getMessage());
       }
     } finally {
-      if (arcusFrontCache != null && (success || forceFrontCaching)) {
-        arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
+      ArcusFrontCache arcusFrontCache = configuration.getArcusFrontCache();
+      if (arcusFrontCache != null && (success || configuration.isForceFrontCaching())) {
+        arcusFrontCache.set(arcusKey, value, configuration.getFrontExpireSeconds());
       }
     }
   }
@@ -503,18 +532,23 @@ public class ArcusCache extends AbstractValueAdaptingCache implements Initializi
     logger.debug("trying to add(putIfAbsent) key: {}", arcusKey);
 
     OperationFuture<Boolean> future;
+    Transcoder<Object> operationTranscoder = configuration.getOperationTranscoder();
+    int expireSeconds = configuration.getExpireSeconds();
     if (operationTranscoder != null) {
       future = arcusClient.add(arcusKey, expireSeconds, value, operationTranscoder);
     } else {
       future = arcusClient.add(arcusKey, expireSeconds, value);
     }
 
-    boolean success = future.get(timeoutMilliSeconds, TimeUnit.MILLISECONDS);
+    boolean success = future.get(configuration.getTimeoutMilliSeconds(), TimeUnit.MILLISECONDS);
     if (!success) {
       OperationStatus status = future.getStatus();
       logger.info("failed to putIfAbsent a key: {}, status: {}", arcusKey, status.getMessage());
-    } else if (arcusFrontCache != null) {
-      arcusFrontCache.set(arcusKey, value, frontExpireSeconds);
+    } else {
+      ArcusFrontCache arcusFrontCache = configuration.getArcusFrontCache();
+      if (arcusFrontCache != null) {
+        arcusFrontCache.set(arcusKey, value, configuration.getFrontExpireSeconds());
+      }
     }
 
     return success ? null : toValueWrapper(getValue(arcusKey));

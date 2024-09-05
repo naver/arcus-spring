@@ -29,9 +29,9 @@ class ArcusCacheManagerBuilderTest {
 
     ArcusCache missingCache = (ArcusCache) cm.getMissingCache("new-cache");
     assertNotNull(missingCache);
-    assertEquals(configuration.getServiceId(), missingCache.getServiceId());
-    assertEquals(configuration.getPrefix(), missingCache.getPrefix());
-    assertEquals(configuration.getExpireSeconds(), missingCache.getExpireSeconds());
+    assertEquals(configuration.getServiceId(), missingCache.getCacheConfiguration().getServiceId());
+    assertEquals(configuration.getPrefix(), missingCache.getCacheConfiguration().getPrefix());
+    assertEquals(configuration.getExpireSeconds(), missingCache.getCacheConfiguration().getExpireSeconds());
   }
 
   @Test
@@ -51,11 +51,11 @@ class ArcusCacheManagerBuilderTest {
 
     ArcusCache firstCache = (ArcusCache) cm.getCache("first-cache");
     assertNotNull(firstCache);
-    assertEquals(withPrefix.getPrefix(), firstCache.getPrefix());
+    assertEquals(withPrefix.getPrefix(), firstCache.getCacheConfiguration().getPrefix());
     ArcusCache secondCache = (ArcusCache) cm.getCache("second-cache");
     assertNotNull(secondCache);
     assertNull(withoutPrefix.getPrefix());
-    assertEquals(withoutPrefix.getPrefix(), secondCache.getPrefix());
+    assertEquals(withoutPrefix.getPrefix(), secondCache.getCacheConfiguration().getPrefix());
   }
 
   @Test

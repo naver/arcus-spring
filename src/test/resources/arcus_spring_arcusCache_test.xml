@@ -14,24 +14,28 @@
           p:serviceCode="#{arcusConfig['serviceCode']}"
           p:poolSize="4"/>
 
-    <bean id="arcusCache" class="com.navercorp.arcus.spring.cache.ArcusCache"
-          p:name="arcusCache"
-          p:arcusClient-ref="arcusClient"
+    <bean id="arcusCacheConfiguration" class="com.navercorp.arcus.spring.cache.ArcusCacheConfiguration"
           p:timeoutMilliSeconds="500"
           p:expireSeconds="3000"
           p:serviceId="testService-"
           p:prefix="testPrefix"/>
 
-    <bean id="arcusCacheConfiguration" class="com.navercorp.arcus.spring.cache.ArcusCacheConfiguration"
+    <bean id="arcusCache" class="com.navercorp.arcus.spring.cache.ArcusCache">
+        <constructor-arg name="name" value="arcusCache"/>
+        <constructor-arg name="clientPool" ref="arcusClient"/>
+        <constructor-arg name="configuration" ref="arcusCacheConfiguration"/>
+    </bean>
+
+    <bean id="configWithoutAllowingNullValue" class="com.navercorp.arcus.spring.cache.ArcusCacheConfiguration"
           p:allowNullValues="false"
           p:timeoutMilliSeconds="500"
           p:expireSeconds="3000"
           p:serviceId="testService-"
-          p:prefix="testService-"/>
+          p:prefix="testPrefix"/>
 
     <bean id="arcusCacheWithoutAllowingNullValue" class="com.navercorp.arcus.spring.cache.ArcusCache">
         <constructor-arg name="name" value="arcusCache"/>
         <constructor-arg name="clientPool" ref="arcusClient"/>
-        <constructor-arg name="configuration" ref="arcusCacheConfiguration"/>
+        <constructor-arg name="configuration" ref="configWithoutAllowingNullValue"/>
     </bean>
 </beans>
