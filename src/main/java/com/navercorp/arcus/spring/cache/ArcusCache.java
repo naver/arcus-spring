@@ -79,11 +79,6 @@ import org.springframework.util.DigestUtils;
 @SuppressWarnings({"DeprecatedIsStillUsed", "deprecation"})
 public class ArcusCache extends AbstractValueAdaptingCache {
 
-  public static final long DEFAULT_TIMEOUT_MILLISECONDS = 700L;
-  @Deprecated
-  public static final boolean DEFAULT_WANT_TO_GET_EXCEPTION = false;
-  public static final boolean DEFAULT_ALLOW_NULL_VALUES = true;
-
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   private String name;
@@ -97,7 +92,7 @@ public class ArcusCache extends AbstractValueAdaptingCache {
    */
   @Deprecated
   public ArcusCache() {
-    super(DEFAULT_ALLOW_NULL_VALUES);
+    super(ArcusCacheConfiguration.DEFAULT_ALLOW_NULL_VALUES);
     this.configuration = new ArcusCacheConfiguration();
   }
 

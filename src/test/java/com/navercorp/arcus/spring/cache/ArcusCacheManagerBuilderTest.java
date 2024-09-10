@@ -22,8 +22,7 @@ class ArcusCacheManagerBuilderTest {
 
   @Test
   void testMissingCacheMadeByDefaultCacheConfig() {
-    ArcusCacheConfiguration configuration = new ArcusCacheConfiguration();
-    configuration.setServiceId("TEST-");
+    ArcusCacheConfiguration configuration = new ArcusCacheConfiguration().withServiceId("TEST-");
     ArcusCacheManager cm = ArcusCacheManager.builder(arcusClientPool).cacheDefaults(configuration).build();
     cm.afterPropertiesSet();
 
@@ -36,8 +35,7 @@ class ArcusCacheManagerBuilderTest {
 
   @Test
   void testSettingDifferentDefaultCacheConfiguration() {
-    ArcusCacheConfiguration withPrefix = new ArcusCacheConfiguration();
-    withPrefix.setPrefix("prefix");
+    ArcusCacheConfiguration withPrefix = new ArcusCacheConfiguration().withPrefix("prefix");
     ArcusCacheConfiguration withoutPrefix = new ArcusCacheConfiguration();
 
     ArcusCacheManager cm = ArcusCacheManager.builder(arcusClientPool)

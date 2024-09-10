@@ -151,11 +151,10 @@ public class ArcusConfiguration extends CachingConfigurerSupport {
 
     @Bean
     public ArcusCacheConfiguration defaultCacheConfig() {
-        ArcusCacheConfiguration defaultCacheConfig = new ArcusCacheConfiguration();
-        defaultCacheConfig.setPrefix("DEFAULT");
-        defaultCacheConfig.setExpireSeconds(60);
-        defaultCacheConfig.setTimeoutMilliSeconds(800);
-        return defaultCacheConfig;
+        return new ArcusCacheConfiguration()
+            .withPrefix("DEFAULT")
+            .withExpireSeconds(60)
+            .withTimeoutMilliSeconds(800);
     }
 
     @Bean
@@ -168,22 +167,20 @@ public class ArcusConfiguration extends CachingConfigurerSupport {
 
     @Bean
     public ArcusCacheConfiguration testCacheConfig() {
-        ArcusCacheConfiguration cacheConfig = new ArcusCacheConfiguration();
-        cacheConfig.setServiceId("TEST-");
-        cacheConfig.setPrefix("PRODUCT");
-        cacheConfig.setExpireSeconds(60);
-        cacheConfig.setTimeoutMilliSeconds(800);
-        return cacheConfig;
+        return new ArcusCacheConfiguration()
+            .withServiceId("TEST-")
+            .withPrefix("PRODUCT")
+            .withExpireSeconds(60)
+            .withTimeoutMillisSeconds(800);
     }
 
     @Bean
     public ArcusCacheConfiguration devCacheConfig() {
-        ArcusCacheConfiguration cacheConfig = new ArcusCacheConfiguration();
-        cacheConfig.setServiceId("DEV-");
-        cacheConfig.setPrefix("PRODUCT");
-        cacheConfig.setExpireSeconds(120);
-        cacheConfig.setTimeoutMilliSeconds(800);
-        return cacheConfig;
+        return new ArcusCacheConfiguration()
+            .withServiceId("DEV-")
+            .withPrefix("PRODUCT")
+            .withExpireSeconds(120)
+            .withTimeoutMillisSeconds(800);
     }
 
 }
@@ -234,32 +231,30 @@ You can use the front cache to provide fast responsiveness of cache requests. Th
 ```java
 @Bean
 public ArcusCacheConfiguration testCacheConfig() {
-    ArcusCacheConfiguration cacheConfig = new ArcusCacheConfiguration();
-    cacheConfig.setServiceId("TEST-");
-    cacheConfig.setPrefix("PRODUCT");
-    cacheConfig.setExpireSeconds(60);
-    cacheConfig.setTimeoutMilliSeconds(800);
-    /* front cache configuration */
-    cacheConfig.setArcusFrontCache(testArcusFrontCache());
-    cacheConfig.setFrontExpireSeconds(120);
-    cacheConfig.setForceFrontCaching(false);
-    /* front cache configuration */
-    return cacheConfig;
+  return new ArcusCacheConfiguration()
+      .withServiceId("TEST-")
+      .withPrefix("PRODUCT")
+      .withExpireSeconds(60)
+      .withTimeoutMilliSeconds(800)
+      /* front cache configuration */
+      .withArcusFrontCache(testArcusFrontCache())
+      .withFrontExpireSeconds(120)
+      .enableForcingFrontCache();
+      /* front cache configuration */
 }
 
 @Bean
 public ArcusCacheConfiguration devCacheConfig() {
-    ArcusCacheConfiguration cacheConfig = new ArcusCacheConfiguration();
-    cacheConfig.setServiceId("DEV-");
-    cacheConfig.setPrefix("PRODUCT");
-    cacheConfig.setExpireSeconds(120);
-    cacheConfig.setTimeoutMilliSeconds(800);
-    /* front cache configuration */
-    cacheConfig.setArcusFrontCache(devArcusFrontCache());
-    cacheConfig.setFrontExpireSeconds(240);
-    cacheConfig.setForceFrontCaching(true);
-    /* front cache configuration */
-    return cacheConfig;
+  return new ArcusCacheConfiguration()
+      .withServiceId("DEV-")
+      .withPrefix("PRODUCT")
+      .withExpireSeconds(120)
+      .withTimeoutMilliSeconds(800)
+      /* front cache configuration */
+      .withArcusFrontCache(devArcusFrontCache())
+      .withFrontExpireSeconds(240)
+      .enableForcingFrontCache();
+      /* front cache configuration */
 }
 
 @Bean
@@ -273,16 +268,19 @@ public ArcusFrontCache devArcusFrontCache() {
 }
 ```
 
-The properties added to the `ArcusCache` class related to Front Cache are as follows.
+The properties added to the `ArcusCacheConfiguration` class related to Front Cache are as follows.
 
-- `setArcusFrontCache(ArcusFrontCache arcusFrontCache)`
-  - Front Cache instance setting. If it is a null value, Front Cache does not work.
-- `setFrontExpireSeconds(int frontExpireSeconds)`
-  - Front Cache TTL(TimeToLive) setting.
-- `setForceFrontCaching(int forceFrontCaching)`
-  - true: Even if the change request of ARCUS fails, the change request is reflected in Front Cache. When a request fails due to an ARCUS failure, the Front Cache function can be worked. But, it is prone to data consistency issues, so we recommend using it only for data that doesn't change frequently. 
-  - false: If the change request of ARCUS fails, the change request is not reflected in Front Cache.
-   
+- `withArcusFrontCache(ArcusFrontCache arcusFrontCache)`
+  - Set the ArcusFrontCache object to enable Front Caching.
+  - The DefaultArcusFrontCache class provided by Arcus Spring can be used.
+  - Front caching is disabled by default and arguments cannot be set to null.
+- `withFrontExpireSeconds(int frontExpireSeconds)`
+  - Set Front Cache TTL(TimeToLive).
+- `enableForcingFrontCache()`, `disableForcingFrontCache()`
+  - Set whether to perform Front Cache regardless of success or failure of ARCUS change request(put, delete, clear).
+  - It is prone to data consistency issues, so we recommend using it only for data that doesn't change frequently.
+  - It is disabled by default.
+
 Front Caching is not always performed. It is performed depending on the attribute of `forceFrontCaching` property and the result of the ARCUS request.
 
 | ArcusCache API | ARCUS Result | forceFrontCaching=false | forceFrontCaching=true |

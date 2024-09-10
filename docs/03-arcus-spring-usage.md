@@ -139,22 +139,20 @@ public class ArcusConfiguration extends CachingConfigurerSupport {
 
   @Bean
   public ArcusCacheConfiguration testCacheConfig() {
-    ArcusCacheConfiguration cacheConfig = new ArcusCacheConfiguration();
-    cacheConfig.setServiceId("TEST-");
-    cacheConfig.setPrefix("PRODUCT");
-    cacheConfig.setExpireSeconds(60);
-    cacheConfig.setTimeoutMilliSeconds(800);
-    return cacheConfig;
+    return new ArcusCacheConfiguration()
+        .withServiceId("TEST-")
+        .withPrefix("PRODUCT")
+        .withExpireSeconds(60)
+        .withTimeoutMilliSeconds(800);
   }
 
   @Bean
   public ArcusCacheConfiguration devCacheConfig() {
-    ArcusCacheConfiguration cacheConfig = new ArcusCacheConfiguration();
-    cacheConfig.setServiceId("DEV-");
-    cacheConfig.setPrefix("PRODUCT");
-    cacheConfig.setExpireSeconds(120);
-    cacheConfig.setTimeoutMilliSeconds(800);
-    return cacheConfig;
+    return new ArcusCacheConfiguration()
+        .withServiceId("DEV-")
+        .withPrefix("PRODUCT")
+        .withExpireSeconds(120)
+        .withTimeoutMilliSeconds(800);
   }
 }
 ```
@@ -237,32 +235,30 @@ Front Cache 기능에 대한 설명은 [2장](02-arcus-spring-concept.md#front-c
 ```java
 @Bean
 public ArcusCacheConfiguration testCacheConfig() {
-  ArcusCacheConfiguration cacheConfig = new ArcusCacheConfiguration();
-  cacheConfig.setServiceId("TEST-");
-  cacheConfig.setPrefix("PRODUCT");
-  cacheConfig.setExpireSeconds(60);
-  cacheConfig.setTimeoutMilliSeconds(800);
-  /* front cache configuration */
-  cacheConfig.setArcusFrontCache(testArcusFrontCache());
-  cacheConfig.setFrontExpireSeconds(120);
-  cacheConfig.setForceFrontCaching(false);
-  /* front cache configuration */
-  return cacheConfig;
+  return new ArcusCacheConfiguration()
+      .withServiceId("TEST-")
+      .withPrefix("PRODUCT")
+      .withExpireSeconds(60)
+      .withTimeoutMilliSeconds(800)
+      /* front cache configuration */
+      .withArcusFrontCache(testArcusFrontCache())
+      .withFrontExpireSeconds(120)
+      .enableForcingFrontCache();
+      /* front cache configuration */
 }
 
 @Bean
 public ArcusCacheConfiguration devCacheConfig() {
-  ArcusCacheConfiguration cacheConfig = new ArcusCacheConfiguration();
-  cacheConfig.setServiceId("DEV-");
-  cacheConfig.setPrefix("PRODUCT");
-  cacheConfig.setExpireSeconds(120);
-  cacheConfig.setTimeoutMilliSeconds(800);
-  /* front cache configuration */
-  cacheConfig.setArcusFrontCache(devArcusFrontCache());
-  cacheConfig.setFrontExpireSeconds(240);
-  cacheConfig.setForceFrontCaching(true);
-  /* front cache configuration */
-  return cacheConfig;
+  return new ArcusCacheConfiguration()
+      .withServiceId("DEV-")
+      .withPrefix("PRODUCT")
+      .withExpireSeconds(120)
+      .withTimeoutMilliSeconds(800)
+      /* front cache configuration */
+      .withArcusFrontCache(devArcusFrontCache())
+      .withFrontExpireSeconds(240)
+      .enableForcingFrontCache();
+      /* front cache configuration */
 }
 
 @Bean

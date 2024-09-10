@@ -56,27 +56,39 @@ ArcusCache 객체는 String 타입의 캐시 이름과 ArcusCacheConfiguration �
 
 ArcusCache 객체를 생성하기 위해 사용되는 캐시 설정 클래스이다.
 
-사용자가 직접 ArcusCacheConfiguration 객체를 생성하고 Setter 메소드를 통해 캐시 설정을 조정한 뒤, ArcusCacheManager 객체를 생성할 때 생성자의 인자로 넘겨주면 된다.
+ArcusCacheConfiguration 객체를 생성하고 아래 메소드를 통해 속성을 설정한 뒤, ArcusCacheManager 객체를 생성할 때 생성자의 인자로 넘겨주면 된다.
+모든 속성을 기본값으로 사용하고 싶다면 인자가 없는 생성자로 생성한 객체를 사용하면 된다.
 
-캐시 키에 들어갈 Prefix, 캐시 아이템의 Expire Time, 비동기 연산의 Timeout을 설정할 수 있다.
-
-- `String serviceId`
-  - 다음에 설명할 prefix와 조합하여 캐시 키의 Prefix를 생성하는 데 사용된다.
-  - 배포 단계(test, dev, stage, prod, ...)를 구분하기 위한 문자열을 지정한다.
+- `withServiceId(String serviceId)`
+  - 다음에 설명할 prefix와 조합하여 캐시 키의 Prefix를 생성할 때 사용되는 serviceId를 지정한다.
+  - 인자로 null을 입력할 수 없으며, 보통 배포 단계(test, dev, stage, prod, ...)를 구분하기 위한 문자열에 `-`를 붙여 지정한다. ex) "DEV-"
   - [1장의 Cache Key 설명](01-arcus-cache-basics.md#cache-key)을 참고하여 ARCUS Cache의 캐시 키로 사용할 수 없는 문자열이 포함되지 않도록 해야 한다.
-- `String prefix`
+- `withPrefix(String prefix)`
   - serviceId와 조합하여 캐시 키의 Prefix를 생성하는 데 사용된다.
   - 주로 ARCUS Cache에 저장할 객체의 종류(Product, User, Order, ...)를 나타내는 문자열을 지정한다.
-  - 필수적으로 지정하지 않아도 되며, 이 경우 캐시 키의 Prefix를 생성할 때 serviceId와 현재 캐시 설정으로 생성하는 ArcusCache 객체의 캐시 이름이 사용된다. 
-  - null이 아닌 값을 지정하는 경우, [1장의 Cache Key 설명](01-arcus-cache-basics.md#cache-key)을 참고하여 ARCUS Cache의 캐시 키로 사용할 수 없는 문자열이 포함되지 않도록 해야 한다.
-- `int expireSeconds`
+  - 이 메서드로 prefix를 지정하지 않을 경우 캐시 키의 Prefix를 생성할 때 serviceId와 현재 캐시 설정 객체를 담은 ArcusCache 객체의 캐시 이름이 사용된다. 
+  - 인자로 null을 입력할 수 없으며, [1장의 Cache Key 설명](01-arcus-cache-basics.md#cache-key)을 참고하여 ARCUS Cache의 캐시 키로 사용할 수 없는 문자열이 포함되지 않도록 해야 한다.
+- `withExpireSeconds(int expireSeconds)`
   - 캐시 아이템의 Expire Time을 Seconds 단위로 지정한다.
-  - 지정하지 않을 경우 0으로 설정된다.
+  - 이 메서드로 expireSeconds를 지정하지 않을 경우 0으로 설정된다.
+  - 인자로 양수, 0, -1을 제외한 값은 넣을 수 없다.
   - [1장의 Expiration Time 설명](01-arcus-cache-basics.md#expiration-eviction)을 참고하여 지정해야 한다.
-- `long timeoutMilliSeconds`
+- `withTimeoutMilliSeconds(long timeoutMilliSeconds)`
   - ARCUS Client의 비동기 연산에서 사용할 Timeout을 Milliseconds 단위로 설정한다.
-  - 지정하지 않을 경우 700ms로 정해진다.
-  - 값을 지정하는 경우 0보다 큰 값을 지정해야 한다.
+  - 이 메서드로 timeoutMilliSeconds를 지정하지 않을 경우 700ms로 설정된다.
+  - 인자로 0보다 큰 값만 넣을 수 있다.
+- `withOperationTranscoder(Transcoder<Object> operationTranscoder)`
+  - ARCUS Client의 연산 결과를 Serialize, Deserialize하는 데 사용되는 Transcoder 객체를 지정한다.
+  - 이 메서드로 operationTranscoder를 지정하지 않을 경우 Arcus Client의 기본 Transcoder가 사용된다.
+  - 인자로 null을 입력할 수 없다.
+- `enableGettingException()` / `disableGettingException()`
+  - ARCUS Client의 연산에서 발생하는 예외를 받을지 여부를 설정한다.
+  - 기본적으로 disable 상태이며 예외가 발생하면 원본 메서드를 수행하도록 한다. 
+  - enable시킬 경우 예외가 발생하면 그대로 반환하므로 직접 상황에 맞게 예외를 처리해주어야 한다.
+- `enableCachingNullValues()` / `disableCachingNullValues()`
+  - 캐시 아이템의 값으로 null을 허용할지 여부를 설정한다.
+  - 기본적으로 enable 상태이며 null 값을 NullValue 객체로 변환하여 캐시에 저장한다.
+  - disable 시킬 경우 null 값을 저장하려 하면 예외가 발생한다.
 
 ### KeyGenerator
 
@@ -122,17 +134,18 @@ ARCUS Cache의 캐시 키는 공백(` `) 문자를 허용하지 않고 초기에
 
 로컬 캐시를 활용하는 Front Cache 기능을 사용할 경우, 로컬 캐시 특성 상 데이터의 비일관성이 생길 수 있으므로 주의해야 한다.
 
-Front Cache 기능을 사용하려면 ArcusCacheConfiguration 객체에서 다음의 설정을 지정하면 된다.
+Front Cache 기능을 사용하려면 ArcusCacheConfiguration 객체에서 다음의 메서드들을 사용해 설정해야 한다.
 
-- `ArcusFrontCache arcusFrontCache`
+- `withArcusFrontCache(ArcusFrontCache arcusFrontCache)`
   - ArcusFrontCache 구현체를 설정한다.
   - 기본 제공되는 DefaultArcusFrontCache를 사용할 수 있다.
-  - null 값을 설정하면 Front Cache 기능이 비활성화된다.
-- `int frontExpireSeconds`
+  - 기본적으로 비활성화 되어있는 상태이며, 인자로 null 값은 입력할 수 없다.
+- `withFrontExpireSeconds(int frontExpireSeconds)`
   - Front Cache의 TTL(TimeToLive)을 설정한다.
-- `int forceFrontCaching`
-  - true: ARCUS Cache 저장이 실패해도 Front Cache에 저장한다. ARCUS Cache와 로컬 캐시 간의 데이터 비일관성을 유발할 수 있으므로, 자주 변경되지 않는 데이터를 캐싱할 때 적합하다.
-  - false: ARCUS Cache 저장이 실패하면 Front Cache에도 저장하지 않는다.
+- `enableForcingFrontCache()`, `disableForcingFrontCache()`
+  - ARCUS 변경 요청(put, delete, clear)의 성공, 실패에 상관 없이 Front Cache를 수행하는지에 대한 여부를 설정한다.
+  - 데이터 일관성 문제가 발생하기 쉬우므로 자주 변경되지 않는 데이터에만 사용하는 것이 좋다.
+  - 기본적으로 disable 상태이다.
 
 Front Cache를 설정해도, 항상 Front Cache에 저장하지는 않는다. `forceFrontCaching` 여부에 따라 다음과 같이 Front Cache에 저장한다.
 
