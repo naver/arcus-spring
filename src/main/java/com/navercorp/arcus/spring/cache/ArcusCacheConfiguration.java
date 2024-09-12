@@ -29,7 +29,6 @@ import org.springframework.util.Assert;
 public class ArcusCacheConfiguration {
 
   static final long DEFAULT_TIMEOUT_MILLISECONDS = 700L;
-  @Deprecated
   static final boolean DEFAULT_WANT_TO_GET_EXCEPTION = false;
   static final boolean DEFAULT_ALLOW_NULL_VALUES = true;
 
@@ -44,7 +43,6 @@ public class ArcusCacheConfiguration {
   private ArcusFrontCache arcusFrontCache;
   private int frontExpireSeconds = 5;
   private boolean forceFrontCaching;
-  @Deprecated
   private boolean wantToGetException = DEFAULT_WANT_TO_GET_EXCEPTION;
   private boolean allowNullValues = DEFAULT_ALLOW_NULL_VALUES;
 
@@ -103,13 +101,20 @@ public class ArcusCacheConfiguration {
     return this;
   }
 
-  @Deprecated
+  /**
+   * Throw exception when Arcus request failed by error, cancellation, timeout.
+   * If {@link java.lang.InterruptedException} occurred, it will be thrown.
+   * Exception should be handled by customarily.
+   */
   public ArcusCacheConfiguration enableGettingException() {
     this.wantToGetException = true;
     return this;
   }
 
-  @Deprecated
+  /**
+   * Do not throw exception when Arcus request failed by error, cancellation, timeout.
+   * Instead, log the details of exception at INFO level.
+   */
   public ArcusCacheConfiguration disableGettingException() {
     this.wantToGetException = false;
     return this;
@@ -192,7 +197,6 @@ public class ArcusCacheConfiguration {
     this.arcusFrontCache = arcusFrontCache;
   }
 
-  @Deprecated
   public boolean isWantToGetException() {
     return wantToGetException;
   }

@@ -83,8 +83,8 @@ ArcusCacheConfiguration 객체를 생성하고 아래 메소드를 통해 속성
   - 인자로 null을 입력할 수 없다.
 - `enableGettingException()` / `disableGettingException()`
   - ARCUS Client의 연산에서 발생하는 예외를 받을지 여부를 설정한다.
-  - 기본적으로 disable 상태이며 예외가 발생하면 원본 메서드를 수행하도록 한다. 
-  - enable시킬 경우 예외가 발생하면 그대로 반환하므로 직접 상황에 맞게 예외를 처리해주어야 한다.
+  - 기본적으로 disable 상태이며 예외가 발생하면 반환하지 않고 로깅만 하여, 원본 메서드가 수행되도록 한다. 단, InterruptedException의 경우 그대로 반환된다. 
+  - enable시킬 경우 예외가 발생하면 그대로 반환하므로, 직접 상황에 맞게 예외를 처리해주어야 한다.
 - `enableCachingNullValues()` / `disableCachingNullValues()`
   - 캐시 아이템의 값으로 null을 허용할지 여부를 설정한다.
   - 기본적으로 enable 상태이며 null 값을 NullValue 객체로 변환하여 캐시에 저장한다.
