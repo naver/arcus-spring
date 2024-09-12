@@ -147,7 +147,7 @@ public class ArcusCache extends AbstractValueAdaptingCache {
     try {
       return getValue(arcusKey);
     } catch (Exception e) {
-      if (configuration.isWantToGetException()) {
+      if (e instanceof InterruptedException || configuration.isWantToGetException()) {
         throw toRuntimeException(e);
       }
       logger.info("failed to lookup. error: {}, key: {}", e.getMessage(), arcusKey);
@@ -200,7 +200,7 @@ public class ArcusCache extends AbstractValueAdaptingCache {
     try {
       putValue(arcusKey, toStoreValue(value));
     } catch (Exception e) {
-      if (configuration.isWantToGetException()) {
+      if (e instanceof InterruptedException || configuration.isWantToGetException()) {
         throw toRuntimeException(e);
       }
       logger.info("failed to put. error: {}, key: {}", e.getMessage(), arcusKey);
@@ -229,7 +229,7 @@ public class ArcusCache extends AbstractValueAdaptingCache {
     try {
       return putIfAbsentValue(arcusKey, toStoreValue(value));
     } catch (Exception e) {
-      if (configuration.isWantToGetException()) {
+      if (e instanceof InterruptedException || configuration.isWantToGetException()) {
         throw toRuntimeException(e);
       }
       logger.info("failed to putIfAbsent. error: {}, key: {}", e.getMessage(), arcusKey);
@@ -252,7 +252,7 @@ public class ArcusCache extends AbstractValueAdaptingCache {
         logger.info("failed to evict a key: {}, status: {}", arcusKey, status.getMessage());
       }
     } catch (Exception e) {
-      if (configuration.isWantToGetException()) {
+      if (e instanceof InterruptedException || configuration.isWantToGetException()) {
         throw toRuntimeException(e);
       }
       logger.info("failed to evict. error: {}, key: {}", e.getMessage(), arcusKey);
@@ -281,7 +281,7 @@ public class ArcusCache extends AbstractValueAdaptingCache {
         logger.info("failed to clear a prefix: {}, status: {}", arcusPrefix, status.getMessage());
       }
     } catch (Exception e) {
-      if (configuration.isWantToGetException()) {
+      if (e instanceof InterruptedException || configuration.isWantToGetException()) {
         throw toRuntimeException(e);
       }
       logger.info("failed to clear. error: {}, prefix: {}", e.getMessage(), arcusPrefix);

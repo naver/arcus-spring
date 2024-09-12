@@ -21,6 +21,7 @@ import com.navercorp.arcus.spring.cache.front.ArcusFrontCache;
 import com.navercorp.arcus.spring.concurrent.KeyLockProvider;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -161,6 +162,28 @@ public class ArcusCacheTest {
 
     // then
     assertNull(value);
+  }
+
+  @Test
+  public void testGet_InterruptedException() {
+    // given
+    GetFuture<Object> future = new GetFuture<Object>(null, 0) {
+      @Override
+      public Object get(long timeout, TimeUnit unit) throws InterruptedException {
+        throw new InterruptedException();
+      }
+    };
+
+    // when
+    when(arcusClientPool.asyncGet(arcusKey))
+            .thenReturn(future);
+    try {
+      arcusCache.get(ARCUS_STRING_KEY);
+    } catch (Exception e) {
+      // then
+      assertEquals(RuntimeException.class, e.getClass());
+      assertEquals(InterruptedException.class, e.getCause().getClass());
+    }
   }
 
   @Test
