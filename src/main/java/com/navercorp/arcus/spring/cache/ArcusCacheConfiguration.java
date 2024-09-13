@@ -19,7 +19,7 @@ package com.navercorp.arcus.spring.cache;
 
 import com.navercorp.arcus.spring.cache.front.ArcusFrontCache;
 
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
 
 import net.spy.memcached.transcoders.Transcoder;
 

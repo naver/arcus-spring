@@ -17,7 +17,7 @@
 
 package com.navercorp.arcus.spring.cache.front;
 
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;

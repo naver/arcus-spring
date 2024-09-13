@@ -18,7 +18,7 @@
 
 package com.navercorp.arcus.spring;
 
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
 
 import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ArcusClientPool;
