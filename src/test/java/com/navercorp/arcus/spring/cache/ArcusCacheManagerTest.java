@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SuppressWarnings("deprecation")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration("/arcus_spring_arcusCacheManager_test.xml")
-public class ArcusCacheManagerTest {
+class ArcusCacheManagerTest {
 
   private static final String SERVICE_ID = "test-service-id";
   private static final String SERVICE_PREFIX = "test-prefix";
@@ -63,7 +63,7 @@ public class ArcusCacheManagerTest {
   private ArcusCacheManager arcusCacheManagerFromAddress;
 
   @Test
-  public void testGetPreDefinedCache() {
+  void getPreDefinedCache() {
     ArcusCache cache = (ArcusCache)this.arcusCacheManagerFromClient.getCache(PRE_DEFINED_CACHE_NAME);
 
     assertEquals(PRE_DEFINED_CACHE_NAME, cache.getName());
@@ -76,7 +76,7 @@ public class ArcusCacheManagerTest {
   }
 
   @Test
-  public void testGetMissingCache() {
+  void getMissingCache() {
     String nonDefinedCache = "non-defined-cache";
     ArcusCache cache = (ArcusCache)this.arcusCacheManagerFromClient.getCache(nonDefinedCache);
 
@@ -90,7 +90,7 @@ public class ArcusCacheManagerTest {
   }
 
   @Test
-  public void testGetCacheNameAndSize() {
+  void getCacheNameAndSize() {
     String nonDefinedCache = "non-defined-cache";
     this.arcusCacheManagerFromClient.getCache(nonDefinedCache); // Create missing cache
 
@@ -110,7 +110,7 @@ public class ArcusCacheManagerTest {
   }
 
   @Test
-  public void testDestroy() throws Exception {
+  void shutdownClientIfArcusClientPoolManagedInCacheManager() throws Exception {
     Field clientField = ReflectionUtils.findField(ArcusCacheManager.class, "client");
     assertNotNull(clientField);
     clientField.setAccessible(true);

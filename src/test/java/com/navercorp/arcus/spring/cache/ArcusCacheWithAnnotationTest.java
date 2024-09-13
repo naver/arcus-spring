@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration("/arcus_spring_arcusCache_annotation_test.xml")
-public class ArcusCacheWithAnnotationTest {
+class ArcusCacheWithAnnotationTest {
   @Autowired
   private TestService testService;
 
@@ -43,7 +43,7 @@ public class ArcusCacheWithAnnotationTest {
   }
 
   @Test
-  public void testArcusCacheWithAnnotation() {
+  void returnSameValueIfCallMethodWithArcusCacheAnnotation() {
     String response1 = testService.cachePopulate("param1", "param2");
     String response2 = testService.cachePopulate("param1", "param2");
 
