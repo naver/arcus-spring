@@ -27,17 +27,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.ReflectionUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SuppressWarnings("deprecation")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration("/arcus_spring_arcusCacheManager_test.xml")
 class ArcusCacheManagerTest {
@@ -50,12 +49,6 @@ class ArcusCacheManagerTest {
   private static final String PRE_DEFINED_CACHE_NAME = "pre-defined-cache";
   private static final int PRE_DEFINED_EXPIRE_SECONDS = 2;
 
-  @Value("#{arcusConfig['url']}")
-  private String url;
-
-  @Value("#{arcusConfig['serviceCode']}")
-  private String serviceCode;
-
   @Autowired
   private ArcusCacheManager arcusCacheManagerFromClient;
 
@@ -64,29 +57,33 @@ class ArcusCacheManagerTest {
 
   @Test
   void getPreDefinedCache() {
-    ArcusCache cache = (ArcusCache)this.arcusCacheManagerFromClient.getCache(PRE_DEFINED_CACHE_NAME);
+    ArcusCache cache = (ArcusCache) this.arcusCacheManagerFromClient.getCache(PRE_DEFINED_CACHE_NAME);
+    assertNotNull(cache);
+    ArcusCacheConfiguration config = cache.getCacheConfiguration();
 
     assertEquals(PRE_DEFINED_CACHE_NAME, cache.getName());
-    assertEquals(SERVICE_ID, cache.getServiceId());
-    assertEquals(SERVICE_PREFIX, cache.getPrefix());
-    assertEquals(PRE_DEFINED_EXPIRE_SECONDS, cache.getExpireSeconds());
-    assertEquals(TIMEOUT_MILLIS, cache.getTimeoutMilliSeconds());
-    assertTrue(cache.getOperationTranscoder() instanceof SerializingTranscoder);
-    assertEquals(WANT_TO_GET_EXCEPTION, cache.isWantToGetException());
+    assertEquals(SERVICE_ID, config.getServiceId());
+    assertEquals(SERVICE_PREFIX, config.getPrefix());
+    assertEquals(PRE_DEFINED_EXPIRE_SECONDS, config.getExpireSeconds());
+    assertEquals(TIMEOUT_MILLIS, config.getTimeoutMilliSeconds());
+    assertInstanceOf(SerializingTranscoder.class, config.getOperationTranscoder());
+    assertEquals(WANT_TO_GET_EXCEPTION, config.isWantToGetException());
   }
 
   @Test
   void getMissingCache() {
     String nonDefinedCache = "non-defined-cache";
-    ArcusCache cache = (ArcusCache)this.arcusCacheManagerFromClient.getCache(nonDefinedCache);
+    ArcusCache cache = (ArcusCache) this.arcusCacheManagerFromClient.getCache(nonDefinedCache);
+    assertNotNull(cache);
+    ArcusCacheConfiguration config = cache.getCacheConfiguration();
 
     assertEquals(nonDefinedCache, cache.getName());
-    assertEquals(SERVICE_ID, cache.getServiceId());
-    assertEquals(SERVICE_PREFIX, cache.getPrefix());
-    assertEquals(DEFAULT_EXPIRE_SECONDS, cache.getExpireSeconds());
-    assertEquals(TIMEOUT_MILLIS, cache.getTimeoutMilliSeconds());
-    assertTrue(cache.getOperationTranscoder() instanceof SerializingTranscoder);
-    assertEquals(WANT_TO_GET_EXCEPTION, cache.isWantToGetException());
+    assertEquals(SERVICE_ID, config.getServiceId());
+    assertEquals(SERVICE_PREFIX, config.getPrefix());
+    assertEquals(DEFAULT_EXPIRE_SECONDS, config.getExpireSeconds());
+    assertEquals(TIMEOUT_MILLIS, config.getTimeoutMilliSeconds());
+    assertInstanceOf(SerializingTranscoder.class, config.getOperationTranscoder());
+    assertEquals(WANT_TO_GET_EXCEPTION, config.isWantToGetException());
   }
 
   @Test
