@@ -25,8 +25,8 @@ import com.navercorp.arcus.spring.concurrent.KeyLockProvider;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
+import org.springframework.lang.NonNull;
 
 import net.spy.memcached.ArcusClientPool;
 import net.spy.memcached.internal.GetFuture;
@@ -116,13 +116,13 @@ public class ArcusCache extends AbstractValueAdaptingCache {
   }
 
   @Override
-  @Nonnull
+  @NonNull
   public String getName() {
     return this.name;
   }
 
   @Override
-  @Nonnull
+  @NonNull
   public Object getNativeCache() {
     return this.arcusClient;
   }

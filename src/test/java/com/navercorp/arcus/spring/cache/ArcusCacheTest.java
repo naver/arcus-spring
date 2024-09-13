@@ -21,7 +21,6 @@ import com.navercorp.arcus.spring.cache.front.ArcusFrontCache;
 import com.navercorp.arcus.spring.concurrent.KeyLockProvider;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -133,9 +132,7 @@ public class ArcusCacheTest {
         .thenThrow(new TestException());
 
     // when
-    assertThrows(TestException.class, () -> {
-      arcusCache.get(ARCUS_STRING_KEY);
-    });
+    assertThrows(TestException.class, () -> arcusCache.get(ARCUS_STRING_KEY));
   }
 
   @Test
