@@ -32,15 +32,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-public class DefaultArcusFrontCacheTest {
+class DefaultArcusFrontCacheTest {
 
   @AfterEach
-  public void after() {
+  void after() {
     CacheManager.getInstance().shutdown();
   }
 
   @Test
-  public void testConstruct_NameConflict() {
+  void frontCacheNameConflict() {
     new DefaultArcusFrontCache("test", 3L, false, false);
     assertThrows(ObjectExistsException.class, () -> {
       new DefaultArcusFrontCache("test", 3L, false, false);
@@ -48,7 +48,7 @@ public class DefaultArcusFrontCacheTest {
   }
 
   @Test
-  public void testMultipleCache() {
+  void doNotEffectAcrossMultipleCache() {
     // given
     DefaultArcusFrontCache frontCache1 = new DefaultArcusFrontCache("test1", 3L, false, false);
     DefaultArcusFrontCache frontCache2 = new DefaultArcusFrontCache("test2", 3L, false, false);
@@ -68,7 +68,7 @@ public class DefaultArcusFrontCacheTest {
   }
 
   @Test
-  public void testMaxEntries() {
+  void removeIfExceedMaxEntries() {
     // given
     DefaultArcusFrontCache frontCache = new DefaultArcusFrontCache("test", 3L, false, false);
     frontCache.set("1", 1, 60);
@@ -88,7 +88,7 @@ public class DefaultArcusFrontCacheTest {
   }
 
   @Test
-  public void testExpires() throws InterruptedException {
+ void returnNullAfterExpireTime() throws InterruptedException {
     // given
     DefaultArcusFrontCache frontCache = new DefaultArcusFrontCache("test", 3L, false, false);
 
@@ -101,7 +101,7 @@ public class DefaultArcusFrontCacheTest {
   }
 
   @Test
-  public void testCopyOnRead_False() {
+  void returnSameInstanceIfCopyOnReadIsFalse() {
     // given
     DefaultArcusFrontCache frontCache = new DefaultArcusFrontCache("test", 3L, false, false);
     frontCache.set("1", new TestObject(1), 60);
@@ -118,7 +118,7 @@ public class DefaultArcusFrontCacheTest {
   }
 
   @Test
-  public void testCopyOnRead_True() {
+  void returnDifferentInstanceIfCopyOnReadIsTrue() {
     // given
     DefaultArcusFrontCache frontCache = new DefaultArcusFrontCache("test", 3L, true, false);
     frontCache.set("1", new TestObject(1), 60);
@@ -135,7 +135,7 @@ public class DefaultArcusFrontCacheTest {
   }
 
   @Test
-  public void testCopyOnWrite_False() {
+  void returnSameInstanceIfCopyOnWriteIsFalse() {
     // given
     DefaultArcusFrontCache frontCache = new DefaultArcusFrontCache("test", 3L, true, false);
     TestObject object = new TestObject(1);
@@ -151,7 +151,7 @@ public class DefaultArcusFrontCacheTest {
   }
 
   @Test
-  public void testCopyOnWrite_True() {
+  void returnDifferentInstanceIfCopyOnWriteIsTrue() {
     // given
     DefaultArcusFrontCache frontCache = new DefaultArcusFrontCache("test", 3L, true, true);
     frontCache.set("1", new TestObject(1), 60);
@@ -168,7 +168,7 @@ public class DefaultArcusFrontCacheTest {
   }
 
   @Test
-  public void testDelete() {
+  void delete() {
     // given
     DefaultArcusFrontCache frontCache = new DefaultArcusFrontCache("test", 3L, false, false);
     frontCache.set("1", 1, 60);
@@ -183,7 +183,7 @@ public class DefaultArcusFrontCacheTest {
   }
 
   @Test
-  public void testClear() {
+  void clear() {
     // given
     DefaultArcusFrontCache frontCache = new DefaultArcusFrontCache("test", 3L, false, false);
     frontCache.set("1", 1, 60);

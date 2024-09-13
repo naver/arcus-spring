@@ -24,12 +24,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DefaultKeyLockProviderTest {
+class DefaultKeyLockProviderTest {
 
   private int count = 0;
 
   @Test
-  public void testArrayIndexOufOfBoundsExceptionNotThrown() {
+  void doNotThrowArrayIndexOufOfBoundsException() {
     Set<Integer> hashCodeSet = new HashSet<Integer>();
 
     int exponentOfLocks = DefaultKeyLockProvider.DEFAULT_EXPONENT_OF_LOCKS + 1;
@@ -47,7 +47,7 @@ public class DefaultKeyLockProviderTest {
   }
 
   @Test
-  public void testConcurrency() throws InterruptedException {
+  void doNotAllowConcurrentAccessIfUsingKeyLockProvider() throws InterruptedException {
     final DefaultKeyLockProvider provider = new DefaultKeyLockProvider();
     final TestObject key = new TestObject(0);
     final int maxCount = 10000;

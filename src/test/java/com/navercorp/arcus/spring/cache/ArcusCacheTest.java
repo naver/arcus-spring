@@ -36,6 +36,8 @@ import net.spy.memcached.transcoders.Transcoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.mockito.internal.matchers.Null;
+
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.NullValue;
 
@@ -44,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -51,7 +54,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SuppressWarnings("deprecation")
-public class ArcusCacheTest {
+class ArcusCacheTest {
 
   private static final ArcusStringKey ARCUS_STRING_KEY = new ArcusStringKey("KEY");
   private static final String VALUE = "VALUE";
@@ -70,7 +73,7 @@ public class ArcusCacheTest {
 
   @BeforeEach
   @SuppressWarnings("unchecked")
-  public void before() {
+  void before() {
     arcusClientPool = mock(ArcusClientPool.class);
 
     arcusFrontCache = mock(ArcusFrontCache.class);
@@ -92,7 +95,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGet() {
+  void get() {
     // given
     when(arcusClientPool.asyncGet(arcusKey))
         .thenReturn(createGetFuture(VALUE));
@@ -108,7 +111,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGet_OperationTranscoder() {
+  void getWithCustomOperationTranscoder() {
     // given
     arcusCache.setOperationTranscoder(OPERATION_TRANSCODER);
     when(arcusClientPool.asyncGet(arcusKey, OPERATION_TRANSCODER))
@@ -125,7 +128,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGet_WantToGetException() {
+  void throwExceptionIfGetWithWantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
     when(arcusClientPool.asyncGet(arcusKey))
@@ -136,7 +139,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGet_Exception() {
+  void notThrowExceptionIfWantToGetExceptionIsFalse() {
     // given
     when(arcusClientPool.asyncGet(arcusKey))
         .thenThrow(new TestException());
@@ -149,7 +152,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGet_FutureException() {
+  void notThrowFutureExceptionIfWantToGetExceptionIsFalse() {
     // given
     when(arcusClientPool.asyncGet(arcusKey))
         .thenReturn(createGetFutureException());
@@ -162,7 +165,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGet_InterruptedException() {
+  void alwaysThrowInterruptedException() {
     // given
     GetFuture<Object> future = new GetFuture<Object>(null, 0) {
       @Override
@@ -184,7 +187,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGet_FrontCache_CacheHit() {
+  void getFromFrontCache() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     arcusCache.setFrontExpireSeconds(FRONT_EXPIRE_SECONDS);
@@ -206,7 +209,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGet_FrontCache_CacheMiss() {
+  void getFromArcusIfFrontCacheMissed() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     arcusCache.setFrontExpireSeconds(FRONT_EXPIRE_SECONDS);
@@ -230,7 +233,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGet_FrontCache_Null() {
+  void getFromArcusIfFrontCacheReturnNull() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     arcusCache.setFrontExpireSeconds(FRONT_EXPIRE_SECONDS);
@@ -253,7 +256,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGet_NullValue() {
+  void returnNullIfArcusReturnNullValue() {
     // given
     when(arcusClientPool.asyncGet(arcusKey))
         .thenReturn(createGetFuture(NullValue.INSTANCE));
@@ -269,7 +272,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPut() {
+  void put() {
     // given
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
     when(arcusClientPool.set(arcusKey, EXPIRE_SECONDS, VALUE))
@@ -284,7 +287,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPut_OperationTranscoder() {
+  void putWithCustomOperationTranscoder() {
     // given
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
     arcusCache.setOperationTranscoder(OPERATION_TRANSCODER);
@@ -300,10 +303,10 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPut_Null() {
+  void putNull() {
     // given
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
-    when(arcusClientPool.set(arcusKey, EXPIRE_SECONDS, null))
+    when(arcusClientPool.set(arcusKey, EXPIRE_SECONDS, NullValue.INSTANCE))
         .thenReturn(createOperationFuture(true));
 
     // when
@@ -311,11 +314,13 @@ public class ArcusCacheTest {
 
     // then
     verify(arcusClientPool, never())
-        .set(arcusKey, EXPIRE_SECONDS, null);
+            .set(arcusKey, EXPIRE_SECONDS, null);
+    verify(arcusClientPool, atLeastOnce())
+        .set(arcusKey, EXPIRE_SECONDS, NullValue.INSTANCE);
   }
 
   @Test
-  public void testPut_WantToGetException() {
+  void throwExceptionIfPutWithWantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
@@ -329,7 +334,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPut_FrontCache() {
+  void putWithFrontCache() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
@@ -348,7 +353,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPut_FrontCache_Failure() {
+  void doNotPutFrontCacheIfArcusFailed() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
@@ -367,7 +372,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPut_FrontCache_Failure_ForceFrontCaching() {
+  void putFrontCacheIfArcusFailedButForceFrontCachingIsTrue() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
@@ -387,7 +392,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPut_FrontCache_Exception() {
+  void doNotPutFrontCacheIfArcusHasException() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
@@ -406,7 +411,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPut_FrontCache_Exception_ForceFrontCaching() {
+  void putFrontCacheIfArcusHasExceptionButForceFrontCachingIsTrue() {
     // given
     arcusCache.setForceFrontCaching(true);
     arcusCache.setArcusFrontCache(arcusFrontCache);
@@ -426,7 +431,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPut_FrontCache_FutureException() {
+  void doNotPutFrontCacheIfFutureHasException() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
@@ -445,7 +450,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPut_FrontCache_FutureException_ForceFrontCaching() {
+  void putFrontCacheIfFutureHasExceptionButForceFrontCachingIsTrue() {
     // given
     arcusCache.setForceFrontCaching(true);
     arcusCache.setArcusFrontCache(arcusFrontCache);
@@ -465,7 +470,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testEvict() {
+  void evict() {
     // given
     when(arcusClientPool.delete(arcusKey))
         .thenReturn(createOperationFuture(true));
@@ -479,7 +484,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testEvict_WantToGetException() {
+  void throwExceptionIfEvictWithWantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
     when(arcusClientPool.delete(arcusKey))
@@ -492,7 +497,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testEvict_FrontCache() {
+  void evictWithFrontCache() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     when(arcusClientPool.delete(arcusKey))
@@ -509,7 +514,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testEvict_FrontCache_Failure() {
+  void doNotEvictFrontCacheIfArcusFailed() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     when(arcusClientPool.delete(arcusKey))
@@ -526,7 +531,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testEvict_FrontCache_Failure_ForceFrontCaching() {
+  void evictFrontCacheIfArcusFailedButForceFrontCachingIsTrue() {
     // given
     arcusCache.setForceFrontCaching(true);
     arcusCache.setArcusFrontCache(arcusFrontCache);
@@ -544,7 +549,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testEvict_FrontCache_Exception() {
+  void doNotEvictFrontCacheIfArcusHasException() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     when(arcusClientPool.delete(arcusKey))
@@ -561,7 +566,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testEvict_FrontCache_Exception_ForceFrontCaching() {
+  void evictFrontCacheIfArcusHasExceptionButForceFrontCachingIsTrue() {
     // given
     arcusCache.setForceFrontCaching(true);
     arcusCache.setArcusFrontCache(arcusFrontCache);
@@ -579,7 +584,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testEvict_FrontCache_FutureException() {
+  void doNotEvictFrontCacheIfFutureHasException() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     when(arcusClientPool.delete(arcusKey))
@@ -596,7 +601,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testEvict_FrontCache_FutureException_ForceFrontCaching() {
+  void evictFrontCacheIfFutureHasExceptionButForceFrontCachingIsTrue() {
     // given
     arcusCache.setForceFrontCaching(true);
     arcusCache.setArcusFrontCache(arcusFrontCache);
@@ -614,7 +619,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testClear() {
+  void clear() {
     // given
     when(arcusClientPool.flush(arcusCache.getServiceId() + arcusCache.getPrefix()))
         .thenReturn(createOperationFuture(true));
@@ -628,7 +633,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testClear_WantToGetException() {
+  void clearWithWantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
     when(arcusClientPool.flush(arcusCache.getServiceId() + arcusCache.getPrefix()))
@@ -641,7 +646,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testClear_FrontCache() {
+  void clearWithFrontCache() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     when(arcusClientPool.flush(arcusCache.getServiceId() + arcusCache.getPrefix()))
@@ -658,7 +663,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testClear_FrontCache_Failure() {
+  void doNotClearFrontCacheIfArcusFailed() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     when(arcusClientPool.flush(arcusCache.getServiceId() + arcusCache.getPrefix()))
@@ -675,7 +680,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testClear_FrontCache_Failure_ForceFrontCaching() {
+  void clearFrontCacheIfArcusFailedButForceFrontCachingIsTrue() {
     // given
     arcusCache.setForceFrontCaching(true);
     arcusCache.setArcusFrontCache(arcusFrontCache);
@@ -693,7 +698,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testClear_FrontCache_Exception() {
+  void doNotClearFrontCacheIfArcusHasException() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     when(arcusClientPool.flush(arcusCache.getServiceId() + arcusCache.getPrefix()))
@@ -710,7 +715,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testClear_FrontCache_Exception_ForceFrontCaching() {
+  void clearFrontCacheIfArcusHasExceptionButForceFrontCachingIsTrue() {
     // given
     arcusCache.setForceFrontCaching(true);
     arcusCache.setArcusFrontCache(arcusFrontCache);
@@ -728,7 +733,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testClear_FrontCache_FutureException() {
+  void doNotClearFrontCacheIfFutureHasException() {
     // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     when(arcusClientPool.flush(arcusCache.getServiceId() + arcusCache.getPrefix()))
@@ -745,7 +750,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testClear_FrontCache_FutureException_ForceFrontCaching() {
+  void clearFrontCacheIfFutureHasExceptionButForceFrontCachingIsTrue() {
     // given
     arcusCache.setForceFrontCaching(true);
     arcusCache.setArcusFrontCache(arcusFrontCache);
@@ -763,7 +768,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetType() {
+  void getWithClassType() {
     // given
     when(arcusClientPool.asyncGet(arcusKey))
         .thenReturn(createGetFuture(VALUE));
@@ -778,7 +783,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetType_DifferentType() {
+  void getWithDifferentClassType() {
     // given
     when(arcusClientPool.asyncGet(arcusKey))
         .thenReturn(createGetFuture(VALUE));
@@ -790,7 +795,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetType_Exception() {
+  void throwExceptionIfGetWithClassTypeWithWantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
     when(arcusClientPool.asyncGet(arcusKey))
@@ -803,7 +808,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetType_FutureException() {
+  void throwExceptionIfGetWithClassTypeHasFutureExceptionWithWantToGetException() {
     // given
     arcusCache.setWantToGetException(true);
     when(arcusClientPool.asyncGet(arcusKey))
@@ -816,7 +821,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetValueLoader_Get_CacheHit() throws Exception {
+  void getWithoutValueLoaderIfArcusSucceed() throws Exception {
     // given
     arcusCache.setKeyLockProvider(keyLockProvider);
     when(arcusClientPool.asyncGet(arcusKey))
@@ -843,7 +848,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetValueLoader_Get_SecondCacheHit() throws Exception {
+  void getWithoutValueLoaderIfArcusSucceedInSecondTry() throws Exception {
     // given
     arcusCache.setKeyLockProvider(keyLockProvider);
     when(arcusClientPool.asyncGet(arcusKey))
@@ -871,7 +876,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetValueLoader_Get_CacheMiss() throws Exception {
+  void getWithValueLoaderIfArcusFailed() throws Exception {
     // given
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
     arcusCache.setKeyLockProvider(keyLockProvider);
@@ -899,7 +904,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetValueLoader_Get_Exception() throws Exception {
+  void throwExceptionIfGetWithValueLoaderAndArcusHasException() throws Exception {
     // given
     TestException exception = null;
     arcusCache.setKeyLockProvider(keyLockProvider);
@@ -932,7 +937,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetValueLoader_Get_FutureException() throws Exception {
+  void throwExceptionIfGetWithValueLoaderAndArcusHasFutureException() throws Exception {
     // given
     TestException exception = null;
     arcusCache.setKeyLockProvider(keyLockProvider);
@@ -965,7 +970,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetValueLoader_Get_SecondException() throws Exception {
+  void throwExceptionIfGetWithValueLoaderAndArcusHasExceptionInSecondTry() throws Exception {
     // given
     TestException exception = null;
     arcusCache.setKeyLockProvider(keyLockProvider);
@@ -999,7 +1004,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetValueLoader_Get_SecondFutureException() throws Exception {
+  void throwExceptionIfGetWithValueLoaderAndArcusHasFutureExceptionInSecondTry() throws Exception {
     // given
     TestException exception = null;
     arcusCache.setKeyLockProvider(keyLockProvider);
@@ -1033,7 +1038,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetValueLoader_Put_Exception() throws Exception {
+  void throwExceptionIfGetWithValueLoaderAndArcusSetHasException() throws Exception {
     // given
     TestException exception = null;
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
@@ -1067,7 +1072,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetValueLoader_Put_FutureException() throws Exception {
+  void throwExceptionIfGetWithValueLoaderAndArcusSetHasFutureException() throws Exception {
     // given
     TestException exception = null;
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
@@ -1101,7 +1106,7 @@ public class ArcusCacheTest {
   }
 
    @Test
-  public void testGetValueLoader_ValueLoader_Null() throws Exception {
+  void returnNullIfValueLoaderReturnNull() throws Exception {
     // given
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
     arcusCache.setKeyLockProvider(keyLockProvider);
@@ -1129,7 +1134,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testGetValueLoader_ValueLoader_Exception() throws Exception {
+  void throwValueRetrievalExceptionWhenValueLoaderHasException() throws Exception {
     // given
     Cache.ValueRetrievalException exception = null;
     arcusCache.setKeyLockProvider(keyLockProvider);
@@ -1161,7 +1166,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPutIfAbsent() {
+  void putIfAbsent() {
     // given
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
     when(arcusClientPool.add(arcusKey, EXPIRE_SECONDS, VALUE))
@@ -1181,7 +1186,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPutIfAbsent_OperationTranscoder() {
+  void putIfAbsentWithCustomOperationTranscoder() {
     // given
     arcusCache.setOperationTranscoder(OPERATION_TRANSCODER);
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
@@ -1202,7 +1207,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPutIfAbsent_FrontCache() {
+  void putIfAbsentWithFrontCache() {
      // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
@@ -1226,7 +1231,7 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPutIfAbsent_FrontCache_Failure() {
+  void returnOriginDataIfArcusFailedInPutIfAbsent() {
      // given
     arcusCache.setArcusFrontCache(arcusFrontCache);
     arcusCache.setExpireSeconds(EXPIRE_SECONDS);
@@ -1251,13 +1256,13 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPutIfAbsent_FrontCache_Failure_ForceFrontCaching() {
+  void returnOriginDataIfPutIfAbsentWithFrontCacheAndArcusFailedAndForceFrontCachingIsTrue() {
     arcusCache.setForceFrontCaching(true);
-    testPutIfAbsent_FrontCache_Failure();
+    returnOriginDataIfArcusFailedInPutIfAbsent();
   }
 
   @Test
-  public void testPutIfAbsent_FrontCache_Exception() {
+  void throwExceptionIfPutIfAbsentHasException() {
      // given
     TestException exception = null;
     arcusCache.setArcusFrontCache(arcusFrontCache);
@@ -1287,13 +1292,13 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPutIfAbsent_FrontCache_Exception_ForceFrontCaching() {
+  void throwExceptionIfPutIfAbsentHasExceptionWithForceFrontCaching() {
     arcusCache.setForceFrontCaching(true);
-    testPutIfAbsent_FrontCache_Exception();
+    throwExceptionIfPutIfAbsentHasException();
   }
 
   @Test
-  public void testPutIfAbsent_FrontCache_FutureException() {
+  void throwExceptionIfPutIfAbsentHasFutureException() {
      // given
     TestException exception = null;
     arcusCache.setArcusFrontCache(arcusFrontCache);
@@ -1323,13 +1328,13 @@ public class ArcusCacheTest {
   }
 
   @Test
-  public void testPutIfAbsent_FrontCache_FutureException_ForceFrontCaching() {
+  void throwExceptionIfPutIfAbsentHasFutureExceptionWithForceFrontCaching() {
     arcusCache.setForceFrontCaching(true);
-    testPutIfAbsent_FrontCache_FutureException();
+    throwExceptionIfPutIfAbsentHasFutureException();
   }
 
   @Test
-  public void testPutIfAbsent_FrontCache_Null() {
+  void putNullIfAbsent() {
     // given
     Exception exception = null;
     arcusCache.setArcusFrontCache(arcusFrontCache);

@@ -25,11 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class KeyGeneratorTest {
+class KeyGeneratorTest {
   private final StringKeyGenerator stringKeyGenerator = new StringKeyGenerator();
   private final SimpleStringKeyGenerator simpleStringKeyGenerator = new SimpleStringKeyGenerator();
 
-  private void testGenExtract(KeyGenerator keyGenerator) throws Exception {
+  private void generateKey(KeyGenerator keyGenerator) {
     StringBuilder longParam = new StringBuilder();
     for (int i = 0; i < 255; i++) {
       longParam.append(i);
@@ -39,7 +39,7 @@ public class KeyGeneratorTest {
     System.out.println(key);
   }
 
-  private void testGenDuplicatedKeysWithColons(KeyGenerator keyGenerator, boolean allowDupKey) {
+  private void generateKeysWithColons(KeyGenerator keyGenerator, boolean allowDupKey) {
     ArcusStringKey arcusKey1 = (ArcusStringKey) keyGenerator.generate(null, null, "a,b", "c", "de");
     ArcusStringKey arcusKey2 = (ArcusStringKey) keyGenerator.generate(null, null, "a,b", "c,de");
 
@@ -51,14 +51,14 @@ public class KeyGeneratorTest {
   }
 
   @Test
-  public void testExtract() throws Exception {
-    testGenExtract(stringKeyGenerator);
-    testGenExtract(simpleStringKeyGenerator);
+  void generateKeyFromKeyGenerators() {
+    generateKey(stringKeyGenerator);
+    generateKey(simpleStringKeyGenerator);
   }
 
   @Test
-  public void testDuplicatedKeysWithColons() {
-    testGenDuplicatedKeysWithColons(stringKeyGenerator, false);
-    testGenDuplicatedKeysWithColons(simpleStringKeyGenerator, true);
+  void generateDuplicatedKeysWithColonsFromKeyGenerators() {
+    generateKeysWithColons(stringKeyGenerator, false);
+    generateKeysWithColons(simpleStringKeyGenerator, true);
   }
 }

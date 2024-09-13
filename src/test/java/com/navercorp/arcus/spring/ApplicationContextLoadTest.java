@@ -37,13 +37,13 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration("/arcus_spring_basic_context_test.xml")
-public class ApplicationContextLoadTest {
+class ApplicationContextLoadTest {
 
   @Autowired
   private ApplicationContext context;
 
   @Test
-  public void contextLoaded() {
+  void contextLoaded() {
     assertNotNull(context);
 
     ArcusClientPool client = context.getBean(ArcusClientPool.class);
