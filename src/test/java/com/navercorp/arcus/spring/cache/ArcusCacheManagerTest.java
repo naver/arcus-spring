@@ -126,8 +126,6 @@ class ArcusCacheManagerTest {
     ArcusClientPool client2 = (ArcusClientPool) ReflectionUtils.getField(clientField, this.arcusCacheManagerFromAddress);
     assertNotNull(client2);
 
-    assertThrows(IllegalStateException.class, () -> {
-      client2.get(key);
-    });
+    assertThrows(IllegalStateException.class, () -> client2.get(key));
   }
 }

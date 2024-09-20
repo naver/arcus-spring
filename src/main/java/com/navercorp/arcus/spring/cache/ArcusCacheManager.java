@@ -41,8 +41,8 @@ import org.springframework.util.Assert;
  */
 public class ArcusCacheManager extends AbstractTransactionSupportingCacheManager implements DisposableBean {
   private final ArcusClientPool client;
-  protected ArcusCacheConfiguration defaultConfiguration;
-  protected Map<String, ArcusCacheConfiguration> initialCacheConfigs;
+  private final ArcusCacheConfiguration defaultConfiguration;
+  private final Map<String, ArcusCacheConfiguration> initialCacheConfigs;
   private boolean internalClient;
 
   /**
@@ -53,11 +53,8 @@ public class ArcusCacheManager extends AbstractTransactionSupportingCacheManager
    * @param defaultConfiguration 정의되지 않은 캐시의 기본 설정
    * @param initialCacheConfigs  생성할 캐시들의 이름과 설정들의 집합
    */
-  public ArcusCacheManager(
-    ArcusClientPool client,
-    ArcusCacheConfiguration defaultConfiguration,
-    Map<String, ArcusCacheConfiguration> initialCacheConfigs
-  ) {
+  public ArcusCacheManager(ArcusClientPool client, ArcusCacheConfiguration defaultConfiguration,
+                           Map<String, ArcusCacheConfiguration> initialCacheConfigs) {
     this.client = client;
     this.defaultConfiguration = defaultConfiguration;
     this.initialCacheConfigs = initialCacheConfigs;
@@ -67,26 +64,19 @@ public class ArcusCacheManager extends AbstractTransactionSupportingCacheManager
   /**
    * 캐시 매니저 내부에서 Arcus 클라이언트를 생성 및 소멸을 관리하기 위한 생성자.
    *
-   * @param adminAddress             Arcus 클라이언트를 생성하기 위해 필요한 캐시의 주소
+   * @param adminAddress             Arcus 클라이언트를 생성하기 위해 필요한 ZooKeeper 주소
    * @param serviceCode              Arcus 클라이언트를 생성하기 위해 필요한 서비스 코드
    * @param connectionFactoryBuilder Arcus 클라이언트를 생성하기 위해 필요한 ConnectionFactory 빌더
    * @param poolSize                 Arcus 클라이언트를 생성하기 위해 필요한 클라이언트 풀 사이즈
    * @param defaultConfiguration     정의되지 않은 캐시의 기본 설정
    * @param initialCacheConfigs      생성할 캐시들의 이름과 설정들의 집합
    */
-  public ArcusCacheManager(
-    String adminAddress,
-    String serviceCode,
-    ConnectionFactoryBuilder connectionFactoryBuilder,
-    int poolSize,
-    ArcusCacheConfiguration defaultConfiguration,
-    Map<String, ArcusCacheConfiguration> initialCacheConfigs
-  ) {
-    this(
-      ArcusClient.createArcusClientPool(adminAddress, serviceCode, connectionFactoryBuilder, poolSize),
-      defaultConfiguration,
-      initialCacheConfigs
-    );
+  public ArcusCacheManager(String adminAddress, String serviceCode, ConnectionFactoryBuilder connectionFactoryBuilder,
+                           int poolSize, ArcusCacheConfiguration defaultConfiguration,
+                           Map<String, ArcusCacheConfiguration> initialCacheConfigs) {
+    this.client = ArcusClient.createArcusClientPool(adminAddress, serviceCode, connectionFactoryBuilder, poolSize);
+    this.defaultConfiguration = defaultConfiguration;
+    this.initialCacheConfigs = initialCacheConfigs;
     this.internalClient = true;
   }
 
@@ -103,7 +93,7 @@ public class ArcusCacheManager extends AbstractTransactionSupportingCacheManager
 
   @Override
   protected Collection<? extends Cache> loadCaches() {
-    List<Cache> caches = new ArrayList<Cache>(initialCacheConfigs.size());
+    List<Cache> caches = new ArrayList<>(initialCacheConfigs.size());
     for (Map.Entry<String, ArcusCacheConfiguration> entry : initialCacheConfigs.entrySet()) {
       caches.add(createCache(entry.getKey(), entry.getValue()));
     }

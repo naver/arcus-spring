@@ -42,9 +42,7 @@ class DefaultArcusFrontCacheTest {
   @Test
   void frontCacheNameConflict() {
     new DefaultArcusFrontCache("test", 3L, false, false);
-    assertThrows(ObjectExistsException.class, () -> {
-      new DefaultArcusFrontCache("test", 3L, false, false);
-    });
+    assertThrows(ObjectExistsException.class, () -> new DefaultArcusFrontCache("test", 3L, false, false));
   }
 
   @Test

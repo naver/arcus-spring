@@ -76,11 +76,12 @@ import org.springframework.util.DigestUtils;
  * 이렇게 설정했을때, 캐시의 키 값으로 생성되는 값은 <span>beta-member:메서드 매개변수로 만든 문자열</span>이 됩니다.
  * </p>
  */
-@SuppressWarnings({"DeprecatedIsStillUsed", "deprecation"})
+@SuppressWarnings({"DeprecatedIsStillUsed"})
 public class ArcusCache extends AbstractValueAdaptingCache {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+  // TODO: make name, arcusClient final
   private String name;
   private ArcusClientPool arcusClient;
   private final ArcusCacheConfiguration configuration;
@@ -102,8 +103,12 @@ public class ArcusCache extends AbstractValueAdaptingCache {
 
   public ArcusCache(String name, ArcusClientPool clientPool, ArcusCacheConfiguration configuration) {
     super(requireNonNull(configuration).isAllowNullValues());
-    this.setName(name);
-    this.setArcusClient(clientPool);
+
+    Assert.notNull(name, "ArcusCache's 'name' property must have a value.");
+    Assert.notNull(clientPool, "ArcusCache's 'arcusClient' property must not be null.");
+
+    this.name = name;
+    this.arcusClient = clientPool;
     this.configuration = configuration;
   }
 
