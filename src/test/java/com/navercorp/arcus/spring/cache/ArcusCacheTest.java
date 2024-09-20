@@ -330,9 +330,7 @@ class ArcusCacheTest {
         .thenThrow(new TestException());
 
     // when
-    assertThrows(TestException.class, () -> {
-      arcusCache.put(ARCUS_STRING_KEY, VALUE);
-    });
+    assertThrows(TestException.class, () -> arcusCache.put(ARCUS_STRING_KEY, VALUE));
   }
 
   @Test
@@ -493,9 +491,7 @@ class ArcusCacheTest {
         .thenThrow(new TestException());
 
     // when
-    assertThrows(TestException.class, () -> {
-      arcusCache.evict(ARCUS_STRING_KEY);
-    });
+    assertThrows(TestException.class, () -> arcusCache.evict(ARCUS_STRING_KEY));
   }
 
   @Test
@@ -647,9 +643,7 @@ class ArcusCacheTest {
         .thenReturn(createOperationFutureException());
 
     // when
-    assertThrows(TestException.class, () -> {
-      arcusCache.clear();
-    });
+    assertThrows(TestException.class, () -> arcusCache.clear());
   }
 
   @Test
@@ -806,9 +800,7 @@ class ArcusCacheTest {
         .thenReturn(createGetFuture(VALUE));
 
     // when
-    assertThrows(IllegalStateException.class, () -> {
-      arcusCache.get(ARCUS_STRING_KEY, Integer.class);
-    });
+    assertThrows(IllegalStateException.class, () -> arcusCache.get(ARCUS_STRING_KEY, Integer.class));
   }
 
   @Test
@@ -819,9 +811,7 @@ class ArcusCacheTest {
         .thenThrow(new TestException());
 
     // when
-    assertThrows(TestException.class, () -> {
-      arcusCache.get(ARCUS_STRING_KEY, String.class);
-    });
+    assertThrows(TestException.class, () -> arcusCache.get(ARCUS_STRING_KEY, String.class));
   }
 
   @Test
@@ -832,9 +822,7 @@ class ArcusCacheTest {
         .thenReturn(createGetFutureException());
 
     // when
-    assertThrows(TestException.class, () -> {
-      arcusCache.get(ARCUS_STRING_KEY, String.class);
-    });
+    assertThrows(TestException.class, () -> arcusCache.get(ARCUS_STRING_KEY, String.class));
   }
 
   @Test

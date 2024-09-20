@@ -30,7 +30,7 @@ class DefaultKeyLockProviderTest {
 
   @Test
   void doNotThrowArrayIndexOufOfBoundsException() {
-    Set<Integer> hashCodeSet = new HashSet<Integer>();
+    Set<Integer> hashCodeSet = new HashSet<>();
 
     int exponentOfLocks = DefaultKeyLockProvider.DEFAULT_EXPONENT_OF_LOCKS + 1;
     int numberOfLocks = (int) Math.pow(2, exponentOfLocks);
@@ -51,14 +51,11 @@ class DefaultKeyLockProviderTest {
     final DefaultKeyLockProvider provider = new DefaultKeyLockProvider();
     final TestObject key = new TestObject(0);
     final int maxCount = 10000;
-    final Runnable runnable = new Runnable() {
-      @Override
-      public void run() {
-        for (int i = 0; i < maxCount; i++) {
-          provider.getLockForKey(key).writeLock().lock();
-          count++;
-          provider.getLockForKey(key).writeLock().unlock();
-        }
+    final Runnable runnable = () -> {
+      for (int i = 0; i < maxCount; i++) {
+        provider.getLockForKey(key).writeLock().lock();
+        count++;
+        provider.getLockForKey(key).writeLock().unlock();
       }
     };
 

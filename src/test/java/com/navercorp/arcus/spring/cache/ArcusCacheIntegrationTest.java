@@ -89,9 +89,7 @@ class ArcusCacheIntegrationTest {
     assertNull(arcusCache.get(TEST_KEY));
 
     arcusCache.put(TEST_KEY, TEST_VALUE);
-    assertThrows(IllegalStateException.class, () -> {
-      arcusCache.get(TEST_KEY, Integer.class);
-    });
+    assertThrows(IllegalStateException.class, () -> arcusCache.get(TEST_KEY, Integer.class));
   }
 
   @Test
@@ -109,9 +107,7 @@ class ArcusCacheIntegrationTest {
     };
 
     assertNull(arcusCache.get(TEST_KEY));
-    assertThrows(RuntimeException.class, () -> {
-      assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY, valueLoader));
-    });
+    assertThrows(RuntimeException.class, () -> assertEquals(TEST_VALUE, arcusCache.get(TEST_KEY, valueLoader)));
   }
 
   @Test
@@ -163,9 +159,7 @@ class ArcusCacheIntegrationTest {
 
   @Test
   void putTheNullValueIfAllowNullValuesIsFalse() {
-    assertThrows(IllegalArgumentException.class, () -> {
-      arcusCacheWithoutAllowingNullValue.put(TEST_KEY, null);
-    });
+    assertThrows(IllegalArgumentException.class, () -> arcusCacheWithoutAllowingNullValue.put(TEST_KEY, null));
   }
 
   @Test
