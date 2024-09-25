@@ -25,12 +25,11 @@ import net.spy.memcached.transcoders.Transcoder;
 
 import org.springframework.util.Assert;
 
-@SuppressWarnings("DeprecatedIsStillUsed")
 public class ArcusCacheConfiguration {
 
-  static final long DEFAULT_TIMEOUT_MILLISECONDS = 700L;
-  static final boolean DEFAULT_WANT_TO_GET_EXCEPTION = false;
-  static final boolean DEFAULT_ALLOW_NULL_VALUES = true;
+  public static final long DEFAULT_TIMEOUT_MILLISECONDS = 700L;
+  public static final boolean DEFAULT_WANT_TO_GET_EXCEPTION = false;
+  public static final boolean DEFAULT_ALLOW_NULL_VALUES = true;
 
   private String serviceId = "";
   @Nullable
@@ -45,9 +44,6 @@ public class ArcusCacheConfiguration {
   private boolean forceFrontCaching;
   private boolean wantToGetException = DEFAULT_WANT_TO_GET_EXCEPTION;
   private boolean allowNullValues = DEFAULT_ALLOW_NULL_VALUES;
-
-  public ArcusCacheConfiguration() {
-  }
 
   public ArcusCacheConfiguration withServiceId(String serviceId) {
     Assert.notNull(serviceId, "ServiceId must not be null.");

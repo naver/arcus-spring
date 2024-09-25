@@ -87,7 +87,7 @@ Spring Cache Abstraction을 통해 ARCUS Cache를 사용하려면, 다음과 같
         </constructor-arg>
     </bean>
 
-    <bean id="defaultCacheConfig" class="com.navercorp.arcus.spring.cache.ArcusCacheConfiguration"/>
+    <bean id="defaultCacheConfig" class="com.navercorp.arcus.spring.ArcusCacheConfigurationFactoryBean"/>
 
 </beans>
 ```

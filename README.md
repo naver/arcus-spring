@@ -109,7 +109,7 @@ Spring Cache configuration is required before using arcus-spring. Create ArcusCa
         </constructor-arg>
     </bean>
 
-    <bean id="defaultCacheConfig" class="com.navercorp.arcus.spring.cache.ArcusCacheConfiguration">
+    <bean id="defaultCacheConfig" class="com.navercorp.arcus.spring.ArcusCacheConfigurationFactoryBean">
         <property name="prefix" value="DEFAULT"/>
         <property name="expireSeconds" value="60"/>
         <property name="timeoutMilliSeconds" value="800"/>
