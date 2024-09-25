@@ -31,6 +31,9 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
+/**
+ * FactoryBean for creating an {@link net.spy.memcached.ArcusClientPool} bean in xml configuration.
+ */
 public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
         DisposableBean, InitializingBean {
 

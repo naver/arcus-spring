@@ -17,7 +17,7 @@
           p:serviceCode="#{arcusConfig['serviceCode']}"
           p:poolSize="4"/>
 
-    <bean id="default-cache" class="com.navercorp.arcus.spring.cache.ArcusCacheConfiguration"
+    <bean id="default-cache-config" class="com.navercorp.arcus.spring.ArcusCacheConfigurationFactoryBean"
         p:serviceId="test-service-id"
         p:prefix="test-prefix"
         p:expireSeconds="1"
@@ -26,11 +26,11 @@
 
     <bean id="arcusCacheManagerFromClient" class="com.navercorp.arcus.spring.cache.ArcusCacheManager">
         <constructor-arg ref="arcusClient"/>
-        <constructor-arg ref="default-cache"/>
+        <constructor-arg ref="default-cache-config"/>
         <constructor-arg>
             <map>
                 <entry key="pre-defined-cache">
-                    <bean parent="default-cache"
+                    <bean parent="default-cache-config"
                         p:expireSeconds="2"/>
                 </entry>
             </map>
@@ -44,11 +44,11 @@
             <bean class="net.spy.memcached.ConnectionFactoryBuilder"/>
         </constructor-arg>
         <constructor-arg value="4"/>
-        <constructor-arg ref="default-cache"/>
+        <constructor-arg ref="default-cache-config"/>
         <constructor-arg>
             <map>
                 <entry key="pre-defined-cache">
-                    <bean parent="default-cache"
+                    <bean parent="default-cache-config"
                         p:expireSeconds="2"/>
                 </entry>
             </map>

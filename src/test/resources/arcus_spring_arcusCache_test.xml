@@ -14,7 +14,7 @@
           p:serviceCode="#{arcusConfig['serviceCode']}"
           p:poolSize="4"/>
 
-    <bean id="arcusCacheConfiguration" class="com.navercorp.arcus.spring.cache.ArcusCacheConfiguration"
+    <bean id="arcusCacheConfiguration" class="com.navercorp.arcus.spring.ArcusCacheConfigurationFactoryBean"
           p:timeoutMilliSeconds="500"
           p:expireSeconds="3000"
           p:serviceId="testService-"
@@ -26,7 +26,7 @@
         <constructor-arg name="configuration" ref="arcusCacheConfiguration"/>
     </bean>
 
-    <bean id="configWithoutAllowingNullValue" class="com.navercorp.arcus.spring.cache.ArcusCacheConfiguration"
+    <bean id="configWithoutAllowingNullValue" class="com.navercorp.arcus.spring.ArcusCacheConfigurationFactoryBean"
           p:allowNullValues="false"
           p:timeoutMilliSeconds="500"
           p:expireSeconds="3000"
