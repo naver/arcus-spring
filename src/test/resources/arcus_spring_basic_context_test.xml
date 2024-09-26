@@ -19,16 +19,15 @@
           p:expireSeconds="3000"
           p:serviceId="testService-"
           p:prefix="testPrefix"/>
-    <bean id="arcusCache" class="com.navercorp.arcus.spring.cache.ArcusCache" abstract="true">
-        <constructor-arg value="arcusCache"/>
-        <constructor-arg ref="arcusClient"/>
-        <constructor-arg ref="arcusCacheConfiguration"/>
-    </bean>
 
     <bean id="arcusCacheManager" class="org.springframework.cache.support.SimpleCacheManager">
         <property name="caches">
             <list>
-                <bean p:name="testCache" parent="arcusCache"/>
+                <bean id="arcusCache" class="com.navercorp.arcus.spring.cache.ArcusCache">
+                    <constructor-arg value="testCache"/>
+                    <constructor-arg ref="arcusClient"/>
+                    <constructor-arg ref="arcusCacheConfiguration"/>
+                </bean>
             </list>
         </property>
     </bean>

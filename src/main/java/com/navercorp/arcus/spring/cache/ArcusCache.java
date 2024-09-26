@@ -46,37 +46,7 @@ import org.springframework.util.DigestUtils;
  * <p>
  * Arcus 캐시 키의 기본 구조는 prefix:subkey 입니다. prefix는 사용자가 그룹으로 생성하고자 하는 subkey들의 집합이며
  * ArcusCache에서는 서비스 또는 빌드 단계 등의 구분을 위해 serviceId + <prefix | name> 문자열을 캐시 키의 prefix로 정의합니다.
- *
- * </p>
- * <pre>{@code
- * <bean id="operationTranscoderA" class="net.spy.memcached.transcoders.SerializingTranscoder">
- *   <property name="charset" value="UTF-8" />
- *   <property name="compressionThreshold" value="400" />
- * </bean>
- *
- * <bean id="operationTranscoderB" class="net.spy.memcached.transcoders.SerializingTranscoder">
- *   <property name="charset" value="UTF-8" />
- *   <property name="compressionThreshold" value="1024" />
- * </bean>
- *
- * <bean id="arcusCacheManager" class="org.springframework.cache.support.SimpleCacheManager">
- *   <property name="caches">
- *     <list>
- *       <bean p:name="member" p:timeoutMilliSeconds="500" parent="defaultArcusCache" p:operationTranscoder-ref="operationTranscoderA" />
- *       <bean p:name="memberList" p:expireSeconds="3000" parent="defaultArcusCache" p:operationTranscoder-ref="operationTranscoderB" />
- *     </list>
- *   </property>
- * </bean>
- *
- * <bean id="defaultArcusCache" class="com.navercorp.arcus.spring.cache.ArcusCache"
- * p:arcusClient-ref="arcusClient" p:timeoutMilliSeconds="500"
- * p:expireSeconds="3000" abstract="true" serviceId="beta-" />
- * }</pre>
- * <p>
- * 이렇게 설정했을때, 캐시의 키 값으로 생성되는 값은 <span>beta-member:메서드 매개변수로 만든 문자열</span>이 됩니다.
- * </p>
  */
-@SuppressWarnings({"DeprecatedIsStillUsed"})
 public class ArcusCache extends AbstractValueAdaptingCache {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
