@@ -1,3 +1,16 @@
+# 2024-09-27 [version 1.14.0]
+## 🐣 New Features
+* If the method returns null, store NullValue instance in the cache server by default.
+* Delete unused deprecated codes.
+* Remove deprecation of wantToGetException. It is false by default and it can be changed by ArcusCacheConfiguration.
+* Provide better interface to construct ArcusCacheManager, ArcusCacheConfiguration, and ArcusCache.
+## ✅ Testing
+* Upgrade Junit version to 5.10.2.
+## ⬆️ Dependency Upgrades
+* Upgrade Java version to 8.
+* Upgrade Spring version to 5.3.33.
+* Upgrade arcus-java-client version to 1.14.0
+
 # 2024-06-20 [version 1.13.6]
 ## 🐣 New Features
 * Read and return null if cache server stored NullValue instance.
