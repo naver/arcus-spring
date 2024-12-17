@@ -45,7 +45,7 @@ import org.springframework.util.DigestUtils;
  * 스프링 Cache의 Arcus 구현체.
  * <p>
  * Arcus 캐시 키의 기본 구조는 prefix:subkey 입니다. prefix는 사용자가 그룹으로 생성하고자 하는 subkey들의 집합이며
- * ArcusCache에서는 서비스 또는 빌드 단계 등의 구분을 위해 serviceId + <prefix | name> 문자열을 캐시 키의 prefix로 정의합니다.
+ * ArcusCache에서는 서비스 또는 빌드 단계 등의 구분을 위해 serviceId + {@literal <prefix | name>} 문자열을 캐시 키의 prefix로 정의합니다.
  */
 public class ArcusCache extends AbstractValueAdaptingCache {
 
