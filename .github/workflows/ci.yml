@@ -18,9 +18,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        jdk: [ 8, 11, 17 ]
-        os: [ ubuntu-20.04 ]
+        jdk: [ 8, 21 ]
+        os: [ ubuntu-latest ]
       fail-fast: true
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.draft == false) ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/master')
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK ${{ matrix.jdk }}
