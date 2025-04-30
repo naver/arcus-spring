@@ -1,3 +1,13 @@
+# 2025-04-30 [version 1.14.1]
+## 🐣 New Features
+  - Support keepalive option in ArcusClientFactoryBean.
+## 🐛 Bug Fixes
+  - Fix error caused by < and > when creating JavaDoc.
+## 📝 Documentation
+  - Update ChangeLog format.
+## ✅ Testing
+  - Use Ubuntu latest version to prevent error and tidy `ci.yml`.
+
 # 2024-09-27 [version 1.14.0]
 ## 🐣 New Features
   - If the method returns null, store NullValue instance in the cache server by default.
