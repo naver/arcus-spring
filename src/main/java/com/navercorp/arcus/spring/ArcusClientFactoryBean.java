@@ -47,6 +47,7 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
   private boolean frontCacheCopyOnWrite = DefaultConnectionFactory.DEFAULT_FRONT_CACHE_COPY_ON_WRITE;
   private int timeoutExceptionThreshold = 100;
   private long maxReconnectDelay = DefaultConnectionFactory.DEFAULT_MAX_RECONNECT_DELAY;
+  private boolean keepAlive = false;
 
   /**
    * global transcoder for key/value store.
@@ -85,6 +86,17 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
     this.maxReconnectDelay = maxReconnectDelay;
   }
 
+  /**
+   * Set the keepAlive property for Arcus connections.
+   *
+   * @param keepAlive if {@code true}, enables the TCP keep-alive feature for connections.
+   *                  This helps maintain long-lived connections by periodically sending
+   *                  keep-alive packets to detect broken links.
+   */
+  public void setKeepAlive(boolean keepAlive) {
+    this.keepAlive = keepAlive;
+  }
+
   public void setUrl(String url) {
     this.url = url;
   }
@@ -108,6 +120,7 @@ public class ArcusClientFactoryBean implements FactoryBean<ArcusClientPool>,
     cfb.setFrontCacheCopyOnRead(frontCacheCopyOnRead);
     cfb.setFrontCacheCopyOnWrite(frontCacheCopyOnWrite);
     cfb.setMaxReconnectDelay(maxReconnectDelay);
+    cfb.setKeepAlive(keepAlive);
     if (maxFrontCacheElements > 0) {
       cfb.setMaxFrontCacheElements(maxFrontCacheElements);
     }
